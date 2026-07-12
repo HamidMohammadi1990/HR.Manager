@@ -10,6 +10,10 @@ public static class SecurityKeyConstant
     public static string Bank => SecurityKeyRegistry.Get(nameof(Bank));
     public static string Role => SecurityKeyRegistry.Get(nameof(Role));
     public static string Department => SecurityKeyRegistry.Get(nameof(Department));
+    public static string Employee => SecurityKeyRegistry.Get(nameof(Employee));
+    public static string AttendanceRecord => SecurityKeyRegistry.Get(nameof(AttendanceRecord));
+    public static string LeaveRequest => SecurityKeyRegistry.Get(nameof(LeaveRequest));
+    public static string PayrollEntry => SecurityKeyRegistry.Get(nameof(PayrollEntry));
     public static string Company => Department;
     public static string Province => SecurityKeyRegistry.Get(nameof(Province));
     public static string Currency => SecurityKeyRegistry.Get(nameof(Currency));

@@ -372,4 +372,92 @@ public enum PermissionType : int
 
     [Display(Name = "PermissionType_DeleteChartOfAccount", ResourceType = typeof(EnumResources))]
     DeleteChartOfAccount = 626,
+
+    // Employees
+    [Display(Name = "PermissionType_ManageEmployeeGroup", ResourceType = typeof(EnumResources))]
+    ManageEmployeeGroup = 700,
+
+    [Display(Name = "PermissionType_ManageEmployee", ResourceType = typeof(EnumResources))]
+    ManageEmployee = 701,
+
+    [Display(Name = "PermissionType_ListEmployee", ResourceType = typeof(EnumResources))]
+    ListEmployee = 702,
+
+    [Display(Name = "PermissionType_GetEmployeeById", ResourceType = typeof(EnumResources))]
+    GetEmployeeById = 703,
+
+    [Display(Name = "PermissionType_CreateEmployee", ResourceType = typeof(EnumResources))]
+    CreateEmployee = 704,
+
+    [Display(Name = "PermissionType_UpdateEmployee", ResourceType = typeof(EnumResources))]
+    UpdateEmployee = 705,
+
+    [Display(Name = "PermissionType_DeleteEmployee", ResourceType = typeof(EnumResources))]
+    DeleteEmployee = 706,
+
+    // Attendance
+    [Display(Name = "PermissionType_ManageAttendanceGroup", ResourceType = typeof(EnumResources))]
+    ManageAttendanceGroup = 800,
+
+    [Display(Name = "PermissionType_ManageAttendance", ResourceType = typeof(EnumResources))]
+    ManageAttendance = 801,
+
+    [Display(Name = "PermissionType_ListAttendance", ResourceType = typeof(EnumResources))]
+    ListAttendance = 802,
+
+    [Display(Name = "PermissionType_GetAttendanceById", ResourceType = typeof(EnumResources))]
+    GetAttendanceById = 803,
+
+    [Display(Name = "PermissionType_CreateAttendance", ResourceType = typeof(EnumResources))]
+    CreateAttendance = 804,
+
+    [Display(Name = "PermissionType_UpdateAttendance", ResourceType = typeof(EnumResources))]
+    UpdateAttendance = 805,
+
+    [Display(Name = "PermissionType_DeleteAttendance", ResourceType = typeof(EnumResources))]
+    DeleteAttendance = 806,
+
+    // Leaves
+    [Display(Name = "PermissionType_ManageLeaveGroup", ResourceType = typeof(EnumResources))]
+    ManageLeaveGroup = 900,
+
+    [Display(Name = "PermissionType_ManageLeave", ResourceType = typeof(EnumResources))]
+    ManageLeave = 901,
+
+    [Display(Name = "PermissionType_ListLeave", ResourceType = typeof(EnumResources))]
+    ListLeave = 902,
+
+    [Display(Name = "PermissionType_GetLeaveById", ResourceType = typeof(EnumResources))]
+    GetLeaveById = 903,
+
+    [Display(Name = "PermissionType_CreateLeave", ResourceType = typeof(EnumResources))]
+    CreateLeave = 904,
+
+    [Display(Name = "PermissionType_UpdateLeave", ResourceType = typeof(EnumResources))]
+    UpdateLeave = 905,
+
+    [Display(Name = "PermissionType_DeleteLeave", ResourceType = typeof(EnumResources))]
+    DeleteLeave = 906,
+
+    // Payroll
+    [Display(Name = "PermissionType_ManagePayrollGroup", ResourceType = typeof(EnumResources))]
+    ManagePayrollGroup = 1000,
+
+    [Display(Name = "PermissionType_ManagePayroll", ResourceType = typeof(EnumResources))]
+    ManagePayroll = 1001,
+
+    [Display(Name = "PermissionType_ListPayroll", ResourceType = typeof(EnumResources))]
+    ListPayroll = 1002,
+
+    [Display(Name = "PermissionType_GetPayrollById", ResourceType = typeof(EnumResources))]
+    GetPayrollById = 1003,
+
+    [Display(Name = "PermissionType_CreatePayroll", ResourceType = typeof(EnumResources))]
+    CreatePayroll = 1004,
+
+    [Display(Name = "PermissionType_UpdatePayroll", ResourceType = typeof(EnumResources))]
+    UpdatePayroll = 1005,
+
+    [Display(Name = "PermissionType_DeletePayroll", ResourceType = typeof(EnumResources))]
+    DeletePayroll = 1006,
 }

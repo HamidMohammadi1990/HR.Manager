@@ -38,7 +38,11 @@ public class UserMapperService : IUserMapperService
             UserName = model.UserName,
             FirstName = model.FirstName,
             LastName = model.LastName,
-            PhoneNumber = model.PhoneNumber
+            PhoneNumber = model.PhoneNumber,
+            CityId = model.CityId,
+            IsActive = model.IsActive,
+            LoginPermission = model.LoginPermission,
+            LastLoginDateOnUtc = model.LastLoginDateOnUtc
         };
     }
 

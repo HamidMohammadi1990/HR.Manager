@@ -2,7 +2,8 @@
 
 > سند برنامه‌ریزی تبدیل بک‌اند Edition (چاپ/فروشگاه) به پلتفرم منابع انسانی  
 > مرتبط با فرانت‌اند: `../javid-hrm-react/PROJECT_PLAN.md`  
-> تاریخ بررسی: ۱۴۰۴/۰۴/۲۰
+> تاریخ بررسی اولیه: ۱۴۰۴/۰۴/۲۰  
+> **آخرین به‌روزرسانی:** ۱۴۰۴/۰۴/۲۱ — فازهای ۱–۴ HR (Employee, Department, UserRole, Attendance, Leave, Payroll)
 
 ---
 
@@ -58,14 +59,18 @@ Controller → MediatR (ISender) → Handler → Repository → EditionDbContext
 - بومی‌سازی فارسی (fa-IR)
 - Redis برای blocklist توکن و cache
 
-### شکاف‌های اصلی (وجود ندارد — باید ساخته شود)
+### شکاف‌های اصلی
 
-- Employee / پرسنل (پروفایل HR جدا از User)
-- Attendance / حضور و غیاب
-- Leave / مرخصی
-- Payroll / حقوق و دستمزد
-- Notification inbox (فقط SMS/Email برای OTP وجود دارد)
-- Workflow تأیید چندمرحله‌ای
+| ماژول | وضعیت |
+|--------|--------|
+| Employee / پرسنل | ✅ CRUD کامل — `api/v1/admin/employee/*` |
+| Department | ✅ CRUD کامل — `Company` → `Department` |
+| Attendance | ✅ CRUD پایه — `AttendanceRecord` |
+| Leave | ✅ CRUD پایه — `LeaveRequest` |
+| Payroll | ✅ CRUD پایه — `PayrollEntry` |
+| Notification inbox | ❌ (فقط SMS/Email برای OTP) |
+| Workflow تأیید چندمرحله‌ای | ❌ |
+| WorkShift / LeaveBalance / Payslip PDF | ❌ فاز بعد |
 
 ---
 
@@ -128,8 +133,8 @@ Controller → MediatR (ISender) → Handler → Repository → EditionDbContext
 | POST | `get-all` | `/users` |
 | POST | `get` | `/users/:id` |
 | POST | `create` | `/users/new` |
-
-> **نکته:** endpointهای `update`/`delete` کاربر در admin فعلاً وجود ندارد — باید در فاز HR اضافه شود.
+| PUT | `update` | `/users/:id` |
+| DELETE | `delete` | `/users/:id` |
 
 ### ۳.۵ API — RBAC ✅
 
@@ -313,9 +318,26 @@ Infrastructure.Persistence/SeedData/Data/*.json (محصولات)     → حذف
 
 ---
 
-## ۶. ➕ ماژول‌های جدید HR (فاز بعد — Greenfield)
+## ۶. ➕ ماژول‌های HR
 
-این موارد در Edition **وجود ندارند** و باید از صفر با همان الگوی CQRS ساخته شوند:
+### ۶.۰ پیاده‌سازی‌شده (۱۴۰۴/۰۴/۲۱)
+
+| Entity | API Admin | وضعیت |
+|--------|-----------|--------|
+| `Employee` | `employee/*` | ✅ Create, Update, Delete, Get, GetAll |
+| `AttendanceRecord` | `attendance-record/*` | ✅ CRUD + join Employee/User/Department |
+| `LeaveRequest` | `leave-request/*` | ✅ CRUD + enum نوع/وضعیت |
+| `PayrollEntry` | `payroll-entry/*` | ✅ CRUD + unique (EmployeeId, Year, Month) |
+
+**Namespace:** `JavidHrm.*` (پوشه‌ها هنوز `Edition.*`) — `JavidHrmDbContext` با ۱۹+ entity HR
+
+**Migration:** کاربر باید locally اجرا کند:
+```bat
+dotnet ef migrations add HrModulesSchema -p src\Infrastructure\Edition.Infrastructure.Persistence -s src\Presentation\Edition.Api
+dotnet ef database update ...
+```
+
+### ۶.۱ ماژول‌های پیشنهادی (فاز بعد — Greenfield)
 
 ### ۶.۱ Domain Entities پیشنهادی
 
@@ -366,11 +388,12 @@ TodoItem              — وظایف (اختیاری)
 | `/roles` | `admin/role/*` | ✅ آماده |
 | `/permissions` | `admin/permission/*` | ✅ آماده (enum باید HR شود) |
 | `/settings` | `website-setting/*` | 🔄 تطبیق |
-| `/employees` | — | ❌ باید ساخته شود |
-| `/departments` | `company/*` | 🔄 تطبیق |
-| `/attendance` | — | ❌ باید ساخته شود |
-| `/leaves` | — | ❌ باید ساخته شود |
-| `/payroll` | — | ❌ باید ساخته شود |
+| `/employees` | `admin/employee/*` | ✅ API + فرانت لیست/ایجاد/ویرایش |
+| `/departments` | `admin/department/*` | ✅ API + فرم create/edit |
+| `/users/:id` (نقش) | `admin/user-role/*` | ✅ تخصیص/حذف نقش در UI |
+| `/attendance` | `admin/attendance-record/*` | ✅ جدول API (ویجت‌های mock باقی) |
+| `/leaves` | `admin/leave-request/*` | ✅ جدول API |
+| `/payroll` | `admin/payroll-entry/*` | ✅ جدول API |
 | `/notifications` | — | ❌ باید ساخته شود |
 | `/calendar` | — | ❌ باید ساخته شود |
 
@@ -380,13 +403,13 @@ TodoItem              — وظایف (اختیاری)
 
 ### فاز ۰ — آماده‌سازی (۱–۲ روز)
 
-- [ ] Branch جدید: `feature/hr-migration`
+- [ ] Branch جدید: `feature/hr-migration` (اختیاری)
 - [ ] پشتیبان DB و repo
-- [ ] فعال‌سازی seed در Development (`Program.cs` خط ۵۷–۶۳)
+- [x] فعال‌سازی seed در Development (`ApplyDevelopmentBootstrapAsync`)
 - [ ] اجرای `dotnet test` و ثبت baseline
-- [ ] مستندسازی connection string و Redis
+- [x] مستندسازی connection string و Redis در `appsettings.Development.json`
 
-### فاز ۱ — پاکسازی دامنه چاپ (۳–۵ روز)
+### فاز ۱ — پاکسازی دامنه چاپ (۳–۵ روز) — ~۹۵٪ انجام شده
 
 **ترتیب حذف (وابستگی به وابستگی):**
 
@@ -403,49 +426,50 @@ TodoItem              — وظایف (اختیاری)
 11. پاکسازی navigationهای `User` و `Company`
 12. به‌روزرسانی ArchTests و حذف تست‌های commerce
 
-**خروجی فاز ۱:** پروژه build شود، auth کار کند، commerce حذف شده باشد.
+**خروجی فاز ۱:** پروژه build شود، auth کار کند، commerce حذف شده باشد. ✅ build تأیید شده
 
-### فاز ۲ — تطبیق برای HR (۳–۴ روز)
+### فاز ۲ — تطبیق برای HR (۳–۴ روز) — انجام شده
 
-- [ ] `Company` → `Department` (rename + migration + API)
+- [x] `Company` → `Department` (entity + API)
 - [ ] تطبیق `WebSiteSetting` برای HR
-- [ ] نگه‌داری Province/City/UserAddress
-- [ ] بازنویسی `PermissionType` + PermissionModule برای HR
-- [ ] Seed: admin HR، نقش‌های پیش‌فرض (مدیر سیستم، مدیر HR، کارمند)
-- [ ] تکمیل admin user CRUD (update/delete)
+- [x] نگه‌داری Province/City/UserAddress
+- [x] `PermissionType` — مقادیر HR (Employee, Attendance, Leave, Payroll) اضافه شد
+- [x] Seed: admin (`09120000000` / `Admin@123`)، استان/شهر، نقش‌ها
+- [x] admin user CRUD (update/delete)
 
-### فاز ۳ — اتصال فرانت React (۲–۳ روز)
+### فاز ۳ — اتصال فرانت React (۲–۳ روز) — انجام شده
 
-- [ ] `src/services/api/` در javid-hrm-react
-- [ ] Auth interceptor (JWT + refresh)
-- [ ] جایگزینی mock data با API واقعی
-- [ ] Protected routes
-- [ ] تطبیق CORS در Edition.Api
+- [x] `src/services/api/` (client, auth, users, departments, roles, permissions, cities)
+- [x] Auth interceptor (JWT + refresh) + `AuthContext`
+- [x] Protected/Guest routes
+- [x] صفحات: login, users, roles, permissions, departments (لیست)
+- [x] CORS + Vite proxy → `localhost:5000`
 
-### فاز ۴ — ماژول Employee + Department (۱ هفته)
+### فاز ۴ — Employee + Department + UserRole — انجام شده
 
-- [ ] Entity `Employee` + ارتباط با `User`
-- [ ] CRUD کامل + فیلتر/صفحه‌بندی
-- [ ] اتصال صفحات `/employees`, `/departments`
+- [x] Entity `Employee` + CRUD + `EmployeeController`
+- [x] فرانت: `/employees`, `/employees/new`, `/employees/:id`
+- [x] فرانت: `/departments/new`, `/departments/:id`
+- [x] UI تخصیص نقش در `UserDetailPage`
 
-### فاز ۵ — Attendance (۱–۲ هفته)
+### فاز ۵ — Attendance — پایه انجام شده
 
-- [ ] `AttendanceRecord`, `WorkShift`, `AttendancePolicy`
-- [ ] ثبت ورود/خروج، گزارش روزانه/ماهانه
-- [ ] تطبیق UI `/attendance` (ساعت زنده، تردد زنده)
+- [x] `AttendanceRecord` + CRUD admin
+- [x] جدول API در `/attendance`
+- [ ] `WorkShift`, `AttendancePolicy`, check-in/out real-time
+- [ ] فرم ثبت/ویرایش در فرانت
 
-### فاز ۶ — Leave (۱–۲ هفته)
+### فاز ۶ — Leave — پایه انجام شده
 
-- [ ] `LeaveType`, `LeaveBalance`, `LeaveRequest`, `LeaveApproval`
-- [ ] گردش تأیید، تقویم مرخصی
-- [ ] تطبیق UI `/leaves`
+- [x] `LeaveRequest` + enum نوع/وضعیت + CRUD
+- [x] جدول API در `/leaves`
+- [ ] `LeaveBalance`, `LeaveApproval`, فرم درخواست متصل به API
 
-### فاز ۷ — Payroll (۲–۳ هفته)
+### فاز ۷ — Payroll — پایه انجام شده
 
-- [ ] `SalaryStructure`, `PayrollRun`, `Payslip`
-- [ ] محاسبه حقوق، فیش PDF
-- [ ] ارتباط اختیاری با `ChartOfAccount`
-- [ ] تطبیق UI `/payroll`
+- [x] `PayrollEntry` + CRUD
+- [x] جدول API در `/payroll`
+- [ ] محاسبه خودکار، فیش PDF، `ChartOfAccount`
 
 ### فاز ۸ — تکمیلی (۱ هفته)
 
@@ -539,10 +563,11 @@ SeedData/Data/Extract Code Files/  (کل پوشه)
 
 ## ۱۲. قدم بعدی فوری
 
-1. تأیید شما روی **فاز ۱ (پاکسازی)** — آیا شروع کنیم؟
-2. آیا **SQL Server و Redis** روی محیط dev در دسترس است؟
-3. آیا ترجیح می‌دهید Solution rename شود (`JavidHrm.*`) یا فعلاً `Edition.*` بماند؟
-4. آیا `Company` به `Department` rename شود یا Entity جدید؟
+1. اجرای **EF migration** برای جداول `Employee`, `AttendanceRecord`, `LeaveRequest`, `PayrollEntry`
+2. تست end-to-end: login → employees → departments → user roles → attendance/leaves/payroll
+3. فرم‌های CRUD فرانت برای attendance/leaves/payroll (فعلاً فقط جدول خواندنی)
+4. حذف mock analytics در صفحات HR یا جایگزینی با API آمار (اختیاری)
+5. بازنویسی کامل `PermissionType` برای منوی HR (فعلاً مقادیر کافی برای build)
 
 ---
 

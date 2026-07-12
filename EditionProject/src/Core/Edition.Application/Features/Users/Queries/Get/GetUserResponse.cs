@@ -14,4 +14,10 @@ public record GetUserResponse
     public string? Email { get; init; }
     public string? PhoneNumber { get; init; }
     public GenderType? Gender { get; init; }
+    public bool IsActive { get; init; }
+    public bool LoginPermission { get; init; }
+    public DateTime? LastLoginDateOnUtc { get; init; }
+
+    [JsonConverter(typeof(CityNullableEncryptor))]
+    public int? CityId { get; init; }
 }

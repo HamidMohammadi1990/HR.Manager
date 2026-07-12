@@ -8,6 +8,10 @@ namespace JavidHrm.Infrastructure.Persistence;
 public sealed class JavidHrmDbContext(DbContextOptions<JavidHrmDbContext> options) : DbContext(options)
 {
     public DbSet<Department> Department { get; set; }
+    public DbSet<Employee> Employee { get; set; }
+    public DbSet<AttendanceRecord> AttendanceRecord { get; set; }
+    public DbSet<LeaveRequest> LeaveRequest { get; set; }
+    public DbSet<PayrollEntry> PayrollEntry { get; set; }
     public DbSet<Permission> Permission { get; set; }
     public DbSet<RefreshToken> RefreshToken { get; set; }
     public DbSet<UserSession> UserSession { get; set; }

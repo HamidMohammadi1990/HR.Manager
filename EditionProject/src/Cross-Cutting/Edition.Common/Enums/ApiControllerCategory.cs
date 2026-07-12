@@ -17,6 +17,12 @@ public enum ApiControllerCategory
     [Display(Name = "ApiControllerCategory_Department", ResourceType = typeof(ControllerCategoryResources))]
     Department = 20,
 
+    [Display(Name = "ApiControllerCategory_Employee", ResourceType = typeof(ControllerCategoryResources))]
+    Employee = 25,
+
+    [Display(Name = "ApiControllerCategory_HrOperations", ResourceType = typeof(ControllerCategoryResources))]
+    HrOperations = 30,
+
     [Display(Name = "ApiControllerCategory_Location", ResourceType = typeof(ControllerCategoryResources))]
     Location = 100,
 
