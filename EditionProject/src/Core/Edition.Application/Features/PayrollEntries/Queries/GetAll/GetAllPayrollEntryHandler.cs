@@ -2,6 +2,8 @@ using JavidHrm.Common.Models;
 using JavidHrm.Domain.Repositories;
 using JavidHrm.Application.Contracts.Mapping;
 using JavidHrm.Application.Contracts.ContentPolicies;
+using JavidHrm.Domain.Dtos.Pagination;
+using JavidHrm.Application.Common.Extensions;
 
 namespace JavidHrm.Application.Features.PayrollEntries.Queries;
 

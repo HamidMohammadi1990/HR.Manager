@@ -3,6 +3,7 @@ using JavidHrm.Domain.Repositories;
 using JavidHrm.Application.Common.Extensions;
 using JavidHrm.Application.Contracts.Mapping;
 using JavidHrm.Application.Contracts.ContentPolicies;
+using JavidHrm.Domain.Dtos.Pagination;
 
 namespace JavidHrm.Application.Features.Employees.Queries;
 
