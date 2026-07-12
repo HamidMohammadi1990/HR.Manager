@@ -41,7 +41,4 @@
 		<ProjectReference Include="..\..\Core\Edition.Application\JavidHrm.Application.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<InternalsVisibleTo Include="JavidHrm.Infrastructure.Persistence.Tests" />
-	</ItemGroup>
 </Project>

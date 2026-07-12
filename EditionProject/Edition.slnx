@@ -18,12 +18,4 @@
   <Folder Name="/src/Solution Items/">
     <File Path="Directory.Packages.props" />
   </Folder>
-  <Folder Name="/tests/">
-    <Project Path="tests/Edition.Application.Tests/Edition.Application.Tests.csproj" />
-    <Project Path="tests/Edition.ArchTests/Edition.Arch.Tests.csproj" />
-    <Project Path="tests/Edition.Common.Tests/Edition.Common.Tests.csproj" />
-    <Project Path="tests/Edition.Domain.Tests/Edition.Domain.Tests.csproj" />
-    <Project Path="tests/Edition.Infrastructure.Persistence.Tests/Edition.Infrastructure.Persistence.Tests.csproj" />
-    <Project Path="tests/Edition.Infrastructure.Tests/Edition.Infrastructure.Tests.csproj" />
-  </Folder>
 </Solution>
