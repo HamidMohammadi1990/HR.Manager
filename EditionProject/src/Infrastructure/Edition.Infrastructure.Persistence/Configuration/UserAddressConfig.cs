@@ -48,12 +48,6 @@ internal class UserAddressConfig : IEntityTypeConfiguration<UserAddress>
             .OnDelete(DeleteBehavior.Restrict);
 
         builder
-            .HasMany(x => x.OrderItems)
-            .WithOne(x => x.UserAddress)
-            .HasForeignKey(x => x.UserAddressId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder
            .HasIndex(x => x.UserId);
 
         builder

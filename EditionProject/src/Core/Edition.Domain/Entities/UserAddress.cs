@@ -17,7 +17,6 @@ public class UserAddress : BaseEntity
 
     public User User { get; private set; } = default!;
     public City City { get; private set; } = default!;
-    public ICollection<OrderItem> OrderItems { get; private set; } = default!;
 
 
     public static UserAddress Create(string title, int userId, string address, string? postalCode, int cityId,

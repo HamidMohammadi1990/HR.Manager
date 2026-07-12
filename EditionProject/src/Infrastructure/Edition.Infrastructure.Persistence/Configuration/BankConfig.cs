@@ -18,23 +18,5 @@ public class BankConfig : IEntityTypeConfiguration<Bank>
             .Property(x => x.Icon)
             .HasVarcharMaxLength(50)
             .IsRequired();
-
-        builder
-            .HasMany(x => x.BankAccounts)
-            .WithOne(x => x.Bank)
-            .HasForeignKey(x => x.BankId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder
-            .HasMany(x => x.CompanyPosDevices)
-            .WithOne(x => x.Bank)
-            .HasForeignKey(x => x.BankId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder
-            .HasMany(x => x.ChequeTransactions)
-            .WithOne(x => x.Bank)
-            .HasForeignKey(x => x.BankId)
-            .OnDelete(DeleteBehavior.Restrict);
     }
 }

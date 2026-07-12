@@ -14,7 +14,6 @@ public class ChartOfAccount : BaseEntity
 
     public ChartOfAccount Parent { get; private set; } = default!;
     public ICollection<ChartOfAccount> Children { get; private set; } = [];
-    public ICollection<FinancialDocumentDetail> FinancialDocumentDetails { get; private set; } = default!;
 
 
     public static ChartOfAccount Create(int level, string code, string title, ChartOfAccountType type, ChartOfAccountDetailType detailType, int? parentId = null)

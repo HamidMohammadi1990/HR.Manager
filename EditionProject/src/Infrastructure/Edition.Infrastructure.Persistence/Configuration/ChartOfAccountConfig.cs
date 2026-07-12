@@ -24,11 +24,5 @@ public class ChartOfAccountConfig : IEntityTypeConfiguration<ChartOfAccount>
             .WithMany(x => x.Children)
             .HasForeignKey(x => x.ParentId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        builder
-            .HasMany(x => x.FinancialDocumentDetails)
-            .WithOne(x => x.ChartOfAccount)
-            .HasForeignKey(x => x.ChartOfAccountId)
-            .OnDelete(DeleteBehavior.Restrict);
     }
 }
