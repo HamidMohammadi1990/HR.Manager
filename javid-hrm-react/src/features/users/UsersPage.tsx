@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -6,80 +7,53 @@ import { Icon } from '@/components/ui/Icon';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Dialog } from '@/components/layout/Dialog';
-import { Textarea } from '@/components/ui/Textarea';
 import { useDisclosure } from '@/hooks';
-
-const users = [
-  {
-    initials: 'م‌س',
-    name: 'مدیر سیستم',
-    email: 'admin@example.com',
-    avatarClass: 'avatar ring-primary/20 size-10 ring-2',
-    fallbackClass: 'avatar-fallback from-primary to-primary/70 text-primary-foreground bg-linear-to-br text-sm',
-    role: { label: 'مدیر سیستم', variant: 'violet' as const, icon: 'material-symbols:admin-panel-settings' },
-    phone: '09121234567',
-    joined: '1403/01/01',
-    lastLogin: 'آنلاین',
-    lastLoginClass: 'text-emerald-600',
-    status: { label: 'فعال', variant: 'success' as const },
-  },
-  {
-    initials: 'ع‌م',
-    name: 'علی محمدی',
-    email: 'ali.m@email.com',
-    avatarClass: 'avatar size-10',
-    fallbackClass: 'avatar-fallback bg-sky-500/10 text-sm text-sky-500',
-    role: { label: 'مدیر فروشگاه', variant: 'info' as const, icon: 'material-symbols:storefront' },
-    phone: '09198765432',
-    joined: '1403/05/15',
-    lastLogin: '2 ساعت پیش',
-    lastLoginClass: 'text-muted-foreground',
-    status: { label: 'فعال', variant: 'success' as const },
-  },
-  {
-    initials: 'س‌ا',
-    name: 'سارا احمدی',
-    email: 'sara.a@email.com',
-    avatarClass: 'avatar size-10',
-    fallbackClass: 'avatar-fallback bg-pink-500/10 text-sm text-pink-500',
-    role: { label: 'اپراتور', variant: 'destructive' as const, icon: 'material-symbols:headset-mic' },
-    phone: '09351234567',
-    joined: '1403/08/20',
-    lastLogin: 'دیروز',
-    lastLoginClass: 'text-muted-foreground',
-    status: { label: 'فعال', variant: 'success' as const },
-  },
-  {
-    initials: 'م‌ر',
-    name: 'محمد رضایی',
-    email: 'm.rezaei@email.com',
-    avatarClass: 'avatar size-10',
-    fallbackClass: 'avatar-fallback bg-amber-500/10 text-sm text-amber-500',
-    role: { label: 'مشتری', variant: 'secondary' as const, icon: 'material-symbols:person' },
-    phone: '09125554433',
-    joined: '1404/02/10',
-    lastLogin: '3 روز پیش',
-    lastLoginClass: 'text-muted-foreground',
-    status: { label: 'معلق', variant: 'alert' as const },
-  },
-  {
-    initials: 'ز‌ک',
-    name: 'زهرا کریمی',
-    email: 'z.karimi@email.com',
-    avatarClass: 'avatar size-10',
-    fallbackClass: 'avatar-fallback bg-emerald-500/10 text-sm text-emerald-500',
-    role: { label: 'مشتری', variant: 'secondary' as const, icon: 'material-symbols:person' },
-    phone: '09371112223',
-    joined: '1404/06/01',
-    lastLogin: '1 هفته پیش',
-    lastLoginClass: 'text-muted-foreground',
-    status: { label: 'غیرفعال', variant: 'secondary' as const },
-  },
-];
+import { getAllUsers, getApiErrorMessage, type UserDto } from '@/services/api';
+import { formatDateTime, getUserDisplayName, getUserInitials } from '@/lib/userDisplay';
 
 export default function UsersPage() {
   const addUserDialog = useDisclosure();
   const deleteDialog = useDisclosure();
+  const [users, setUsers] = useState<UserDto[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
+  const pageSize = 10;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadUsers() {
+      setIsLoading(true);
+      setError('');
+      try {
+        const result = await getAllUsers({
+          Pagination: { PageNumber: pageNumber, PageSize: pageSize },
+        });
+        if (!cancelled) {
+          setUsers(result.Items ?? []);
+          setTotalCount(result.TotalCount ?? result.Items?.length ?? 0);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(getApiErrorMessage(err));
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    void loadUsers();
+    return () => {
+      cancelled = true;
+    };
+  }, [pageNumber]);
+
+  const activeCount = users.filter((u) => u.IsActive).length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   return (
     <div className="flex-1 p-4 lg:p-6" dir="rtl">
@@ -93,10 +67,10 @@ export default function UsersPage() {
             <Icon name="material-symbols:download" className="size-4" />
             <span>خروجی</span>
           </Button>
-          <Button variant="default" onClick={addUserDialog.open}>
+          <Link to="/users/new" className="button" data-variant="default">
             <Icon name="material-symbols:person-add" className="size-4" />
             <span>افزودن کاربر</span>
-          </Button>
+          </Link>
         </div>
       </div>
 
@@ -105,27 +79,33 @@ export default function UsersPage() {
           icon={<Icon name="material-symbols:group" className="text-primary size-5" />}
           iconClassName="bg-primary/10"
           label="کل کاربران"
-          value="894"
+          value={String(totalCount)}
         />
         <MetricCard
           icon={<Icon name="material-symbols:verified" className="size-5 text-emerald-500" />}
           iconClassName="bg-emerald-500/10"
-          label="کاربران فعال"
-          value="782"
+          label="کاربران فعال (صفحه جاری)"
+          value={String(activeCount)}
         />
         <MetricCard
           icon={<Icon name="material-symbols:admin-panel-settings" className="size-5 text-violet-500" />}
           iconClassName="bg-violet-500/10"
-          label="مدیران"
-          value="12"
+          label="صفحه"
+          value={`${pageNumber} / ${totalPages}`}
         />
         <MetricCard
           icon={<Icon name="material-symbols:person-add" className="size-5 text-sky-500" />}
           iconClassName="bg-sky-500/10"
-          label="کاربران جدید (هفته)"
-          value="23"
+          label="تعداد در صفحه"
+          value={String(users.length)}
         />
       </div>
+
+      {error && (
+        <div className="text-destructive bg-destructive/10 mb-6 rounded-lg px-4 py-3 text-sm">
+          {error}
+        </div>
+      )}
 
       <Card className="mb-6">
         <CardContent>
@@ -137,18 +117,10 @@ export default function UsersPage() {
               />
               <Input type="text" placeholder="جستجوی نام، ایمیل یا شماره تماس..." className="w-full pe-10" />
             </div>
-            <Select className="w-full">
-              <option value="">همه نقش‌ها</option>
-              <option value="admin">مدیر سیستم</option>
-              <option value="manager">مدیر فروشگاه</option>
-              <option value="operator">اپراتور</option>
-              <option value="customer">مشتری</option>
-            </Select>
-            <Select className="w-full">
+            <Select className="w-full" defaultValue="">
               <option value="">همه وضعیت‌ها</option>
               <option value="active">فعال</option>
               <option value="inactive">غیرفعال</option>
-              <option value="suspended">معلق</option>
             </Select>
           </div>
         </CardContent>
@@ -164,78 +136,103 @@ export default function UsersPage() {
                     <input type="checkbox" className="checkbox" />
                   </th>
                   <th className="table-head">کاربر</th>
-                  <th className="table-head">نقش</th>
                   <th className="table-head">شماره تماس</th>
-                  <th className="table-head">تاریخ عضویت</th>
+                  <th className="table-head">شهر</th>
                   <th className="table-head">آخرین ورود</th>
                   <th className="table-head">وضعیت</th>
                   <th className="table-head w-24">عملیات</th>
                 </tr>
               </thead>
               <tbody className="table-body">
-                {users.map((user) => (
-                  <tr key={user.email} className="table-row">
-                    <td className="table-cell">
-                      <input type="checkbox" className="checkbox" />
-                    </td>
-                    <td className="table-cell">
-                      <div className="flex items-center gap-3">
-                        <div className={user.avatarClass}>
-                          <div className={user.fallbackClass}>{user.initials}</div>
-                        </div>
-                        <div>
-                          <Link to="/users/ali-mohammadi" className="font-medium hover:underline">
-                            {user.name}
-                          </Link>
-                          <p className="text-muted-foreground text-xs">{user.email}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="table-cell">
-                      <Badge variant={user.role.variant}>
-                        <Icon name={user.role.icon} className="size-3" />
-                        {user.role.label}
-                      </Badge>
-                    </td>
-                    <td className="table-cell text-sm">{user.phone}</td>
-                    <td className="table-cell text-sm">{user.joined}</td>
-                    <td className={`table-cell text-sm ${user.lastLoginClass}`}>{user.lastLogin}</td>
-                    <td className="table-cell">
-                      <Badge variant={user.status.variant}>{user.status.label}</Badge>
-                    </td>
-                    <td className="table-cell">
-                      <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="icon-sm">
-                          <Icon name="material-symbols:edit" className="size-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          className="text-destructive hover:bg-destructive/10"
-                          onClick={deleteDialog.open}
-                        >
-                          <Icon name="material-symbols:delete" className="size-4" />
-                        </Button>
-                      </div>
+                {isLoading ? (
+                  <tr className="table-row">
+                    <td className="table-cell text-muted-foreground py-8 text-center" colSpan={7}>
+                      در حال بارگذاری کاربران...
                     </td>
                   </tr>
-                ))}
+                ) : users.length === 0 ? (
+                  <tr className="table-row">
+                    <td className="table-cell text-muted-foreground py-8 text-center" colSpan={7}>
+                      کاربری یافت نشد
+                    </td>
+                  </tr>
+                ) : (
+                  users.map((user) => (
+                    <tr key={user.Id} className="table-row">
+                      <td className="table-cell">
+                        <input type="checkbox" className="checkbox" />
+                      </td>
+                      <td className="table-cell">
+                        <div className="flex items-center gap-3">
+                          <div className="avatar size-10">
+                            <div className="avatar-fallback from-primary to-primary/70 text-primary-foreground bg-linear-to-br text-sm">
+                              {getUserInitials(user)}
+                            </div>
+                          </div>
+                          <div>
+                            <Link to={`/users/${encodeURIComponent(user.Id)}`} className="font-medium hover:underline">
+                              {getUserDisplayName(user)}
+                            </Link>
+                            <p className="text-muted-foreground text-xs">{user.Email ?? user.UserName}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="table-cell text-sm">{user.PhoneNumber ?? '—'}</td>
+                      <td className="table-cell text-sm">{user.CityName ?? '—'}</td>
+                      <td className="table-cell text-muted-foreground text-sm">
+                        {formatDateTime(user.LastLoginDateOnUtc)}
+                      </td>
+                      <td className="table-cell">
+                        <Badge variant={user.IsActive ? 'success' : 'secondary'}>
+                          {user.IsActive ? 'فعال' : 'غیرفعال'}
+                        </Badge>
+                      </td>
+                      <td className="table-cell">
+                        <div className="flex items-center gap-1">
+                          <Link
+                            to={`/users/${encodeURIComponent(user.Id)}`}
+                            className="button ghost icon-sm inline-flex items-center justify-center"
+                          >
+                            <Icon name="material-symbols:edit" className="size-4" />
+                          </Link>
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            className="text-destructive hover:bg-destructive/10"
+                            onClick={deleteDialog.open}
+                          >
+                            <Icon name="material-symbols:delete" className="size-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
         </CardContent>
         <div className="card-footer flex flex-wrap items-center justify-between border-t">
-          <p className="text-muted-foreground text-sm">نمایش 1 تا 5 از 894 کاربر</p>
+          <p className="text-muted-foreground text-sm">
+            نمایش {users.length > 0 ? (pageNumber - 1) * pageSize + 1 : 0} تا{' '}
+            {(pageNumber - 1) * pageSize + users.length} از {totalCount} کاربر
+          </p>
           <div className="flex items-center gap-1">
-            <Button variant="outline" size="icon-sm" disabled>
+            <Button
+              variant="outline"
+              size="icon-sm"
+              disabled={pageNumber <= 1 || isLoading}
+              onClick={() => setPageNumber((p) => Math.max(1, p - 1))}
+            >
               <Icon name="material-symbols:chevron-right" className="size-4" />
             </Button>
-            <Button variant="default" size="sm">1</Button>
-            <Button variant="outline" size="sm">2</Button>
-            <Button variant="outline" size="sm">3</Button>
-            <span className="text-muted-foreground px-2">...</span>
-            <Button variant="outline" size="sm">179</Button>
-            <Button variant="outline" size="icon-sm">
+            <Button variant="default" size="sm">{pageNumber}</Button>
+            <Button
+              variant="outline"
+              size="icon-sm"
+              disabled={pageNumber >= totalPages || isLoading}
+              onClick={() => setPageNumber((p) => p + 1)}
+            >
               <Icon name="material-symbols:chevron-left" className="size-4" />
             </Button>
           </div>
@@ -248,7 +245,7 @@ export default function UsersPage() {
         </button>
         <div className="dialog-header">
           <h3 className="dialog-title">افزودن کاربر جدید</h3>
-          <p className="dialog-description">اطلاعات کاربر جدید را وارد کنید</p>
+          <p className="dialog-description">به زودی از طریق API متصل می‌شود</p>
         </div>
         <div className="space-y-4 py-4">
           <div className="grid grid-cols-2 gap-4">
@@ -270,22 +267,13 @@ export default function UsersPage() {
             <Input type="tel" placeholder="09121234567" />
           </div>
           <div className="space-y-2">
-            <label className="label">نقش</label>
-            <Select className="w-full">
-              <option value="customer">مشتری</option>
-              <option value="operator">اپراتور</option>
-              <option value="manager">مدیر فروشگاه</option>
-              <option value="admin">مدیر سیستم</option>
-            </Select>
-          </div>
-          <div className="space-y-2">
             <label className="label">رمز عبور</label>
             <Input type="password" placeholder="رمز عبور" />
           </div>
         </div>
         <div className="dialog-footer">
           <Button variant="outline" onClick={addUserDialog.close}>انصراف</Button>
-          <Button variant="default">ذخیره کاربر</Button>
+          <Button variant="default" disabled>ذخیره کاربر</Button>
         </div>
       </Dialog>
 
@@ -299,12 +287,12 @@ export default function UsersPage() {
           </div>
           <h3 className="dialog-title">آیا مطمئن هستید؟</h3>
           <p className="dialog-description">
-            این عملیات قابل بازگشت نیست. آیتم مورد نظر به طور کامل حذف خواهد شد.
+            حذف کاربر از طریق API در مرحله بعدی پیاده‌سازی می‌شود.
           </p>
         </div>
         <div className="dialog-footer">
           <Button variant="outline" onClick={deleteDialog.close}>انصراف</Button>
-          <Button variant="destructive" onClick={deleteDialog.close}>بله، حذف شود</Button>
+          <Button variant="destructive" onClick={deleteDialog.close}>بستن</Button>
         </div>
       </Dialog>
     </div>

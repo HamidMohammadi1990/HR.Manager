@@ -1,326 +1,167 @@
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import {
-  Avatar,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  PageHeader,
-  ProgressBar,
-  StatCard,
-} from '@/components/ui/Card';
+import { Card, CardContent, MetricCard } from '@/components/ui/Card';
 import { Icon } from '@/components/ui/Icon';
 import { Input } from '@/components/ui/Input';
-import {
-  departmentOverviews,
-  employeeLeaveRequests,
-  employeeQuickActions,
-  employees,
-  hrMetrics,
-  lifecycleItems,
-  performanceMetrics,
-  recruitmentStages,
-  todayAttendanceSummary,
-  trainingCourses,
-} from '@/data/mock/employees';
+import { getAllEmployees, getApiErrorMessage, type EmployeeDto } from '@/services/api';
 
-const quickActionColors: Record<string, string> = {
-  blue: 'border-blue-500/30 hover:border-blue-500/60 hover:bg-blue-500/5 text-blue-500',
-  emerald: 'border-emerald-500/30 hover:border-emerald-500/60 hover:bg-emerald-500/5 text-emerald-500',
-  violet: 'border-violet-500/30 hover:border-violet-500/60 hover:bg-violet-500/5 text-violet-500',
-  amber: 'border-amber-500/30 hover:border-amber-500/60 hover:bg-amber-500/5 text-amber-500',
-};
+function getEmployeeName(emp: EmployeeDto) {
+  const name = [emp.UserFirstName, emp.UserLastName].filter(Boolean).join(' ');
+  return name || emp.UserName || emp.EmployeeCode;
+}
 
 export default function EmployeesPage() {
-  return (
-    <div className="flex-1 p-4 lg:p-6">
-      <PageHeader
-        title="مدیریت پرسنل"
-        description="پروفایل، عملکرد و سازماندهی کارکنان"
-        actions={
-          <>
-            <Button variant="outline">
-              <Icon name="material-symbols:analytics" className="size-4" />
-              گزارش منابع انسانی
-            </Button>
-            <Button variant="default">
-              <Icon name="material-symbols:person-add" className="size-4" />
-              استخدام جدید
-            </Button>
-          </>
+  const [employees, setEmployees] = useState<EmployeeDto[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [search, setSearch] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
+  const pageSize = 10;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      setIsLoading(true);
+      setError('');
+      try {
+        const result = await getAllEmployees({
+          FirstName: search || undefined,
+          Pagination: { PageNumber: pageNumber, PageSize: pageSize },
+        });
+        if (!cancelled) {
+          setEmployees(result.Items ?? []);
+          setTotalCount(result.TotalCount ?? 0);
         }
-      />
+      } catch (err) {
+        if (!cancelled) setError(getApiErrorMessage(err));
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    }
 
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {hrMetrics.map((metric) => (
-            <StatCard key={metric.label} {...metric} />
-          ))}
+    void load();
+    return () => { cancelled = true; };
+  }, [pageNumber, search]);
+
+  const activeCount = employees.filter((e) => e.IsActive).length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+
+  return (
+    <div className="flex-1 p-4 lg:p-6" dir="rtl">
+      <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+        <div>
+          <h1 className="text-2xl font-bold">مدیریت پرسنل</h1>
+          <p className="text-muted-foreground">پروفایل و سازماندهی کارکنان</p>
         </div>
-
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-          <div className="space-y-4 xl:col-span-1">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Icon name="lucide:building-2" className="size-5 text-blue-500" />
-                  واحدهای سازمانی
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {departmentOverviews.map((dept) => (
-                    <div
-                      key={dept.name}
-                      className={`rounded-lg border p-3 ${dept.borderColor} ${dept.bgColor}`}
-                    >
-                      <div className="mb-2 flex items-center justify-between">
-                        <span className="text-sm font-medium">{dept.name}</span>
-                        <Badge variant={dept.badgeVariant}>{dept.count}</Badge>
-                      </div>
-                      <ProgressBar value={dept.progress} colorClass={dept.progressColor} />
-                      <p className="text-muted-foreground mt-1 text-xs">{dept.note}</p>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>اقدامات سریع</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-2">
-                  {employeeQuickActions.map((action) => (
-                    <button
-                      key={action.label}
-                      type="button"
-                      className={`flex flex-col items-center gap-2 rounded-lg border border-dashed p-3 transition-all ${quickActionColors[action.color]}`}
-                    >
-                      <Icon name={action.icon} className="size-5" />
-                      <span className="text-xs font-medium">{action.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="xl:col-span-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Icon name="material-symbols:group" className="size-5 text-emerald-500" />
-                  دایرکتوری کارکنان
-                </CardTitle>
-                <div className="flex items-center gap-2">
-                  <div className="relative">
-                    <Icon
-                      name="material-symbols:search"
-                      className="text-muted-foreground absolute start-3 top-1/2 size-4 -translate-y-1/2"
-                    />
-                    <Input className="h-8 ps-9" placeholder="جستجو در کارکنان..." />
-                  </div>
-                  <Button variant="outline" size="sm">
-                    <Icon name="material-symbols:filter-list" className="size-4" />
-                    فیلتر
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  {employees.map((employee) => (
-                    <div
-                      key={employee.id}
-                      className="hover:bg-muted/30 flex cursor-pointer items-center gap-4 rounded-lg border p-4 transition-colors"
-                    >
-                      <Avatar initials={employee.initials} gradient={employee.gradient} size="lg" />
-                      <div className="flex-1">
-                        <div className="mb-1 flex items-center gap-2">
-                          <span className="font-medium">{employee.name}</span>
-                          <Badge variant={employee.statusVariant}>{employee.status}</Badge>
-                        </div>
-                        <p className="text-muted-foreground text-sm">{employee.role}</p>
-                        <div className="text-muted-foreground mt-1 flex items-center gap-4 text-xs">
-                          <span>{employee.department}</span>
-                          <span>•</span>
-                          <span>{employee.experience}</span>
-                        </div>
-                      </div>
-                      <Button variant="outline" size="sm">
-                        <Icon name="material-symbols:visibility" className="size-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Icon name="material-symbols:trending-up" className="size-5 text-indigo-500" />
-                عملکرد کارکنان
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {performanceMetrics.map((metric) => (
-                  <div key={metric.label}>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">{metric.label}</span>
-                      <span className="font-medium">{metric.value}</span>
-                    </div>
-                    <ProgressBar value={metric.progress} colorClass={metric.color} height="md" />
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Icon name="material-symbols:school" className="size-5 text-violet-500" />
-                آموزش و توسعه
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {trainingCourses.map((course) => (
-                  <div
-                    key={course.title}
-                    className="hover:bg-muted/30 flex items-center gap-3 rounded-lg p-3 transition-colors"
-                  >
-                    <div className={`flex size-10 items-center justify-center rounded-lg ${course.iconBg}`}>
-                      <Icon name={course.icon} className={`size-5 ${course.iconColor}`} />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">{course.title}</p>
-                      <p className="text-muted-foreground text-xs">{course.detail}</p>
-                    </div>
-                    <Badge variant={course.badgeVariant}>{course.badge}</Badge>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Icon name="material-symbols:schedule" className="size-5 text-emerald-500" />
-                حضور امروز
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {todayAttendanceSummary.map((item) => (
-                  <div
-                    key={item.label}
-                    className={`flex items-center justify-between rounded-lg p-2 ${item.bg}`}
-                  >
-                    <span className="text-sm">{item.label}</span>
-                    <span className={`font-medium ${item.color}`}>{item.value}</span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Icon name="material-symbols:event-note" className="size-5 text-blue-500" />
-                درخواست‌های مرخصی
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {employeeLeaveRequests.map((request) => (
-                  <div
-                    key={request.type}
-                    className="hover:bg-muted/30 flex items-center gap-3 rounded-lg p-2 transition-colors"
-                  >
-                    <div className={`flex size-8 items-center justify-center rounded-full ${request.iconBg}`}>
-                      <Icon name={request.icon} className={`size-4 ${request.iconColor}`} />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">{request.type}</p>
-                      <p className="text-muted-foreground text-xs">{request.employee}</p>
-                    </div>
-                    {request.action === 'review' ? (
-                      <Button variant="outline" size="sm">
-                        بررسی
-                      </Button>
-                    ) : (
-                      <Badge variant={request.badgeVariant}>{request.badge}</Badge>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Icon name="material-symbols:timeline" className="size-5 text-indigo-500" />
-                چرخه زندگی کارکنان
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {lifecycleItems.map((item) => (
-                  <div key={item.title} className="flex items-center gap-3">
-                    <div className={`flex size-8 items-center justify-center rounded-full ${item.iconBg}`}>
-                      <Icon name={item.icon} className={`size-4 ${item.iconColor}`} />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">{item.title}</p>
-                      <p className="text-muted-foreground text-xs">{item.detail}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Icon name="material-symbols:group-add" className="size-5 text-emerald-500" />
-              خط لوله استخدام
-            </CardTitle>
-            <CardDescription>روند جذب و استخدام نیروی جدید</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
-              {recruitmentStages.map((stage) => (
-                <div key={stage.label} className="text-center">
-                  <div className={`mb-2 text-2xl font-bold ${stage.textColor}`}>{stage.count}</div>
-                  <div className="text-muted-foreground text-sm">{stage.label}</div>
-                  <div className="bg-muted mt-2 h-2 w-full rounded-full">
-                    <div
-                      className={`h-2 rounded-full ${stage.color}`}
-                      style={{ width: `${stage.progress}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <Link to="/employees/new" className="button" data-variant="default">
+          <Icon name="material-symbols:person-add" className="size-4" />
+          استخدام جدید
+        </Link>
       </div>
+
+      <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <MetricCard
+          icon={<Icon name="material-symbols:group" className="text-primary size-5" />}
+          iconClassName="bg-primary/10"
+          label="کل پرسنل"
+          value={String(totalCount)}
+        />
+        <MetricCard
+          icon={<Icon name="material-symbols:verified" className="size-5 text-emerald-500" />}
+          iconClassName="bg-emerald-500/10"
+          label="فعال (صفحه جاری)"
+          value={String(activeCount)}
+        />
+        <MetricCard
+          icon={<Icon name="material-symbols:apartment" className="size-5 text-violet-500" />}
+          iconClassName="bg-violet-500/10"
+          label="بخش‌های منحصر"
+          value={String(new Set(employees.map((e) => e.DepartmentId)).size)}
+        />
+        <MetricCard
+          icon={<Icon name="material-symbols:pages" className="size-5 text-sky-500" />}
+          iconClassName="bg-sky-500/10"
+          label="صفحه"
+          value={`${pageNumber} / ${totalPages}`}
+        />
+      </div>
+
+      <Card>
+        <CardContent className="p-0">
+          <div className="flex flex-wrap items-center gap-3 border-b p-4">
+            <div className="relative min-w-[200px] flex-1">
+              <Icon name="material-symbols:search" className="text-muted-foreground absolute start-3 top-1/2 size-4 -translate-y-1/2" />
+              <Input
+                className="ps-9"
+                placeholder="جستجو بر اساس نام..."
+                value={search}
+                onChange={(e) => { setSearch(e.target.value); setPageNumber(1); }}
+              />
+            </div>
+          </div>
+
+          {error && <p className="text-destructive px-4 py-3 text-sm">{error}</p>}
+
+          <div className="table-wrapper">
+            <table className="table">
+              <thead className="table-header">
+                <tr>
+                  <th className="table-head">نام</th>
+                  <th className="table-head">کد پرسنلی</th>
+                  <th className="table-head">سمت</th>
+                  <th className="table-head">بخش</th>
+                  <th className="table-head">تاریخ استخدام</th>
+                  <th className="table-head">وضعیت</th>
+                  <th className="table-head">عملیات</th>
+                </tr>
+              </thead>
+              <tbody className="table-body">
+                {isLoading ? (
+                  <tr className="table-row">
+                    <td colSpan={7} className="table-cell text-muted-foreground py-8 text-center text-sm">در حال بارگذاری...</td>
+                  </tr>
+                ) : employees.length === 0 ? (
+                  <tr className="table-row">
+                    <td colSpan={7} className="table-cell text-muted-foreground py-8 text-center text-sm">پرسنلی ثبت نشده است</td>
+                  </tr>
+                ) : (
+                  employees.map((emp) => (
+                    <tr key={emp.Id} className="table-row">
+                      <td className="table-cell font-medium">{getEmployeeName(emp)}</td>
+                      <td className="table-cell text-sm" dir="ltr">{emp.EmployeeCode}</td>
+                      <td className="table-cell text-sm">{emp.JobTitle}</td>
+                      <td className="table-cell text-sm">{emp.DepartmentName}</td>
+                      <td className="table-cell text-sm">{new Date(emp.HireDate).toLocaleDateString('fa-IR')}</td>
+                      <td className="table-cell">
+                        <Badge variant={emp.IsActive ? 'success' : 'secondary'}>
+                          {emp.IsActive ? 'فعال' : 'غیرفعال'}
+                        </Badge>
+                      </td>
+                      <td className="table-cell">
+                        <Link to={`/employees/${encodeURIComponent(emp.Id)}`} className="button" data-variant="outline" data-size="sm">
+                          <Icon name="material-symbols:visibility" className="size-4" />
+                        </Link>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 border-t p-4">
+              <Button variant="outline" size="sm" disabled={pageNumber <= 1} onClick={() => setPageNumber((p) => p - 1)}>قبلی</Button>
+              <span className="text-muted-foreground text-sm">{pageNumber} از {totalPages}</span>
+              <Button variant="outline" size="sm" disabled={pageNumber >= totalPages} onClick={() => setPageNumber((p) => p + 1)}>بعدی</Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

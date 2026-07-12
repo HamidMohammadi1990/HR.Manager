@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import {
@@ -26,6 +27,8 @@ import {
   pendingApprovals,
   upcomingLeaves,
 } from '@/data/mock/leaves';
+import { getAllLeaveRequests, getApiErrorMessage, type LeaveRequestDto } from '@/services/api';
+import { LEAVE_STATUS_LABELS, LEAVE_TYPE_LABELS, getPersonName } from '@/lib/hrLabels';
 
 const quickActionColors: Record<string, string> = {
   blue: 'border-blue-500/30 hover:border-blue-500/60 hover:bg-blue-500/5 text-blue-500',
@@ -42,6 +45,17 @@ const typeColors: Record<string, { bg: string; text: string }> = {
 };
 
 export default function LeavesPage() {
+  const [requests, setRequests] = useState<LeaveRequestDto[]>([]);
+  const [apiError, setApiError] = useState('');
+  const [apiLoading, setApiLoading] = useState(true);
+
+  useEffect(() => {
+    void getAllLeaveRequests({ Pagination: { PageNumber: 1, PageSize: 20 } })
+      .then((r) => setRequests(r.Items ?? []))
+      .catch((err) => setApiError(getApiErrorMessage(err)))
+      .finally(() => setApiLoading(false));
+  }, []);
+
   return (
     <div className="flex-1 p-4 lg:p-6">
       <PageHeader
@@ -60,6 +74,46 @@ export default function LeavesPage() {
           </>
         }
       />
+
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>درخواست‌های مرخصی (API)</CardTitle>
+          <CardDescription>داده واقعی از `api/v1/admin/leave-request/get-all`</CardDescription>
+        </CardHeader>
+        <CardContent className="p-0">
+          {apiError && <p className="text-destructive px-4 py-3 text-sm">{apiError}</p>}
+          <div className="table-wrapper">
+            <table className="table">
+              <thead className="table-header">
+                <tr>
+                  <th className="table-head">پرسنل</th>
+                  <th className="table-head">نوع</th>
+                  <th className="table-head">از</th>
+                  <th className="table-head">تا</th>
+                  <th className="table-head">وضعیت</th>
+                </tr>
+              </thead>
+              <tbody className="table-body">
+                {apiLoading ? (
+                  <tr className="table-row"><td colSpan={5} className="table-cell text-center py-6 text-sm text-muted-foreground">در حال بارگذاری...</td></tr>
+                ) : requests.length === 0 ? (
+                  <tr className="table-row"><td colSpan={5} className="table-cell text-center py-6 text-sm text-muted-foreground">درخواستی ثبت نشده</td></tr>
+                ) : (
+                  requests.map((r) => (
+                    <tr key={r.Id} className="table-row">
+                      <td className="table-cell text-sm">{getPersonName(r.UserFirstName, r.UserLastName, r.EmployeeCode)}</td>
+                      <td className="table-cell text-sm">{LEAVE_TYPE_LABELS[r.LeaveType] ?? r.LeaveType}</td>
+                      <td className="table-cell text-sm">{new Date(r.StartDate).toLocaleDateString('fa-IR')}</td>
+                      <td className="table-cell text-sm">{new Date(r.EndDate).toLocaleDateString('fa-IR')}</td>
+                      <td className="table-cell"><Badge variant="secondary">{LEAVE_STATUS_LABELS[r.Status] ?? r.Status}</Badge></td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="space-y-6">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">

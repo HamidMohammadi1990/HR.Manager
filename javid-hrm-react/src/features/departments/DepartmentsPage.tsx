@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import {
@@ -11,6 +13,7 @@ import {
   StatCard,
 } from '@/components/ui/Card';
 import { Icon } from '@/components/ui/Icon';
+import { getAllDepartments, getApiErrorMessage, type DepartmentDto } from '@/services/api';
 import {
   budgetAllocation,
   crossDepartmentProjects,
@@ -45,6 +48,17 @@ const commColors: Record<string, { bg: string; text: string }> = {
 };
 
 export default function DepartmentsPage() {
+  const [departments, setDepartments] = useState<DepartmentDto[]>([]);
+  const [deptError, setDeptError] = useState('');
+  const [deptLoading, setDeptLoading] = useState(true);
+
+  useEffect(() => {
+    void getAllDepartments({ Pagination: { PageNumber: 1, PageSize: 50 } })
+      .then((result) => setDepartments(result.Items ?? []))
+      .catch((err) => setDeptError(getApiErrorMessage(err)))
+      .finally(() => setDeptLoading(false));
+  }, []);
+
   return (
     <div className="flex-1 p-4 lg:p-6">
       <PageHeader
@@ -56,13 +70,75 @@ export default function DepartmentsPage() {
               <Icon name="material-symbols:account-tree" className="size-4" />
               نمودار سازمانی
             </Button>
-            <Button variant="default">
+            <Link to="/departments/new" className="button" data-variant="default">
               <Icon name="material-symbols:add" className="size-4" />
               بخش جدید
-            </Button>
+            </Link>
           </>
         }
       />
+
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>لیست بخش‌ها (API)</CardTitle>
+          <CardDescription>داده واقعی از `api/v1/admin/department/get-all`</CardDescription>
+        </CardHeader>
+        <CardContent className="p-0">
+          {deptError && (
+            <p className="text-destructive px-4 py-3 text-sm">{deptError}</p>
+          )}
+          <div className="table-wrapper">
+            <table className="table">
+              <thead className="table-header">
+                <tr>
+                  <th className="table-head">نام</th>
+                  <th className="table-head">کد</th>
+                  <th className="table-head">شهر</th>
+                  <th className="table-head">مدیر</th>
+                  <th className="table-head">وضعیت</th>
+                  <th className="table-head">عملیات</th>
+                </tr>
+              </thead>
+              <tbody className="table-body">
+                {deptLoading ? (
+                  <tr className="table-row">
+                    <td colSpan={6} className="table-cell text-muted-foreground py-6 text-center text-sm">
+                      در حال بارگذاری...
+                    </td>
+                  </tr>
+                ) : departments.length === 0 ? (
+                  <tr className="table-row">
+                    <td colSpan={6} className="table-cell text-muted-foreground py-6 text-center text-sm">
+                      بخشی ثبت نشده است
+                    </td>
+                  </tr>
+                ) : (
+                  departments.map((dept) => (
+                    <tr key={dept.Id} className="table-row">
+                      <td className="table-cell font-medium">{dept.Name}</td>
+                      <td className="table-cell text-sm">{dept.Code}</td>
+                      <td className="table-cell text-sm">{dept.CityName}</td>
+                      <td className="table-cell text-sm">
+                        {[dept.UserFirstName, dept.UserLastName].filter(Boolean).join(' ') || '—'}
+                      </td>
+                      <td className="table-cell">
+                        <Badge variant={dept.IsActive ? 'success' : 'secondary'}>
+                          {dept.IsActive ? 'فعال' : 'غیرفعال'}
+                        </Badge>
+                      </td>
+                      <td className="table-cell">
+                        <Link to={`/departments/${encodeURIComponent(dept.Id)}`} className="button" data-variant="outline" data-size="sm">
+                          <Icon name="material-symbols:edit" className="size-4" />
+                        </Link>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="space-y-6">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">

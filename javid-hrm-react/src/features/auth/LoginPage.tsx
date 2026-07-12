@@ -1,21 +1,28 @@
 import { FormEvent, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Icon } from '@/components/ui/Icon';
+import { useAuth } from '@/contexts/AuthContext';
+import { getApiErrorMessage } from '@/services/api';
 import { AuthCard, AuthLayout } from './AuthLayout';
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { signIn, isLoading } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [usernameError, setUsernameError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [formError, setFormError] = useState('');
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setUsernameError('');
     setPasswordError('');
+    setFormError('');
+
     if (!username.trim()) {
       setUsernameError('لطفاً شماره موبایل یا ایمیل را وارد کنید');
       return;
@@ -24,7 +31,14 @@ export default function LoginPage() {
       setPasswordError('لطفاً کلمه عبور را وارد کنید');
       return;
     }
-    navigate('/');
+
+    try {
+      await signIn({ UserName: username.trim(), Password: password });
+      const redirectTo = (location.state as { from?: string } | null)?.from ?? '/';
+      navigate(redirectTo, { replace: true });
+    } catch (error) {
+      setFormError(getApiErrorMessage(error));
+    }
   };
 
   return (
@@ -43,6 +57,11 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit}>
             <div className="space-y-4 px-6 pb-6">
+              {formError && (
+                <p className="text-destructive bg-destructive/10 rounded-lg px-3 py-2 text-sm">
+                  {formError}
+                </p>
+              )}
               <div className="space-y-2">
                 <label htmlFor="username" className="sr-only">
                   شماره موبایل و یا ایمیل
@@ -54,6 +73,7 @@ export default function LoginPage() {
                   placeholder="شماره موبایل یا ایمیل"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
+                  disabled={isLoading}
                 />
                 {usernameError && (
                   <p className="text-warning h-5 text-sm">{usernameError}</p>
@@ -71,6 +91,7 @@ export default function LoginPage() {
                   placeholder="کلمه عبور"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
                 />
                 {passwordError && (
                   <p className="text-warning h-5 text-sm">{passwordError}</p>
@@ -78,8 +99,8 @@ export default function LoginPage() {
               </div>
             </div>
             <div className="border-t p-6">
-              <Button type="submit" className="w-full">
-                ورود
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? 'در حال ورود...' : 'ورود'}
               </Button>
             </div>
           </form>

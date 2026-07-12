@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import {
@@ -25,6 +26,8 @@ import {
   salaryDistribution,
   salaryGrades,
 } from '@/data/mock/payroll';
+import { getAllPayrollEntries, getApiErrorMessage, type PayrollEntryDto } from '@/services/api';
+import { PAYROLL_STATUS_LABELS, getPersonName } from '@/lib/hrLabels';
 
 const quickActionColors: Record<string, string> = {
   blue: 'border-blue-500/30 hover:border-blue-500/60 hover:bg-blue-500/5 text-blue-500',
@@ -58,6 +61,17 @@ const payslipActionLabels: Record<string, string> = {
 };
 
 export default function PayrollPage() {
+  const [entries, setEntries] = useState<PayrollEntryDto[]>([]);
+  const [apiError, setApiError] = useState('');
+  const [apiLoading, setApiLoading] = useState(true);
+
+  useEffect(() => {
+    void getAllPayrollEntries({ Pagination: { PageNumber: 1, PageSize: 20 } })
+      .then((r) => setEntries(r.Items ?? []))
+      .catch((err) => setApiError(getApiErrorMessage(err)))
+      .finally(() => setApiLoading(false));
+  }, []);
+
   return (
     <div className="flex-1 p-4 lg:p-6">
       <PageHeader
@@ -76,6 +90,48 @@ export default function PayrollPage() {
           </>
         }
       />
+
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>فیش‌های حقوق (API)</CardTitle>
+          <CardDescription>داده واقعی از `api/v1/admin/payroll-entry/get-all`</CardDescription>
+        </CardHeader>
+        <CardContent className="p-0">
+          {apiError && <p className="text-destructive px-4 py-3 text-sm">{apiError}</p>}
+          <div className="table-wrapper">
+            <table className="table">
+              <thead className="table-header">
+                <tr>
+                  <th className="table-head">پرسنل</th>
+                  <th className="table-head">دوره</th>
+                  <th className="table-head">ناخالص</th>
+                  <th className="table-head">کسورات</th>
+                  <th className="table-head">خالص</th>
+                  <th className="table-head">وضعیت</th>
+                </tr>
+              </thead>
+              <tbody className="table-body">
+                {apiLoading ? (
+                  <tr className="table-row"><td colSpan={6} className="table-cell text-center py-6 text-sm text-muted-foreground">در حال بارگذاری...</td></tr>
+                ) : entries.length === 0 ? (
+                  <tr className="table-row"><td colSpan={6} className="table-cell text-center py-6 text-sm text-muted-foreground">فیشی ثبت نشده</td></tr>
+                ) : (
+                  entries.map((e) => (
+                    <tr key={e.Id} className="table-row">
+                      <td className="table-cell text-sm">{getPersonName(e.UserFirstName, e.UserLastName, e.EmployeeCode)}</td>
+                      <td className="table-cell text-sm">{e.Year}/{e.Month}</td>
+                      <td className="table-cell text-sm">{e.GrossAmount.toLocaleString('fa-IR')}</td>
+                      <td className="table-cell text-sm">{e.Deductions.toLocaleString('fa-IR')}</td>
+                      <td className="table-cell text-sm font-medium">{e.NetAmount.toLocaleString('fa-IR')}</td>
+                      <td className="table-cell"><Badge variant="secondary">{PAYROLL_STATUS_LABELS[e.Status] ?? e.Status}</Badge></td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="space-y-6">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">

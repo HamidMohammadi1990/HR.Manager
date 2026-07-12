@@ -1,10 +1,15 @@
 import { lazy, ReactNode, Suspense } from 'react';
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { ProtectedRoute, GuestRoute } from '@/components/auth/ProtectedRoute';
 
 const DashboardPage = lazy(() => import('@/features/dashboard/DashboardPage'));
 const EmployeesPage = lazy(() => import('@/features/employees/EmployeesPage'));
+const AddEmployeePage = lazy(() => import('@/features/employees/AddEmployeePage'));
+const EmployeeDetailPage = lazy(() => import('@/features/employees/EmployeeDetailPage'));
 const DepartmentsPage = lazy(() => import('@/features/departments/DepartmentsPage'));
+const AddDepartmentPage = lazy(() => import('@/features/departments/AddDepartmentPage'));
+const DepartmentDetailPage = lazy(() => import('@/features/departments/DepartmentDetailPage'));
 const AttendancePage = lazy(() => import('@/features/attendance/AttendancePage'));
 const LeavesPage = lazy(() => import('@/features/leaves/LeavesPage'));
 const PayrollPage = lazy(() => import('@/features/payroll/PayrollPage'));
@@ -44,7 +49,11 @@ function SuspensePage({ children }: { children: ReactNode }) {
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <AppLayout />,
+    element: (
+      <ProtectedRoute>
+        <AppLayout />
+      </ProtectedRoute>
+    ),
     children: [
       { index: true, element: <SuspensePage><DashboardPage /></SuspensePage> },
       { path: 'calendar', element: <SuspensePage><CalendarPage /></SuspensePage> },
@@ -54,7 +63,11 @@ export const router = createBrowserRouter([
       { path: 'roles', element: <SuspensePage><RolesPage /></SuspensePage> },
       { path: 'permissions', element: <SuspensePage><PermissionsPage /></SuspensePage> },
       { path: 'employees', element: <SuspensePage><EmployeesPage /></SuspensePage> },
+      { path: 'employees/new', element: <SuspensePage><AddEmployeePage /></SuspensePage> },
+      { path: 'employees/:id', element: <SuspensePage><EmployeeDetailPage /></SuspensePage> },
       { path: 'departments', element: <SuspensePage><DepartmentsPage /></SuspensePage> },
+      { path: 'departments/new', element: <SuspensePage><AddDepartmentPage /></SuspensePage> },
+      { path: 'departments/:id', element: <SuspensePage><DepartmentDetailPage /></SuspensePage> },
       { path: 'attendance', element: <SuspensePage><AttendancePage /></SuspensePage> },
       { path: 'leaves', element: <SuspensePage><LeavesPage /></SuspensePage> },
       { path: 'payroll', element: <SuspensePage><PayrollPage /></SuspensePage> },
@@ -67,7 +80,14 @@ export const router = createBrowserRouter([
       { path: 'backup', element: <SuspensePage><BackupPage /></SuspensePage> },
     ],
   },
-  { path: '/login', element: <SuspensePage><LoginPage /></SuspensePage> },
+  {
+    path: '/login',
+    element: (
+      <GuestRoute>
+        <SuspensePage><LoginPage /></SuspensePage>
+      </GuestRoute>
+    ),
+  },
   { path: '/register', element: <SuspensePage><RegisterPage /></SuspensePage> },
   { path: '/forgot-password', element: <SuspensePage><ForgotPasswordPage /></SuspensePage> },
   { path: '/reset-password', element: <SuspensePage><ResetPasswordPage /></SuspensePage> },

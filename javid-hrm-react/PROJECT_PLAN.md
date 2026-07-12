@@ -1,7 +1,7 @@
 # PROJECT_PLAN — Javid HRM React
 
 > سند برنامه‌ریزی پروژه تبدیل قالب HTML/JQuery به React  
-> آخرین به‌روزرسانی: ۱۴۰۴/۰۴/۲۰
+> آخرین به‌روزرسانی: ۱۴۰۴/۰۴/۲۱ — اتصال API فاز ۲ + ماژول‌های HR
 
 ---
 
@@ -9,14 +9,23 @@
 
 تبدیل قالب مدیریت منابع انسانی **JavidHrm** (HTML + Vanilla JS) به یک اپلیکیشن **React + TypeScript** ماژولار، قابل توسعه و آماده اتصال به بک‌اند.
 
-### اهداف فاز فعلی (فاز ۱ — Frontend)
+### اهداف فاز فعلی
+
+**فاز ۱ — Frontend UI** ✅
 - [x] ساختار حرفه‌ای پروژه (کامپوننت / هوک / استایل / داده جدا)
 - [x] پیاده‌سازی تمام صفحات قالب HTML
 - [x] RTL فارسی + تم روشن/تاریک + تم رنگی
-- [x] داده Mock برای نمایش UI
 - [x] مسیریابی (React Router)
+
+**فاز ۲ — اتصال API** ✅ (هسته HR)
+- [x] `src/services/api/` — client, auth, JWT refresh
+- [x] `AuthContext` + `ProtectedRoute` / `GuestRoute`
+- [x] Vite proxy + `.env.development`
+- [x] صفحات متصل: login, users, roles, permissions, departments, employees
+- [x] UserRole در جزئیات کاربر
+- [x] جدول API: attendance, leaves, payroll
+- [ ] React Query / SWR (اختیاری — فعلاً fetch مستقیم)
 - [ ] تست E2E (فاز بعد)
-- [ ] اتصال API (فاز ۲)
 
 ---
 
@@ -53,11 +62,14 @@ javid-hrm-react/
     │   ├── announcements/
     │   ├── todo/
     │   └── backup/
+    ├── services/
+    │   └── api/             ← client, auth, users, employees, departments, ...
     ├── data/
     │   ├── navigation.ts
-    │   └── mock/            ← داده‌های نمونه (جایگزین API)
+    │   └── mock/            ← ویجت‌های تحلیلی (برخی صفحات هنوز mock دارند)
     └── lib/
-        └── utils.ts
+        ├── utils.ts
+        └── hrLabels.ts      ← برچسب enumهای HR
 ```
 
 ---
@@ -68,7 +80,7 @@ javid-hrm-react/
 
 | صفحه | مسیر | فایل React | وضعیت |
 |------|------|------------|-------|
-| ورود | `/login` | `features/auth/LoginPage.tsx` | ✅ |
+| ورود | `/login` | `features/auth/LoginPage.tsx` | ✅ API |
 | ثبت‌نام | `/register` | `features/auth/RegisterPage.tsx` | ✅ |
 | فراموشی رمز | `/forgot-password` | `features/auth/ForgotPasswordPage.tsx` | ✅ |
 | بازنشانی رمز | `/reset-password` | `features/auth/ResetPasswordPage.tsx` | ✅ |
@@ -82,16 +94,20 @@ javid-hrm-react/
 |------|------|------------|-------|
 | داشبورد | `/` | `features/dashboard/DashboardPage.tsx` | ✅ (HR-focused) |
 | تقویم | `/calendar` | `features/calendar/CalendarPage.tsx` | ✅ |
-| کاربران | `/users` | `features/users/UsersPage.tsx` | ✅ |
-| کاربر جدید | `/users/new` | `features/users/AddUserPage.tsx` | ✅ |
-| جزئیات کاربر | `/users/:id` | `features/users/UserDetailPage.tsx` | ✅ |
-| نقش‌ها | `/roles` | `features/users/RolesPage.tsx` | ✅ |
-| دسترسی‌ها | `/permissions` | `features/users/PermissionsPage.tsx` | ✅ |
-| کارمندان | `/employees` | `features/employees/EmployeesPage.tsx` | ✅ |
-| بخش‌ها | `/departments` | `features/departments/DepartmentsPage.tsx` | ✅ |
-| حضور و غیاب | `/attendance` | `features/attendance/AttendancePage.tsx` | ✅ |
-| مرخصی‌ها | `/leaves` | `features/leaves/LeavesPage.tsx` | ✅ |
-| حقوق و دستمزد | `/payroll` | `features/payroll/PayrollPage.tsx` | ✅ |
+| کاربران | `/users` | `features/users/UsersPage.tsx` | ✅ API |
+| کاربر جدید | `/users/new` | `features/users/AddUserPage.tsx` | ✅ API |
+| جزئیات کاربر | `/users/:id` | `features/users/UserDetailPage.tsx` | ✅ API + نقش‌ها |
+| نقش‌ها | `/roles` | `features/users/RolesPage.tsx` | ✅ API |
+| دسترسی‌ها | `/permissions` | `features/users/PermissionsPage.tsx` | ✅ API |
+| کارمندان | `/employees` | `features/employees/EmployeesPage.tsx` | ✅ API |
+| استخدام جدید | `/employees/new` | `features/employees/AddEmployeePage.tsx` | ✅ API |
+| جزئیات پرسنل | `/employees/:id` | `features/employees/EmployeeDetailPage.tsx` | ✅ API |
+| بخش‌ها | `/departments` | `features/departments/DepartmentsPage.tsx` | ✅ API + mock تحلیلی |
+| بخش جدید | `/departments/new` | `features/departments/AddDepartmentPage.tsx` | ✅ API |
+| جزئیات بخش | `/departments/:id` | `features/departments/DepartmentDetailPage.tsx` | ✅ API |
+| حضور و غیاب | `/attendance` | `features/attendance/AttendancePage.tsx` | 🟡 جدول API + mock |
+| مرخصی‌ها | `/leaves` | `features/leaves/LeavesPage.tsx` | 🟡 جدول API + mock |
+| حقوق و دستمزد | `/payroll` | `features/payroll/PayrollPage.tsx` | 🟡 جدول API + mock |
 | تنظیمات | `/settings` | `features/settings/SettingsPage.tsx` | ✅ |
 | تنظیمات حساب | `/account-settings` | `features/settings/AccountSettingsPage.tsx` | ✅ |
 | پروفایل | `/profile` | `features/profile/ProfilePage.tsx` | ✅ |
@@ -135,58 +151,36 @@ javid-hrm-react/
 
 ## ۶. ماژول‌های HR — قابلیت‌های پیاده‌سازی‌شده
 
-### حضور و غیاب (`/attendance`)
-- آمار روزانه (حاضرین، غایبین، دیرکرد، اضافه‌کاری)
-- ساعت دیجیتال + دکمه ورود/خروج
-- تردد زنده (Live Feed)
-- نمودار هفتگی
-- درخواست‌های مرخصی جانبی
-- خلاصه اضافه‌کاری ماه
-- سیاست‌های حضور
-- گزارش ماهانه
+### پرسنل (`/employees`) — ✅ API
+- لیست با صفحه‌بندی و جستجو
+- ایجاد پرسنل (اتصال User → Employee)
+- ویرایش/حذف پروفایل پرسنلی
 
-### مرخصی (`/leaves`)
-- فرم درخواست مرخصی (انواع: استحقاقی، ساعتی، بیماری، ...)
-- موجودی مرخصی با Progress Bar
-- تأیید/رد درخواست‌های معلق
-- تقویم مرخصی
-- تاریخچه با جدول
-- آمار استفاده از مرخصی
+### بخش‌ها (`/departments`) — ✅ API + mock
+- CRUD کامل بخش
+- ویجت‌های تحلیلی پایین صفحه هنوز mock
 
-### حقوق و دستمزد (`/payroll`)
-- ماشین‌حساب حقوق (پایه، اضافه‌کاری، پاداش، بیمه)
-- ساختار حقوقی (رتبه الف/ب/ج)
-- فیش حقوقی
-- تحلیل هزینه‌ها
-- مالیات و بیمه
-- مزایا
-- انطباق قانونی
+### حضور (`/attendance`) — 🟡
+- جدول `attendance-record/get-all` در بالای صفحه
+- ساعت دیجیتال و ویجت‌های mock در پایین
 
-### پرسنل (`/employees`)
-- دایرکتوری کارکنان
-- واحدهای سازمانی
-- عملکرد و آموزش
-- خط لوله استخدام
-- چرخه زندگی کارکنان
+### مرخصی (`/leaves`) — 🟡
+- جدول `leave-request/get-all`
+- فرم درخواست هنوز mock
 
-### بخش‌ها (`/departments`)
-- نمودار سازمانی
-- تخصیص منابع و بودجه
-- اهداف بخشی
-- پروژه‌های بین‌بخشی
+### حقوق (`/payroll`) — 🟡
+- جدول `payroll-entry/get-all`
+- ماشین‌حساب و ویجت‌ها هنوز mock
 
 ---
 
 ## ۷. فازهای بعدی (برنامه‌ریزی)
 
-### فاز ۲ — اتصال بک‌اند
-- [ ] تعریف `src/services/api/` با Axios/Fetch
-- [ ] تعریف TypeScript types از API contract
-- [ ] جایگزینی `data/mock/` با React Query / SWR
-- [ ] احراز هویت JWT + Refresh Token
-- [ ] Route guards (ProtectedRoute)
-- [ ] مدیریت خطا و Toast notifications
-- [ ] آپلود فایل (مدارک پرسنلی، فیش حقوقی PDF)
+### فاز ۲.۵ — تکمیل HR UI
+- [ ] فرم create/edit برای attendance, leaves, payroll
+- [ ] حذف یا جایگزینی mock analytics در صفحات HR
+- [ ] React Query برای cache و invalidation
+- [ ] Toast notifications یکپارچه
 
 ### فاز ۳ — ابزارها و توسعه
 - [ ] ماژول گزارش‌گیری پیشرفته (Export Excel/PDF)
@@ -205,33 +199,32 @@ javid-hrm-react/
 
 ---
 
-## ۸. API Endpoints پیش‌بینی‌شده (برای بک‌اند)
+## ۸. API Endpoints متصل (JavidHrm بک‌اند)
 
 ```
-POST   /api/auth/login
-POST   /api/auth/register
-POST   /api/auth/otp/verify
-GET    /api/users
-POST   /api/users
-GET    /api/users/:id
-PUT    /api/users/:id
-DELETE /api/users/:id
-GET    /api/employees
-GET    /api/departments
-GET    /api/attendance
-POST   /api/attendance/check-in
-POST   /api/attendance/check-out
-GET    /api/leaves
-POST   /api/leaves
-PUT    /api/leaves/:id/approve
-PUT    /api/leaves/:id/reject
-GET    /api/payroll
-POST   /api/payroll/calculate
-GET    /api/payroll/payslips/:id
-GET    /api/notifications
-GET    /api/roles
-GET    /api/permissions
+POST   /api/v1/account/sign-in
+POST   /api/v1/account/refresh-token
+POST   /api/v1/admin/account/get-all | get | create
+PUT    /api/v1/admin/account/update
+DELETE /api/v1/admin/account/delete
+POST   /api/v1/admin/role/get-all | create
+DELETE /api/v1/admin/role/delete
+POST   /api/v1/admin/permission/get-all
+POST   /api/v1/admin/user-role/get-all | create
+DELETE /api/v1/admin/user-role/delete
+POST   /api/v1/admin/department/get-all | get | create
+PUT    /api/v1/admin/department/update
+DELETE /api/v1/admin/department/delete
+POST   /api/v1/admin/employee/get-all | get | create
+PUT    /api/v1/admin/employee/update
+DELETE /api/v1/admin/employee/delete
+POST   /api/v1/admin/attendance-record/get-all | create | ...
+POST   /api/v1/admin/leave-request/get-all | create | ...
+POST   /api/v1/admin/payroll-entry/get-all | create | ...
+POST   /api/v1/admin/city/search
 ```
+
+> IDها در JSON رمزنگاری‌شده (string) هستند.
 
 ---
 
@@ -276,7 +269,7 @@ npm run build    # production build
 
 1. **Attribute-based styling**: دکمه‌ها و badgeها از attributeهای `variant` و `size` مطابق CSS قالب اصلی استفاده می‌کنند.
 2. **Lazy loading**: صفحات با `React.lazy` بارگذاری می‌شوند.
-3. **Mock data**: تمام داده‌ها در `src/data/mock/` قرار دارند و در فاز ۲ با API جایگزین می‌شوند.
+3. **Mock data**: ویجت‌های تحلیلی در `src/data/mock/` — جداول اصلی HR از API می‌آیند.
 4. **داشبورد**: محتوای e-commerce قالب اصلی به زمینه HR تطبیق داده شده است.
 
 ---

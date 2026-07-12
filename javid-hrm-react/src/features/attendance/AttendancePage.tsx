@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import {
@@ -23,6 +24,8 @@ import {
   weeklyAttendance,
 } from '@/data/mock/attendance';
 import { useClock } from '@/hooks';
+import { getAllAttendanceRecords, getApiErrorMessage, type AttendanceRecordDto } from '@/services/api';
+import { ATTENDANCE_STATUS_LABELS, getPersonName } from '@/lib/hrLabels';
 
 const quickActionColors: Record<string, string> = {
   blue: 'border-blue-500/30 hover:border-blue-500/60 hover:bg-blue-500/5 text-blue-500',
@@ -39,6 +42,16 @@ const policyColors: Record<string, { bg: string; text: string }> = {
 
 export default function AttendancePage() {
   const { time, date } = useClock();
+  const [records, setRecords] = useState<AttendanceRecordDto[]>([]);
+  const [apiError, setApiError] = useState('');
+  const [apiLoading, setApiLoading] = useState(true);
+
+  useEffect(() => {
+    void getAllAttendanceRecords({ Pagination: { PageNumber: 1, PageSize: 20 } })
+      .then((r) => setRecords(r.Items ?? []))
+      .catch((err) => setApiError(getApiErrorMessage(err)))
+      .finally(() => setApiLoading(false));
+  }, []);
 
   return (
     <div className="flex-1 p-4 lg:p-6">
@@ -58,6 +71,48 @@ export default function AttendancePage() {
           </>
         }
       />
+
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>رکوردهای حضور (API)</CardTitle>
+          <CardDescription>داده واقعی از `api/v1/admin/attendance-record/get-all`</CardDescription>
+        </CardHeader>
+        <CardContent className="p-0">
+          {apiError && <p className="text-destructive px-4 py-3 text-sm">{apiError}</p>}
+          <div className="table-wrapper">
+            <table className="table">
+              <thead className="table-header">
+                <tr>
+                  <th className="table-head">پرسنل</th>
+                  <th className="table-head">بخش</th>
+                  <th className="table-head">تاریخ</th>
+                  <th className="table-head">ورود</th>
+                  <th className="table-head">خروج</th>
+                  <th className="table-head">وضعیت</th>
+                </tr>
+              </thead>
+              <tbody className="table-body">
+                {apiLoading ? (
+                  <tr className="table-row"><td colSpan={6} className="table-cell text-center py-6 text-sm text-muted-foreground">در حال بارگذاری...</td></tr>
+                ) : records.length === 0 ? (
+                  <tr className="table-row"><td colSpan={6} className="table-cell text-center py-6 text-sm text-muted-foreground">رکوردی ثبت نشده</td></tr>
+                ) : (
+                  records.map((r) => (
+                    <tr key={r.Id} className="table-row">
+                      <td className="table-cell text-sm">{getPersonName(r.UserFirstName, r.UserLastName, r.EmployeeCode)}</td>
+                      <td className="table-cell text-sm">{r.DepartmentName}</td>
+                      <td className="table-cell text-sm">{new Date(r.WorkDate).toLocaleDateString('fa-IR')}</td>
+                      <td className="table-cell text-sm" dir="ltr">{r.CheckInUtc ? new Date(r.CheckInUtc).toLocaleTimeString('fa-IR') : '—'}</td>
+                      <td className="table-cell text-sm" dir="ltr">{r.CheckOutUtc ? new Date(r.CheckOutUtc).toLocaleTimeString('fa-IR') : '—'}</td>
+                      <td className="table-cell"><Badge variant="secondary">{ATTENDANCE_STATUS_LABELS[r.Status] ?? r.Status}</Badge></td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="space-y-6">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">

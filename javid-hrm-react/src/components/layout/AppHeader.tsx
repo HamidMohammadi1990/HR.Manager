@@ -1,10 +1,11 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { Icon } from '@/components/ui/Icon';
 import { useTheme } from '@/hooks';
-import { currentUser, headerNotifications } from '@/data/navigation';
+import { useAuth } from '@/contexts/AuthContext';
+import { headerNotifications } from '@/data/navigation';
 import { cn } from '@/lib/utils';
 
 interface AppHeaderProps {
@@ -20,8 +21,19 @@ export function AppHeader({
   showSidebarExpand,
   onExpandSidebar,
 }: AppHeaderProps) {
+  const navigate = useNavigate();
   const { toggleTheme } = useTheme();
+  const { userName, signOut } = useAuth();
   const [openMenu, setOpenMenu] = useState<'user' | 'notifications' | null>(null);
+
+  const handleLogout = async () => {
+    setOpenMenu(null);
+    await signOut();
+    navigate('/login', { replace: true });
+  };
+
+  const displayName = userName ?? 'کاربر';
+  const displayInitials = displayName.slice(0, 2);
 
   const handleMenuChange = (menu: 'user' | 'notifications') => (open: boolean) => {
     setOpenMenu(open ? menu : null);
@@ -84,12 +96,12 @@ export function AppHeader({
               >
                 <div className="avatar ring-primary/20 size-8 ring-2">
                   <div className="avatar-fallback from-primary to-primary/70 text-primary-foreground bg-linear-to-br text-sm font-semibold">
-                    {currentUser.initials}
+                    {displayInitials}
                   </div>
                 </div>
                 <div className="hidden text-start sm:block">
-                  <p className="text-sm leading-none font-medium">{currentUser.name}</p>
-                  <p className="text-muted-foreground text-xs">{currentUser.email}</p>
+                  <p className="text-sm leading-none font-medium">{displayName}</p>
+                  <p className="text-muted-foreground text-xs">{userName ?? ''}</p>
                 </div>
                 <Icon
                   name="material-symbols:keyboard-arrow-down"
@@ -99,8 +111,8 @@ export function AppHeader({
             }
           >
             <div className="bg-muted/30 border-b px-3 py-3">
-              <p className="text-sm font-semibold">{currentUser.name}</p>
-              <p className="text-muted-foreground text-xs">{currentUser.email}</p>
+              <p className="text-sm font-semibold">{displayName}</p>
+              <p className="text-muted-foreground text-xs">{userName ?? ''}</p>
             </div>
             <div className="p-1">
               <Link
@@ -125,14 +137,14 @@ export function AppHeader({
               </a>
             </div>
             <div className="border-t p-1">
-              <Link
-                to="/login"
-                className="dropdown-item text-destructive hover:bg-destructive/10 py-2"
-                onClick={() => setOpenMenu(null)}
+              <button
+                type="button"
+                className="dropdown-item text-destructive hover:bg-destructive/10 w-full py-2"
+                onClick={() => void handleLogout()}
               >
                 <Icon name="material-symbols:logout" className="size-4" />
                 <span>خروج از حساب</span>
-              </Link>
+              </button>
             </div>
           </Dropdown>
 
