@@ -1,8 +1,8 @@
 ﻿using JavidHrm.Domain.Enums;
 using JavidHrm.Domain.Entities;
-using JavidHrm.Infrastructure.Persistence.Contracts;
-using JavidHrm.Infrastructure.Persistence.Models;
+using JavidHrm.Domain.Dtos.Others;
 using Microsoft.EntityFrameworkCore;
+using JavidHrm.Infrastructure.Persistence.Contracts;
 
 namespace JavidHrm.Infrastructure.Persistence.SeedData;
 

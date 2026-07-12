@@ -1,6 +1,7 @@
 using JavidHrm.Common.Models;
 using JavidHrm.Domain.Repositories;
 using JavidHrm.Domain.Dtos.Pagination;
+using JavidHrm.Application.Common.Extensions;
 using JavidHrm.Application.Contracts.Mapping;
 using JavidHrm.Application.Contracts.ContentPolicies;
 
