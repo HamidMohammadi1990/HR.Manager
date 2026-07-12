@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using JavidHrm.Infrastructure.Persistence.SeedData;
 using JavidHrm.Infrastructure.Persistence.Contracts;
+using JavidHrm.Infrastructure.Persistence.Configurations;
 using JavidHrm.Application.Contracts.Persistence;
 using JavidHrm.Domain.Repositories;
 
@@ -36,6 +37,8 @@ public static class ConfigureServices
         services.AddScoped<IContentPolicyMetadataRepository, Repositories.ContentPolicyMetadataRepository>();
 
         services.AddScoped<ISeedService, SeedService>();
+
+        services.Configure<SeedSettings>(configuration.GetSection(nameof(SeedSettings)));
 
         return services;
     }

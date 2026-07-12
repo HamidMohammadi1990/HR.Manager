@@ -1,0 +1,49 @@
+using FluentValidation;
+using JavidHrm.Common.Localization;
+using JavidHrm.Common.Extensions;
+
+namespace JavidHrm.Application.Features.Users.Commands;
+
+public class UpdateUserValidator : AbstractValidator<UpdateUserRequest>
+{
+    public UpdateUserValidator()
+    {
+        RuleFor(u => u.Id)
+            .GreaterThan(0)
+            .WithMessage(MessageKeys.InvalidId);
+
+        RuleFor(u => u.UserName)
+            .NotNull()
+            .WithMessage(MessageKeys.UserNameRequired)
+            .Must(u => u.IsMobile())
+            .WithMessage(MessageKeys.UserNameMustBeMobile)
+            .MaximumLength(11)
+            .WithMessage(MessageKeys.UserNameMaxLength11);
+
+        RuleFor(u => u.FirstName)
+            .NotNull()
+            .WithMessage(MessageKeys.FirstNameRequired)
+            .MaximumLength(50)
+            .WithMessage(MessageKeys.FirstNameMaxLength50);
+
+        RuleFor(u => u.LastName)
+            .NotNull()
+            .WithMessage(MessageKeys.LastNameRequired)
+            .MaximumLength(50)
+            .WithMessage(MessageKeys.LastNameMaxLength50);
+
+        RuleFor(u => u.Email)
+            .NotNull()
+            .WithMessage(MessageKeys.EmailRequired)
+            .Must(x => x!.IsEmail())
+            .WithMessage(MessageKeys.EmailIsNotValid);
+
+        RuleFor(u => u.PhoneNumber)
+            .Must(x => x.IsMobile())
+            .WithMessage(MessageKeys.MobileIsNotValid);
+
+        RuleFor(u => u.Gender)
+            .IsInEnum()
+            .WithMessage(MessageKeys.GenderRequired);
+    }
+}

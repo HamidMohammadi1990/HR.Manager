@@ -16,10 +16,10 @@
 		<Content Include="SeedData\Data\ChartOfAccounts.json">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
-		<Content Include="SeedData\Data\Cities.json">
+		<Content Include="SeedData\Data\cities.json">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
-		<Content Include="SeedData\Data\Provinces.json">
+		<Content Include="SeedData\Data\provinces.json">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>

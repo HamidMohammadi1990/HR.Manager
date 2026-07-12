@@ -55,12 +55,7 @@ app.UseEditionLocalization();
 app.UseMiddleware<BlockTokenControlMiddleware>();
 
 if (app.Environment.IsDevelopment())
-{
-    //using var scope = app.Services.CreateScope();
-    //var seedService = scope.ServiceProvider.GetRequiredService<ISeedService>();
-    //var permissions = PermissionModule.GetPermissions();
-    //await seedService.SeedDataAsync(permissions);
-}
+    await app.ApplyDevelopmentBootstrapAsync();
 
 if (!builder.Environment.IsDevelopment())
     app.UseHsts();

@@ -6,6 +6,8 @@ findstr /C:"Build succeeded" build-log.txt >nul
 if %ERRORLEVEL% EQU 0 (
   echo === EF migration === >> build-log.txt
   dotnet ef migrations add InitialHrSchema -p src\Infrastructure\Edition.Infrastructure.Persistence -s src\Presentation\Edition.Api >> build-log.txt 2>&1
+  echo === Database update === >> build-log.txt
+  dotnet ef database update -p src\Infrastructure\Edition.Infrastructure.Persistence -s src\Presentation\Edition.Api >> build-log.txt 2>&1
   echo MIGRATION_DONE >> build-log.txt
 ) else (
   echo BUILD_FAILED >> build-log.txt

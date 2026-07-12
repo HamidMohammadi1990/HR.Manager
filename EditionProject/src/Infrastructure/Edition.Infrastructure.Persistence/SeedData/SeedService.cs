@@ -1,25 +1,170 @@
 ﻿using JavidHrm.Domain.Enums;
 using JavidHrm.Domain.Entities;
+using JavidHrm.Common.Security;
 using JavidHrm.Domain.Dtos.Others;
-using Microsoft.EntityFrameworkCore;
+using JavidHrm.Infrastructure.Persistence.Models;
 using JavidHrm.Infrastructure.Persistence.Contracts;
+using JavidHrm.Infrastructure.Persistence.Configurations;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 
 namespace JavidHrm.Infrastructure.Persistence.SeedData;
 
-public class SeedService(JavidHrmDbContext context) : ISeedService
+public class SeedService(
+    JavidHrmDbContext context,
+    IPasswordHasher passwordHasher,
+    IOptions<SeedSettings> seedSettings)
+    : ISeedService
 {
+    private readonly SeedSettings settings = seedSettings.Value;
+
     public async Task SeedDataAsync(List<DynamicPermission> dynamicPermissions)
     {
+        if (!settings.Enabled)
+            return;
+
+        await SeedLocationsAsync();
+        await SeedDefaultRolesAsync();
+
         if (dynamicPermissions.Count > 0)
             await SeedPermissionsAsync(dynamicPermissions);
 
+        await SeedAdminUserAsync();
         await SeedContentPoliciesAsync();
+    }
+
+    private async Task SeedLocationsAsync()
+    {
+        if (!await context.Province.AnyAsync())
+            await SeedProvincesAsync();
+
+        if (!await context.City.AnyAsync())
+            await SeedCitiesAsync();
+    }
+
+    private async Task SeedProvincesAsync()
+    {
+        var filePath = Path.Combine(AppContext.BaseDirectory, "SeedData", "Data", "provinces.json");
+        if (!File.Exists(filePath))
+            return;
+
+        var json = await File.ReadAllTextAsync(filePath);
+        var provinces = JsonConvert.DeserializeObject<List<ProvinceSeedDataDto>>(json) ?? [];
+        if (provinces.Count == 0)
+            return;
+
+        await using var transaction = await context.Database.BeginTransactionAsync();
+        await context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT [Province] ON");
+
+        foreach (var item in provinces)
+        {
+            var province = SeedEntityHelper.WithId(
+                Province.Create(item.Name, item.Slug, item.TelPrefix, null, 0, null, null),
+                item.Id);
+            context.Province.Add(province);
+        }
+
+        await context.SaveChangesAsync();
+        await context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT [Province] OFF");
+        await transaction.CommitAsync();
+    }
+
+    private async Task SeedCitiesAsync()
+    {
+        var filePath = Path.Combine(AppContext.BaseDirectory, "SeedData", "Data", "cities.json");
+        if (!File.Exists(filePath))
+            return;
+
+        var json = await File.ReadAllTextAsync(filePath);
+        var cities = JsonConvert.DeserializeObject<List<CitySeedDataDto>>(json) ?? [];
+        if (cities.Count == 0)
+            return;
+
+        await using var transaction = await context.Database.BeginTransactionAsync();
+        await context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT [City] ON");
+
+        foreach (var item in cities)
+        {
+            var city = SeedEntityHelper.WithId(
+                City.Create(item.ProvinceId, item.Name, item.Slug, null, 0, null, null),
+                item.Id);
+            context.City.Add(city);
+        }
+
+        await context.SaveChangesAsync();
+        await context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT [City] OFF");
+        await transaction.CommitAsync();
+    }
+
+    private async Task SeedDefaultRolesAsync()
+    {
+        var systemAdminRole = await EnsureRoleAsync(HrSeedDefaults.SystemAdminRole, bypassContentPolicy: true);
+        await EnsureRoleAsync(HrSeedDefaults.HrManagerRole);
+        await EnsureRoleAsync(HrSeedDefaults.EmployeeRole);
+
+        var permissionIds = await context.Permission.Select(x => x.Id).ToListAsync();
+        var assignedPermissionIds = await context.RolePermission
+            .Where(x => x.RoleId == systemAdminRole.Id)
+            .Select(x => x.PermissionId)
+            .ToListAsync();
+
+        foreach (var permissionId in permissionIds.Except(assignedPermissionIds))
+            context.RolePermission.Add(RolePermission.Create(systemAdminRole.Id, permissionId));
+
+        await context.SaveChangesAsync();
+    }
+
+    private async Task<Role> EnsureRoleAsync(string title, bool bypassContentPolicy = false)
+    {
+        var role = await context.Role.FirstOrDefaultAsync(x => x.Title == title);
+        if (role is not null)
+            return role;
+
+        role = Role.Create(title);
+        if (bypassContentPolicy)
+            role.SetBypassContentPolicy(true);
+
+        context.Role.Add(role);
+        await context.SaveChangesAsync();
+        return role;
+    }
+
+    private async Task SeedAdminUserAsync()
+    {
+        if (await context.User.AnyAsync(x => x.UserName == settings.AdminUserName))
+            return;
+
+        var systemAdminRole = await context.Role
+            .FirstOrDefaultAsync(x => x.Title == HrSeedDefaults.SystemAdminRole);
+
+        if (systemAdminRole is null)
+            return;
+
+        var passwordHash = passwordHasher.HashPassword(settings.AdminPassword);
+        var user = User.Create(
+            settings.AdminEmail,
+            settings.AdminCityId,
+            GenderType.Male,
+            settings.AdminUserName,
+            settings.AdminFirstName,
+            settings.AdminLastName,
+            settings.AdminUserName,
+            passwordHash,
+            Guid.NewGuid().ToString("N"));
+
+        user.GrantLoginPermission();
+        context.User.Add(user);
+        await context.SaveChangesAsync();
+
+        context.UserRole.Add(UserRole.Create(user.Id, systemAdminRole.Id));
+        await context.SaveChangesAsync();
     }
 
     private async Task SeedContentPoliciesAsync()
     {
         var adminRoles = await context.Role
-            .Where(x => x.Title == "مدیر" || x.Title.Contains("مدیر"))
+            .Where(x => x.Title == HrSeedDefaults.SystemAdminRole || x.Title.Contains("مدیر"))
             .ToListAsync();
 
         foreach (var adminRole in adminRoles)

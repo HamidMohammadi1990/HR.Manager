@@ -79,4 +79,30 @@ public class User : BaseEntity
     public void ConfirmEmail() => EmailConfirmed = true;
 
     public void ConfirmPhoneNumber() => PhoneNumberConfirmed = true;
+
+    public void Update(
+        string userName,
+        string firstName,
+        string lastName,
+        string? email,
+        string phoneNumber,
+        int cityId,
+        GenderType gender,
+        bool isActive,
+        bool loginPermission)
+    {
+        UserName = userName;
+        FirstName = firstName;
+        LastName = lastName;
+        Email = email;
+        PhoneNumber = phoneNumber;
+        CityId = cityId;
+        Gender = gender;
+        IsActive = isActive;
+        LoginPermission = loginPermission;
+    }
+
+    public void GrantLoginPermission() => LoginPermission = true;
+
+    public void Deactivate() => IsActive = false;
 }

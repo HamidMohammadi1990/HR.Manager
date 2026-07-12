@@ -2,6 +2,7 @@ using MediatR;
 using Asp.Versioning;
 using JavidHrm.Domain.Enums;
 using JavidHrm.Api.Attributes;
+using JavidHrm.Common.Models;
 using JavidHrm.Common.Enums;
 using Microsoft.AspNetCore.Mvc;
 using JavidHrm.WebFramework.Api;
@@ -35,5 +36,15 @@ public class AccountController
     [ActionInfo(PermissionType.CreateUser)]
     [HttpPost("create")]
     public async Task<ApiResult<CreateUserResponse>> Create(CreateUserRequest request)
+        => await mediator.Send(request);
+
+    [ActionInfo(PermissionType.UpdateUser)]
+    [HttpPut("update")]
+    public async Task<ApiResult<OperationResult>> Update(UpdateUserRequest request)
+        => await mediator.Send(request);
+
+    [ActionInfo(PermissionType.DeleteUser)]
+    [HttpDelete("delete")]
+    public async Task<ApiResult<OperationResult>> Delete(DeleteUserRequest request)
         => await mediator.Send(request);
 }
