@@ -16,15 +16,15 @@ public class GetAttendanceRecordHandler
 
         var employee = await employeeRepository.GetAsNoTrackingAsync(attendanceRecord.EmployeeId, cancellationToken);
         if (employee is null)
-            return ErrorModel.Create("InvalidId").ToGenericFailure<GetAttendanceRecordResponse?>();
+            return ErrorModel.Create("InvalidId");
 
         var user = await userRepository.GetAsNoTrackingAsync(employee.UserId, cancellationToken);
         if (user is null)
-            return ErrorModel.Create("InvalidId").ToGenericFailure<GetAttendanceRecordResponse?>();
+            return ErrorModel.Create("InvalidId");
 
         var department = await departmentRepository.GetAsNoTrackingAsync(employee.DepartmentId, cancellationToken);
         if (department is null)
-            return ErrorModel.Create("InvalidId").ToGenericFailure<GetAttendanceRecordResponse?>();
+            return ErrorModel.Create("InvalidId");
 
         return mapper.Map(attendanceRecord, employee, user, department);
     }

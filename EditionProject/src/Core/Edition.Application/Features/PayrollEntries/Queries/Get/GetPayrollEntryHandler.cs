@@ -16,15 +16,15 @@ public class GetPayrollEntryHandler
 
         var employee = await employeeRepository.GetAsNoTrackingAsync(payrollEntry.EmployeeId, cancellationToken);
         if (employee is null)
-            return ErrorModel.Create("InvalidId").ToGenericFailure<GetPayrollEntryResponse?>();
+            return ErrorModel.Create("InvalidId");
 
         var user = await userRepository.GetAsNoTrackingAsync(employee.UserId, cancellationToken);
         if (user is null)
-            return ErrorModel.Create("InvalidId").ToGenericFailure<GetPayrollEntryResponse?>();
+            return ErrorModel.Create("InvalidId");
 
         var department = await departmentRepository.GetAsNoTrackingAsync(employee.DepartmentId, cancellationToken);
         if (department is null)
-            return ErrorModel.Create("InvalidId").ToGenericFailure<GetPayrollEntryResponse?>();
+            return ErrorModel.Create("InvalidId");
 
         return mapper.Map(payrollEntry, employee, user, department);
     }

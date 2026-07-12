@@ -16,15 +16,15 @@ public class GetLeaveRequestHandler
 
         var employee = await employeeRepository.GetAsNoTrackingAsync(leaveRequest.EmployeeId, cancellationToken);
         if (employee is null)
-            return ErrorModel.Create("InvalidId").ToGenericFailure<GetLeaveRequestResponse?>();
+            return ErrorModel.Create("InvalidId");
 
         var user = await userRepository.GetAsNoTrackingAsync(employee.UserId, cancellationToken);
         if (user is null)
-            return ErrorModel.Create("InvalidId").ToGenericFailure<GetLeaveRequestResponse?>();
+            return ErrorModel.Create("InvalidId");
 
         var department = await departmentRepository.GetAsNoTrackingAsync(employee.DepartmentId, cancellationToken);
         if (department is null)
-            return ErrorModel.Create("InvalidId").ToGenericFailure<GetLeaveRequestResponse?>();
+            return ErrorModel.Create("InvalidId");
 
         return mapper.Map(leaveRequest, employee, user, department);
     }

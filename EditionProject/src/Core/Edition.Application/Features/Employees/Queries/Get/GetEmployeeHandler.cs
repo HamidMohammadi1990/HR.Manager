@@ -16,11 +16,11 @@ public class GetEmployeeHandler
 
         var user = await userRepository.GetAsNoTrackingAsync(employee.UserId, cancellationToken);
         if (user is null)
-            return ErrorModel.Create("InvalidId").ToGenericFailure<GetEmployeeResponse?>();
+            return ErrorModel.Create("InvalidId");
 
         var department = await departmentRepository.GetAsNoTrackingAsync(employee.DepartmentId, cancellationToken);
         if (department is null)
-            return ErrorModel.Create("InvalidId").ToGenericFailure<GetEmployeeResponse?>();
+            return ErrorModel.Create("InvalidId");
 
         Domain.Entities.User? managerUser = null;
         if (employee.ManagerId is not null)
