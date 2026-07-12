@@ -1,0 +1,32 @@
+.separator {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin: 1.5rem 0;
+}
+
+.separator::before,
+.separator::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background-color: var(--border);
+}
+
+.separatorText {
+  padding: 0 0.75rem;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+.gridPattern {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  width: 100vw;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  mask-image: radial-gradient(transparent 15%, white);
+}

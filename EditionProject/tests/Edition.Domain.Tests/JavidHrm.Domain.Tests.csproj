@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>JavidHrm.Domain.Tests</RootNamespace>
+    <AssemblyName>JavidHrm.Domain.Tests</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Core\Edition.Domain\JavidHrm.Domain.csproj" />
+  </ItemGroup>
+</Project>

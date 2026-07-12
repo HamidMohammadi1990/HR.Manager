@@ -1,0 +1,1506 @@
+<!doctype html>
+<html lang="fa-IR" class="light" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>حقوق و دستمزد | پنل مدیریت</title>
+    <link rel="stylesheet" href="./assets/styles/app.css" />
+    <link rel="stylesheet" href="./assets/styles/themes.css" />
+
+    <script src="./assets/scripts/mount.js"></script>
+    <script defer src="./assets/scripts/app.js"></script>
+  </head>
+
+  <body class="app-layout">
+    <!-- Desktop Sidebar -->
+<aside id="mobile-sidebar" class="sidebar">
+  <nav class="sidebar-content scrollbar-thin">
+    <!-- Main Menu -->
+    <div class="sidebar-group">
+      <div class="sidebar-group-title">منوی اصلی</div>
+      <div class="sidebar-menu">
+        <a href="index.html" class="sidebar-item">
+          <span class="icon-[material-symbols--home] sidebar-item-icon"></span>
+          <span class="sidebar-label">داشبورد</span>
+        </a>
+        
+        
+        <a href="calendar.html" class="sidebar-item">
+          <span
+            class="icon-[material-symbols--calendar-month] sidebar-item-icon"
+          ></span>
+          <span class="sidebar-label">تقویم</span>
+        </a>
+      </div>
+    </div>
+
+    
+
+    <!-- Users & HR -->
+    <div class="sidebar-group">
+      <div class="sidebar-group-title">کاربران و منابع انسانی</div>
+      <div class="sidebar-menu">
+        <!-- Users -->
+        <div data-accordion>
+          <button
+            class="sidebar-item accordion-trigger w-full"
+            data-accordion-trigger
+          >
+            <div class="flex items-center gap-3">
+              <span
+                class="icon-[material-symbols--group] sidebar-item-icon"
+              ></span>
+              <span class="sidebar-label">کاربران</span>
+            </div>
+            <span
+              class="icon-[material-symbols--keyboard-arrow-down] sidebar-label size-5"
+              data-accordion-icon
+            ></span>
+          </button>
+          <div data-accordion-content>
+            <div class="space-y-1 py-1 ps-8">
+              <a href="users.html" class="sidebar-item text-sm">لیست کاربران</a>
+              <a href="add-user.html" class="sidebar-item text-sm"
+                >کاربر جدید</a
+              >
+              <a href="roles.html" class="sidebar-item text-sm">نقش‌ها</a>
+              <a href="permissions.html" class="sidebar-item text-sm"
+                >دسترسی‌ها</a
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- HR -->
+        <div data-accordion>
+          <button
+            class="sidebar-item accordion-trigger w-full"
+            data-accordion-trigger
+          >
+            <div class="flex items-center gap-3">
+              <span
+                class="icon-[material-symbols--badge] sidebar-item-icon"
+              ></span>
+              <span class="sidebar-label">پرسنل</span>
+            </div>
+            <span
+              class="icon-[material-symbols--keyboard-arrow-down] sidebar-label size-5"
+              data-accordion-icon
+            ></span>
+          </button>
+          <div data-accordion-content>
+            <div class="space-y-1 py-1 ps-8">
+              <a href="employees.html" class="sidebar-item text-sm">کارمندان</a>
+              <a href="departments.html" class="sidebar-item text-sm">بخش‌ها</a>
+              <a href="attendance.html" class="sidebar-item text-sm"
+                >حضور و غیاب</a
+              >
+              <a href="leaves.html" class="sidebar-item text-sm">مرخصی‌ها</a>
+              <a href="payroll.html" class="sidebar-item text-sm"
+                >حقوق و دستمزد</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+   
+
+  
+   
+  </nav>
+</aside>
+
+    <!-- Global Header -->
+    <header class="app-header">
+  <div class="app-header-content">
+    <div class="flex items-center gap-3">
+      <!-- Mobile Menu Button -->
+      <button
+        data-drawer-trigger="mobile-sidebar"
+        class="button lg:hidden"
+        variant="ghost"
+        size="icon"
+      >
+        <span class="icon-[material-symbols--menu] size-6"></span>
+      </button>
+      <!-- Sidebar Show Button (when hidden on desktop) -->
+      <button
+        data-sidebar-expand
+        class="button hidden lg:hidden"
+        variant="ghost"
+        size="icon"
+        id="show-sidebar-btn"
+      >
+        <span class="icon-[material-symbols--right-panel-open] size-5"></span>
+      </button>
+
+      <!-- Quick Access Search Button -->
+      <button
+        data-dialog-trigger="quick-access-dialog"
+        class="bg-muted/50 hover:bg-muted border-border text-muted-foreground hidden h-9 w-64 items-center gap-3 rounded-lg border px-3 py-2 text-sm transition-colors sm:flex lg:w-80"
+      >
+        <span class="icon-[material-symbols--search] size-4"></span>
+        <span class="flex-1 text-start">جستجو یا دسترسی سریع...</span>
+        <span class="kbd-group hidden lg:inline-flex">
+          <kbd class="kbd">Ctrl</kbd>
+          <span class="text-[10px]">+</span>
+          <kbd class="kbd">K</kbd>
+        </span>
+      </button>
+
+      <!-- Mobile Search Button -->
+      <button
+        data-dialog-trigger="quick-access-dialog"
+        class="button sm:hidden"
+        variant="ghost"
+        size="icon"
+      >
+        <span class="icon-[material-symbols--search] size-5"></span>
+      </button>
+    </div>
+
+    <div class="flex items-center gap-1">
+      <!-- User Menu -->
+      <div class="relative" data-dropdown>
+        <button
+          data-dropdown-trigger
+          class="hover:bg-accent flex items-center gap-2 rounded-lg p-1.5 transition-colors"
+        >
+          <div class="avatar ring-primary/20 size-8 ring-2">
+            <div
+              class="avatar-fallback from-primary to-primary/70 text-primary-foreground bg-linear-to-br text-sm font-semibold"
+            >
+              م
+            </div>
+          </div>
+          <div class="hidden text-start sm:block">
+            <p class="text-sm leading-none font-medium">مدیر سیستم</p>
+            <p class="text-muted-foreground text-xs">admin@example.com</p>
+          </div>
+          <span
+            class="icon-[material-symbols--keyboard-arrow-down] text-muted-foreground hidden size-4 sm:block"
+          ></span>
+        </button>
+        <div
+          data-dropdown-content
+          class="dropdown-content end-0 top-full mt-2 hidden w-56 overflow-hidden p-0"
+        >
+          <div class="bg-muted/30 border-b px-3 py-3">
+            <p class="text-sm font-semibold">مدیر سیستم</p>
+            <p class="text-muted-foreground text-xs">admin@example.com</p>
+          </div>
+          <div class="p-1">
+            <a href="#" class="dropdown-item py-2">
+              <span class="icon-[material-symbols--person] size-4"></span>
+              <span>پروفایل کاربری</span>
+            </a>
+            <a href="settings.html" class="dropdown-item py-2">
+              <span class="icon-[material-symbols--settings] size-4"></span>
+              <span>تنظیمات</span>
+            </a>
+            <a href="#" class="dropdown-item py-2">
+              <span class="icon-[material-symbols--help] size-4"></span>
+              <span>راهنما و پشتیبانی</span>
+            </a>
+          </div>
+          <div class="border-t p-1">
+            <a
+              href="#"
+              class="dropdown-item text-destructive hover:bg-destructive/10 py-2"
+            >
+              <span class="icon-[material-symbols--logout] size-4"></span>
+              <span>خروج از حساب</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <!-- Separator -->
+      <div class="bg-border mx-1 hidden h-6 w-px sm:block"></div>
+
+      <!-- Theme Toggle -->
+      <button
+        onclick="toggleTheme()"
+        class="button"
+        variant="ghost"
+        size="icon"
+        data-tooltip-position="bottom"
+        data-tooltip="تغییر تم"
+      >
+        <span
+          class="icon-[material-symbols--light-mode] size-5 dark:hidden"
+        ></span>
+        <span
+          class="icon-[material-symbols--dark-mode] hidden size-5 dark:block"
+        ></span>
+      </button>
+
+      <!-- Notifications -->
+      <div class="relative" data-dropdown>
+        <button
+          data-dropdown-trigger
+          class="button relative"
+          variant="ghost"
+          size="icon"
+          data-tooltip-position="bottom"
+          data-tooltip="اعلان‌ها"
+        >
+          <span class="icon-[material-symbols--notifications] size-5"></span>
+          <span
+            class="bg-destructive absolute -start-0.5 -top-0.5 flex size-4.5 animate-pulse items-center justify-center rounded-full text-[10px] font-medium text-white"
+            >۳</span
+          >
+        </button>
+        <div
+          data-dropdown-content
+          class="dropdown-content end-0 top-full mt-2 hidden w-80 overflow-hidden p-0"
+        >
+          <div
+            class="bg-muted/30 flex items-center justify-between border-b px-4 py-3"
+          >
+            <div class="flex items-center gap-2">
+              <span
+                class="icon-[material-symbols--notifications] text-primary size-4"
+              ></span>
+              <p class="text-sm font-semibold">اعلان‌ها</p>
+            </div>
+            <button class="text-primary text-xs hover:underline">
+              خواندن همه
+            </button>
+          </div>
+          <div class="max-h-80 overflow-y-auto">
+            <a
+              href="#"
+              class="hover:bg-muted/50 border-border/50 flex gap-3 border-b p-3 transition-colors"
+            >
+              <div
+                class="bg-primary/10 flex size-10 shrink-0 items-center justify-center rounded-full"
+              >
+                <span
+                  class="icon-[material-symbols--shopping-cart] text-primary size-5"
+                ></span>
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-sm font-medium">سفارش جدید #۱۲۵۶</p>
+                <p class="text-muted-foreground text-xs">
+                  علی محمدی - ۲,۵۰۰,۰۰۰ تومان
+                </p>
+                <p class="text-muted-foreground mt-1 text-xs">۵ دقیقه پیش</p>
+              </div>
+              <div class="bg-primary mt-2 size-2 shrink-0 rounded-full"></div>
+            </a>
+            <a
+              href="#"
+              class="hover:bg-muted/50 border-border/50 flex gap-3 border-b p-3 transition-colors"
+            >
+              <div
+                class="flex size-10 shrink-0 items-center justify-center rounded-full bg-emerald-500/10"
+              >
+                <span
+                  class="icon-[material-symbols--person-add] size-5 text-emerald-500"
+                ></span>
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-sm font-medium">
+                  کاربر جدید ثبت نام کرد
+                </p>
+                <p class="text-muted-foreground text-xs">سارا احمدی</p>
+                <p class="text-muted-foreground mt-1 text-xs">۱۰ دقیقه پیش</p>
+              </div>
+              <div class="bg-primary mt-2 size-2 shrink-0 rounded-full"></div>
+            </a>
+            <a
+              href="#"
+              class="hover:bg-muted/50 flex gap-3 p-3 transition-colors"
+            >
+              <div
+                class="flex size-10 shrink-0 items-center justify-center rounded-full bg-amber-500/10"
+              >
+                <span
+                  class="icon-[material-symbols--inventory-2] size-5 text-amber-500"
+                ></span>
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-sm font-medium">موجودی کم</p>
+                <p class="text-muted-foreground text-xs">
+                  ۵ محصول نیاز به تأمین دارند
+                </p>
+                <p class="text-muted-foreground mt-1 text-xs">۳۰ دقیقه پیش</p>
+              </div>
+              <div class="bg-primary mt-2 size-2 shrink-0 rounded-full"></div>
+            </a>
+          </div>
+          <div class="bg-muted/30 border-t px-4 py-3">
+            <a
+              href="notifications.html"
+              class="text-primary flex items-center justify-center gap-1 text-sm hover:underline"
+            >
+              <span>مشاهده همه اعلان‌ها</span>
+              <span
+                class="icon-[material-symbols--arrow-forward] size-4 rtl:rotate-180"
+              ></span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Quick Access Dialog (Command Palette) -->
+<div
+  id="quick-access-dialog"
+  data-dialog
+  class="dialog hidden"
+  data-state="closed"
+>
+  <div data-dialog-overlay class="dialog-overlay"></div>
+  <div
+    class="dialog-content top-[20%]! max-w-xl translate-y-0! overflow-hidden p-0"
+  >
+    <!-- Search Input -->
+    <div class="flex items-center gap-3 border-b px-4 py-3">
+      <span
+        class="icon-[material-symbols--search] text-muted-foreground size-5"
+      ></span>
+      <input
+        type="text"
+        id="quick-access-search"
+        placeholder="جستجو در منوها، صفحات و دستورات..."
+        class="placeholder:text-muted-foreground flex-1 border-0 bg-transparent text-sm outline-none"
+        autocomplete="off"
+      />
+      <button
+        data-dialog-close
+        class="button p-1"
+        variant="ghost"
+        size="icon-sm"
+      >
+        <span class="icon-[material-symbols--close] size-4"></span>
+      </button>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="max-h-96 overflow-y-auto">
+      <!-- Recent/Quick Actions Section -->
+      <div class="border-b p-2">
+        <p class="text-muted-foreground px-2 py-1.5 text-xs font-medium">
+          دسترسی سریع
+        </p>
+        <div class="space-y-0.5" id="quick-actions-list">
+          <a
+            href="products.html"
+            class="quick-access-item hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 transition-colors"
+            data-quick-action
+          >
+            <div
+              class="bg-primary/10 flex size-8 items-center justify-center rounded-lg"
+            >
+              <span
+                class="icon-[material-symbols--add] text-primary size-4"
+              ></span>
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-medium">افزودن محصول جدید</p>
+              <p class="text-muted-foreground text-xs">
+                ایجاد محصول در فروشگاه
+              </p>
+            </div>
+            <span class="kbd-group">
+              <kbd class="kbd">Alt</kbd>
+              <span class="text-[10px]">+</span>
+              <kbd class="kbd">N</kbd>
+            </span>
+          </a>
+          <a
+            href="orders.html"
+            class="quick-access-item hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 transition-colors"
+            data-quick-action
+          >
+            <div
+              class="flex size-8 items-center justify-center rounded-lg bg-emerald-500/10"
+            >
+              <span
+                class="icon-[material-symbols--shopping-cart] size-4 text-emerald-500"
+              ></span>
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-medium">سفارشات</p>
+              <p class="text-muted-foreground text-xs">
+                مدیریت سفارشات مشتریان
+              </p>
+            </div>
+            <span class="kbd-group">
+              <kbd class="kbd">Alt</kbd>
+              <span class="text-[10px]">+</span>
+              <kbd class="kbd">O</kbd>
+            </span>
+          </a>
+          <a
+            href="users.html"
+            class="quick-access-item hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 transition-colors"
+            data-quick-action
+          >
+            <div
+              class="flex size-8 items-center justify-center rounded-lg bg-sky-500/10"
+            >
+              <span
+                class="icon-[material-symbols--group] size-4 text-sky-500"
+              ></span>
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-medium">کاربران</p>
+              <p class="text-muted-foreground text-xs">مدیریت کاربران سیستم</p>
+            </div>
+            <span class="kbd-group">
+              <kbd class="kbd">Alt</kbd>
+              <span class="text-[10px]">+</span>
+              <kbd class="kbd">U</kbd>
+            </span>
+          </a>
+          <a
+            href="analytics.html"
+            class="quick-access-item hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 transition-colors"
+            data-quick-action
+          >
+            <div
+              class="flex size-8 items-center justify-center rounded-lg bg-violet-500/10"
+            >
+              <span
+                class="icon-[material-symbols--analytics] size-4 text-violet-500"
+              ></span>
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-medium">گزارشات و تحلیل</p>
+              <p class="text-muted-foreground text-xs">آمار و نمودارها</p>
+            </div>
+            <span class="kbd-group">
+              <kbd class="kbd">Alt</kbd>
+              <span class="text-[10px]">+</span>
+              <kbd class="kbd">A</kbd>
+            </span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Navigation Section -->
+      <div class="border-b p-2">
+        <p class="text-muted-foreground px-2 py-1.5 text-xs font-medium">
+          صفحات
+        </p>
+        <div class="space-y-0.5" id="quick-pages-list">
+          <a
+            href="index.html"
+            class="quick-access-item hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 transition-colors"
+            data-quick-page
+          >
+            <span
+              class="icon-[material-symbols--home] text-muted-foreground size-4"
+            ></span>
+            <span class="text-sm">داشبورد</span>
+          </a>
+          <a
+            href="products.html"
+            class="quick-access-item hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 transition-colors"
+            data-quick-page
+          >
+            <span
+              class="icon-[material-symbols--inventory-2] text-muted-foreground size-4"
+            ></span>
+            <span class="text-sm">محصولات</span>
+          </a>
+          <a
+            href="orders.html"
+            class="quick-access-item hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 transition-colors"
+            data-quick-page
+          >
+            <span
+              class="icon-[material-symbols--shopping-cart] text-muted-foreground size-4"
+            ></span>
+            <span class="text-sm">سفارشات</span>
+          </a>
+          <a
+            href="users.html"
+            class="quick-access-item hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 transition-colors"
+            data-quick-page
+          >
+            <span
+              class="icon-[material-symbols--group] text-muted-foreground size-4"
+            ></span>
+            <span class="text-sm">کاربران</span>
+          </a>
+          <a
+            href="settings.html"
+            class="quick-access-item hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 transition-colors"
+            data-quick-page
+          >
+            <span
+              class="icon-[material-symbols--settings] text-muted-foreground size-4"
+            ></span>
+            <span class="text-sm">تنظیمات</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Commands Section -->
+      <div class="p-2">
+        <p class="text-muted-foreground px-2 py-1.5 text-xs font-medium">
+          دستورات
+        </p>
+        <div class="space-y-0.5" id="quick-commands-list">
+          <button
+            class="quick-access-item hover:bg-accent flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-start transition-colors"
+            onclick="
+              toggleTheme();
+              window.dialogManager?.closeDialog('quick-access-dialog');
+            "
+          >
+            <span
+              class="icon-[material-symbols--dark-mode] text-muted-foreground size-4"
+            ></span>
+            <span class="text-sm">تغییر تم (روشن/تاریک)</span>
+            <span class="kbd-group mr-auto">
+              <kbd class="kbd">Alt</kbd>
+              <span class="text-[10px]">+</span>
+              <kbd class="kbd">T</kbd>
+            </span>
+          </button>
+
+          <a
+            href="#"
+            class="quick-access-item hover:bg-accent text-destructive flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 transition-colors"
+          >
+            <span class="icon-[material-symbols--logout] size-4"></span>
+            <span class="text-sm">خروج از حساب</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div
+      class="bg-muted/30 text-muted-foreground flex items-center justify-between border-t px-4 py-2.5 text-xs"
+    >
+      <div class="flex items-center gap-4">
+        <span class="flex items-center gap-1.5">
+          <span class="kbd-group">
+            <kbd class="kbd">↑</kbd>
+            <kbd class="kbd">↓</kbd>
+          </span>
+          <span>پیمایش</span>
+        </span>
+        <span class="flex items-center gap-1.5">
+          <kbd class="kbd">Enter</kbd>
+          <span>انتخاب</span>
+        </span>
+        <span class="flex items-center gap-1.5">
+          <kbd class="kbd">Esc</kbd>
+          <span>بستن</span>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    <!-- Main Content Area -->
+    <div class="app-body">
+      <main class="app-main flex flex-col">
+        <div class="flex-1 p-4 lg:p-6">
+          <div class="mb-6">
+            <div class="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <h1 class="text-2xl font-bold">مدیریت حقوق و دستمزد</h1>
+                <p class="text-muted-foreground">
+                  محاسبه حقوق، فیش حقوقی و پرداخت‌های پرسنلی
+                </p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button class="button" variant="outline" size="default">
+                  <span
+                    class="icon-[material-symbols--receipt-long] size-4"
+                  ></span>
+                  فیش حقوقی
+                </button>
+                <button class="button" variant="default" size="default">
+                  <span
+                    class="icon-[material-symbols--calculate] size-4"
+                  ></span>
+                  محاسبه حقوق
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payroll Overview -->
+          <div class="space-y-6">
+            <!-- Key Metrics -->
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <div
+                class="bg-card hover:bg-accent/50 group cursor-pointer rounded-xl border p-4 transition-colors"
+              >
+                <div
+                  class="mb-3 flex size-10 items-center justify-center rounded-lg"
+                  style="background-color: #10b98115"
+                >
+                  <span
+                    class="icon-[lucide--credit-card] size-5 text-emerald-500"
+                  ></span>
+                </div>
+                <p class="mb-0.5 text-sm font-medium">کل پرداخت‌ها</p>
+                <div class="flex items-center justify-between">
+                  <span class="text-2xl font-bold">۴۲۰M</span>
+                  <span class="text-xs text-emerald-600">دی ۱۴۰۳</span>
+                </div>
+              </div>
+              <div
+                class="bg-card hover:bg-accent/50 group cursor-pointer rounded-xl border p-4 transition-colors"
+              >
+                <div
+                  class="mb-3 flex size-10 items-center justify-center rounded-lg"
+                  style="background-color: #ef444415"
+                >
+                  <span
+                    class="icon-[material-symbols--account-balance] size-5 text-red-500"
+                  ></span>
+                </div>
+                <p class="mb-0.5 text-sm font-medium">کسورات</p>
+                <div class="flex items-center justify-between">
+                  <span class="text-2xl font-bold">۶۲M</span>
+                  <span class="text-xs text-red-600">۱۴.۸%</span>
+                </div>
+              </div>
+              <div
+                class="bg-card hover:bg-accent/50 group cursor-pointer rounded-xl border p-4 transition-colors"
+              >
+                <div
+                  class="mb-3 flex size-10 items-center justify-center rounded-lg"
+                  style="background-color: #f59e0b15"
+                >
+                  <span
+                    class="icon-[material-symbols--trending-up] size-5 text-amber-500"
+                  ></span>
+                </div>
+                <p class="mb-0.5 text-sm font-medium">میانگین حقوق</p>
+                <div class="flex items-center justify-between">
+                  <span class="text-2xl font-bold">۱۲.۵M</span>
+                  <span class="text-xs text-amber-600">+۸%</span>
+                </div>
+              </div>
+              <div
+                class="bg-card hover:bg-accent/50 group cursor-pointer rounded-xl border p-4 transition-colors"
+              >
+                <div
+                  class="mb-3 flex size-10 items-center justify-center rounded-lg"
+                  style="background-color: #8b5cf615"
+                >
+                  <span
+                    class="icon-[material-symbols--schedule] size-5 text-violet-500"
+                  ></span>
+                </div>
+                <p class="mb-0.5 text-sm font-medium">پرداخت‌های امروز</p>
+                <div class="flex items-center justify-between">
+                  <span class="text-2xl font-bold">۱۸۷</span>
+                  <span class="text-xs text-violet-600">انجام شده</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Payroll Processing Status -->
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+              <!-- Payroll Calculator -->
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title flex items-center gap-2">
+                    <span
+                      class="icon-[material-symbols--calculate] size-5 text-blue-500"
+                    ></span>
+                    ماشین حساب حقوق
+                  </h3>
+                </div>
+                <div class="card-content">
+                  <div class="space-y-4">
+                    <div>
+                      <label class="mb-2 block text-sm font-medium"
+                        >حقوق پایه</label
+                      >
+                      <input
+                        type="number"
+                        class="input"
+                        placeholder="مبلغ حقوق پایه..."
+                      />
+                    </div>
+                    <div>
+                      <label class="mb-2 block text-sm font-medium"
+                        >اضافه کاری (ساعت)</label
+                      >
+                      <input
+                        type="number"
+                        class="input"
+                        placeholder="ساعت اضافه کاری..."
+                      />
+                    </div>
+                    <div>
+                      <label class="mb-2 block text-sm font-medium"
+                        >پاداش عملکرد</label
+                      >
+                      <input
+                        type="number"
+                        class="input"
+                        placeholder="مبلغ پاداش..."
+                      />
+                    </div>
+                    <div>
+                      <label class="mb-2 block text-sm font-medium"
+                        >کسورات بیمه</label
+                      >
+                      <input
+                        type="number"
+                        class="input"
+                        placeholder="مبلغ بیمه..."
+                      />
+                    </div>
+                    <div class="bg-muted/30 rounded-lg p-3">
+                      <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium">خالص دریافتی</span>
+                        <span class="text-lg font-bold text-emerald-600"
+                          >۱۵,۲۵۰,۰۰۰ تومان</span
+                        >
+                      </div>
+                    </div>
+                    <button
+                      class="button w-full bg-blue-500 text-white hover:bg-blue-600"
+                    >
+                      <span
+                        class="icon-[material-symbols--receipt] size-4"
+                      ></span>
+                      تولید فیش حقوقی
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Salary Structure -->
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title flex items-center gap-2">
+                    <span
+                      class="icon-[material-symbols--grade] size-5 text-emerald-500"
+                    ></span>
+                    ساختار حقوقی
+                  </h3>
+                </div>
+                <div class="card-content">
+                  <div class="space-y-4">
+                    <!-- Grade Levels -->
+                    <div class="space-y-3">
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                          <div
+                            class="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 text-sm font-bold text-white"
+                          >
+                            الف
+                          </div>
+                          <span class="text-sm font-medium">رتبه الف</span>
+                        </div>
+                        <span class="text-sm font-bold">۲۰-۲۵ میلیون</span>
+                      </div>
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                          <div
+                            class="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-sm font-bold text-white"
+                          >
+                            ب
+                          </div>
+                          <span class="text-sm font-medium">رتبه ب</span>
+                        </div>
+                        <span class="text-sm font-bold">۱۵-۲۰ میلیون</span>
+                      </div>
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                          <div
+                            class="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-amber-500 to-amber-600 text-sm font-bold text-white"
+                          >
+                            ج
+                          </div>
+                          <span class="text-sm font-medium">رتبه ج</span>
+                        </div>
+                        <span class="text-sm font-bold">۱۰-۱۵ میلیون</span>
+                      </div>
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                          <div
+                            class="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-violet-600 text-sm font-bold text-white"
+                          >
+                            د
+                          </div>
+                          <span class="text-sm font-medium">رتبه د</span>
+                        </div>
+                        <span class="text-sm font-bold">۸-۱۰ میلیون</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Payroll Status -->
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title flex items-center gap-2">
+                    <span
+                      class="icon-[material-symbols--pending-actions] size-5 text-amber-500"
+                    ></span>
+                    وضعیت پرداخت
+                  </h3>
+                </div>
+                <div class="card-content">
+                  <div class="space-y-4">
+                    <div class="text-center">
+                      <div
+                        class="mx-auto mb-3 flex size-16 items-center justify-center rounded-full bg-gradient-to-br from-amber-500 to-amber-600 text-lg font-bold text-white"
+                      >
+                        ۶۵%
+                      </div>
+                      <div class="text-sm font-medium">پردازش شده</div>
+                      <div class="text-muted-foreground text-xs">
+                        ۱۸۷ از ۲۹۰ پرسنل
+                      </div>
+                    </div>
+
+                    <div class="space-y-2">
+                      <div class="flex items-center justify-between text-sm">
+                        <span>تایید شده</span>
+                        <span class="font-medium text-emerald-600">۱۸۷</span>
+                      </div>
+                      <div class="flex items-center justify-between text-sm">
+                        <span>در انتظار</span>
+                        <span class="font-medium text-amber-600">۵۶</span>
+                      </div>
+                      <div class="flex items-center justify-between text-sm">
+                        <span>رد شده</span>
+                        <span class="font-medium text-red-600">۴۷</span>
+                      </div>
+                    </div>
+
+                    <button
+                      class="button w-full bg-emerald-500 text-white hover:bg-emerald-600"
+                    >
+                      <span
+                        class="icon-[material-symbols--play-arrow] size-4"
+                      ></span>
+                      شروع پردازش
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Payroll Dashboard -->
+            <div class="grid grid-cols-1 gap-6 xl:grid-cols-3">
+              <!-- Recent Payslips -->
+              <div class="space-y-6 xl:col-span-2">
+                <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title flex items-center gap-2">
+                      <span
+                        class="icon-[material-symbols--receipt-long] size-5 text-indigo-500"
+                      ></span>
+                      فیش‌های حقوقی اخیر
+                    </h3>
+                    <p class="card-description">فیش حقوقی پرسنل ماه دی ۱۴۰۳</p>
+                  </div>
+                  <div class="card-content">
+                    <div class="space-y-4">
+                      <!-- Payslip Items -->
+                      <div
+                        class="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-4"
+                      >
+                        <div class="mb-3 flex items-center justify-between">
+                          <div class="flex items-center gap-3">
+                            <div
+                              class="flex size-10 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 text-sm font-bold text-white"
+                            >
+                              سا
+                            </div>
+                            <div>
+                              <div class="text-sm font-medium">سارا احمدی</div>
+                              <div class="text-muted-foreground text-xs">
+                                توسعه دهنده • فناوری اطلاعات
+                              </div>
+                            </div>
+                          </div>
+                          <div class="text-left">
+                            <div class="text-sm font-bold text-emerald-600">
+                              ۱۸,۵۰۰,۰۰۰ تومان
+                            </div>
+                            <div class="text-muted-foreground text-xs">
+                              خالص دریافتی
+                            </div>
+                          </div>
+                        </div>
+                        <div class="grid grid-cols-4 gap-4 text-xs">
+                          <div>
+                            <div class="text-muted-foreground">حقوق پایه</div>
+                            <div class="font-medium">۱۵,۰۰۰,۰۰۰</div>
+                          </div>
+                          <div>
+                            <div class="text-muted-foreground">اضافه کاری</div>
+                            <div class="font-medium">۲,۵۰۰,۰۰۰</div>
+                          </div>
+                          <div>
+                            <div class="text-muted-foreground">کسورات</div>
+                            <div class="font-medium text-red-600">
+                              ۱,۲۰۰,۰۰۰
+                            </div>
+                          </div>
+                          <div>
+                            <div class="text-muted-foreground">وضعیت</div>
+                            <span class="badge" variant="success"
+                              >پرداخت شده</span
+                            >
+                          </div>
+                        </div>
+                        <div class="mt-3 flex items-center gap-2">
+                          <button class="button" variant="outline" size="sm">
+                            <span
+                              class="icon-[material-symbols--visibility] size-3"
+                            ></span>
+                            مشاهده
+                          </button>
+                          <button class="button" variant="outline" size="sm">
+                            <span
+                              class="icon-[material-symbols--download] size-3"
+                            ></span>
+                            دانلود
+                          </button>
+                          <button class="button" variant="outline" size="sm">
+                            <span
+                              class="icon-[material-symbols--mail] size-3"
+                            ></span>
+                            ارسال
+                          </button>
+                        </div>
+                      </div>
+
+                      <div
+                        class="rounded-lg border border-amber-500/20 bg-amber-500/5 p-4"
+                      >
+                        <div class="mb-3 flex items-center justify-between">
+                          <div class="flex items-center gap-3">
+                            <div
+                              class="flex size-10 items-center justify-center rounded-full bg-gradient-to-br from-amber-500 to-amber-600 text-sm font-bold text-white"
+                            >
+                              علی
+                            </div>
+                            <div>
+                              <div class="text-sm font-medium">علی محمدی</div>
+                              <div class="text-muted-foreground text-xs">
+                                مدیر فروش • فروش و بازاریابی
+                              </div>
+                            </div>
+                          </div>
+                          <div class="text-left">
+                            <div class="text-sm font-bold text-amber-600">
+                              ۲۲,۸۰۰,۰۰۰ تومان
+                            </div>
+                            <div class="text-muted-foreground text-xs">
+                              خالص دریافتی
+                            </div>
+                          </div>
+                        </div>
+                        <div class="grid grid-cols-4 gap-4 text-xs">
+                          <div>
+                            <div class="text-muted-foreground">حقوق پایه</div>
+                            <div class="font-medium">۲۰,۰۰۰,۰۰۰</div>
+                          </div>
+                          <div>
+                            <div class="text-muted-foreground">پاداش فروش</div>
+                            <div class="font-medium">۴,۰۰۰,۰۰۰</div>
+                          </div>
+                          <div>
+                            <div class="text-muted-foreground">کسورات</div>
+                            <div class="font-medium text-red-600">
+                              ۱,۲۰۰,۰۰۰
+                            </div>
+                          </div>
+                          <div>
+                            <div class="text-muted-foreground">وضعیت</div>
+                            <span class="badge" variant="destructive"
+                              >در انتظار</span
+                            >
+                          </div>
+                        </div>
+                        <div class="mt-3 flex items-center gap-2">
+                          <button class="button" variant="outline" size="sm">
+                            <span
+                              class="icon-[material-symbols--visibility] size-3"
+                            ></span>
+                            مشاهده
+                          </button>
+                          <button class="button" variant="outline" size="sm">
+                            <span
+                              class="icon-[material-symbols--edit] size-3"
+                            ></span>
+                            ویرایش
+                          </button>
+                          <button class="button" variant="outline" size="sm">
+                            <span
+                              class="icon-[material-symbols--check-circle] size-3"
+                            ></span>
+                            تایید
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Payroll Analytics -->
+                <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title flex items-center gap-2">
+                      <span
+                        class="icon-[material-symbols--analytics] size-5 text-cyan-500"
+                      ></span>
+                      تحلیل حقوق و دستمزد
+                    </h3>
+                  </div>
+                  <div class="card-content">
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                      <!-- Salary Distribution -->
+                      <div>
+                        <h4 class="mb-4 text-sm font-medium">توزیع حقوق</h4>
+                        <div class="space-y-3">
+                          <div
+                            class="flex items-center justify-between text-sm"
+                          >
+                            <span>زیر ۱۰ میلیون</span>
+                            <span class="font-medium">۲۳%</span>
+                          </div>
+                          <div class="bg-muted h-2 w-full rounded-full">
+                            <div
+                              class="h-2 rounded-full bg-blue-500"
+                              style="width: 23%"
+                            ></div>
+                          </div>
+
+                          <div
+                            class="flex items-center justify-between text-sm"
+                          >
+                            <span>۱۰-۱۵ میلیون</span>
+                            <span class="font-medium">۳۵%</span>
+                          </div>
+                          <div class="bg-muted h-2 w-full rounded-full">
+                            <div
+                              class="h-2 rounded-full bg-emerald-500"
+                              style="width: 35%"
+                            ></div>
+                          </div>
+
+                          <div
+                            class="flex items-center justify-between text-sm"
+                          >
+                            <span>۱۵-۲۰ میلیون</span>
+                            <span class="font-medium">۲۸%</span>
+                          </div>
+                          <div class="bg-muted h-2 w-full rounded-full">
+                            <div
+                              class="h-2 rounded-full bg-amber-500"
+                              style="width: 28%"
+                            ></div>
+                          </div>
+
+                          <div
+                            class="flex items-center justify-between text-sm"
+                          >
+                            <span>بالای ۲۰ میلیون</span>
+                            <span class="font-medium">۱۴%</span>
+                          </div>
+                          <div class="bg-muted h-2 w-full rounded-full">
+                            <div
+                              class="h-2 rounded-full bg-violet-500"
+                              style="width: 14%"
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Monthly Trends -->
+                      <div>
+                        <h4 class="mb-4 text-sm font-medium">روند ماهانه</h4>
+                        <div class="space-y-3">
+                          <div class="flex items-center justify-between">
+                            <span class="text-sm">دی ۱۴۰۳</span>
+                            <span class="text-sm font-bold">۴۲۰M</span>
+                          </div>
+                          <div class="flex items-center justify-between">
+                            <span class="text-sm">بهمن ۱۴۰۳</span>
+                            <span class="text-sm font-bold">۳۹۵M</span>
+                          </div>
+                          <div class="flex items-center justify-between">
+                            <span class="text-sm">اسفند ۱۴۰۳</span>
+                            <span class="text-sm font-bold">۴۱۰M</span>
+                          </div>
+                          <div class="flex items-center justify-between">
+                            <span class="text-sm">فروردین ۱۴۰۴</span>
+                            <span class="text-sm font-bold">۴۳۵M</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Side Panel -->
+              <div class="space-y-6">
+                <!-- Tax Calculator -->
+                <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title flex items-center gap-2">
+                      <span
+                        class="icon-[material-symbols--calculate] size-5 text-red-500"
+                      ></span>
+                      ماشین حساب مالیات
+                    </h3>
+                  </div>
+                  <div class="card-content">
+                    <div class="space-y-4">
+                      <div>
+                        <label class="mb-2 block text-sm font-medium"
+                          >درآمد ماهانه</label
+                        >
+                        <input
+                          type="number"
+                          class="input"
+                          placeholder="مبلغ درآمد..."
+                        />
+                      </div>
+                      <div>
+                        <label class="mb-2 block text-sm font-medium"
+                          >معافیت‌های مالیاتی</label
+                        >
+                        <input
+                          type="number"
+                          class="input"
+                          placeholder="مبلغ معافیت..."
+                        />
+                      </div>
+                      <div class="bg-muted/30 rounded-lg p-3">
+                        <div class="flex items-center justify-between">
+                          <span class="text-sm font-medium"
+                            >مالیات قابل پرداخت</span
+                          >
+                          <span class="text-lg font-bold text-red-600"
+                            >۲,۴۵۰,۰۰۰ تومان</span
+                          >
+                        </div>
+                      </div>
+                      <button
+                        class="button w-full bg-red-500 text-white hover:bg-red-600"
+                      >
+                        <span
+                          class="icon-[material-symbols--info] size-4"
+                        ></span>
+                        جزئیات مالیات
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Benefits Overview -->
+                <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title flex items-center gap-2">
+                      <span
+                        class="icon-[material-symbols--redeem] size-5 text-emerald-500"
+                      ></span>
+                      مزایای پرسنلی
+                    </h3>
+                  </div>
+                  <div class="card-content">
+                    <div class="space-y-3">
+                      <div
+                        class="hover:bg-muted/30 flex cursor-pointer items-center gap-3 rounded-lg p-2 transition-colors"
+                      >
+                        <div
+                          class="flex size-8 items-center justify-center rounded-full bg-blue-500/10"
+                        >
+                          <span
+                            class="icon-[material-symbols--local-hospital] size-4 text-blue-500"
+                          ></span>
+                        </div>
+                        <div>
+                          <p class="text-sm font-medium">بیمه درمانی</p>
+                          <p class="text-muted-foreground text-xs">
+                            ۷% حقوق پایه
+                          </p>
+                        </div>
+                      </div>
+                      <div
+                        class="hover:bg-muted/30 flex cursor-pointer items-center gap-3 rounded-lg p-2 transition-colors"
+                      >
+                        <div
+                          class="flex size-8 items-center justify-center rounded-full bg-emerald-500/10"
+                        >
+                          <span
+                            class="icon-[material-symbols--school] size-4 text-emerald-500"
+                          ></span>
+                        </div>
+                        <div>
+                          <p class="text-sm font-medium">کمک هزینه تحصیلی</p>
+                          <p class="text-muted-foreground text-xs">
+                            تا ۵ میلیون تومان
+                          </p>
+                        </div>
+                      </div>
+                      <div
+                        class="hover:bg-muted/30 flex cursor-pointer items-center gap-3 rounded-lg p-2 transition-colors"
+                      >
+                        <div
+                          class="flex size-8 items-center justify-center rounded-full bg-amber-500/10"
+                        >
+                          <span
+                            class="icon-[material-symbols--commute] size-4 text-amber-500"
+                          ></span>
+                        </div>
+                        <div>
+                          <p class="text-sm font-medium">ایاب و ذهاب</p>
+                          <p class="text-muted-foreground text-xs">
+                            ۵۰۰ هزار تومان
+                          </p>
+                        </div>
+                      </div>
+                      <div
+                        class="hover:bg-muted/30 flex cursor-pointer items-center gap-3 rounded-lg p-2 transition-colors"
+                      >
+                        <div
+                          class="flex size-8 items-center justify-center rounded-full bg-violet-500/10"
+                        >
+                          <span
+                            class="icon-[material-symbols--restaurant] size-4 text-violet-500"
+                          ></span>
+                        </div>
+                        <div>
+                          <p class="text-sm font-medium">کمک هزینه غذا</p>
+                          <p class="text-muted-foreground text-xs">
+                            ۴۵۰ هزار تومان
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Payment Methods -->
+                <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title flex items-center gap-2">
+                      <span
+                        class="icon-[material-symbols--account-balance-wallet] size-5 text-cyan-500"
+                      ></span>
+                      روش‌های پرداخت
+                    </h3>
+                  </div>
+                  <div class="card-content">
+                    <div class="space-y-3">
+                      <div
+                        class="hover:bg-muted/30 flex cursor-pointer items-center gap-3 rounded-lg p-2 transition-colors"
+                      >
+                        <div
+                          class="flex size-8 items-center justify-center rounded-full bg-emerald-500/10"
+                        >
+                          <span
+                            class="icon-[material-symbols--account-balance] size-4 text-emerald-500"
+                          ></span>
+                        </div>
+                        <div>
+                          <p class="text-sm font-medium">انتقال بانکی</p>
+                          <p class="text-muted-foreground text-xs">۸۵% پرسنل</p>
+                        </div>
+                      </div>
+                      <div
+                        class="hover:bg-muted/30 flex cursor-pointer items-center gap-3 rounded-lg p-2 transition-colors"
+                      >
+                        <div
+                          class="flex size-8 items-center justify-center rounded-full bg-blue-500/10"
+                        >
+                          <span
+                            class="icon-[lucide--credit-card] size-4 text-blue-500"
+                          ></span>
+                        </div>
+                        <div>
+                          <p class="text-sm font-medium">کارت بانکی</p>
+                          <p class="text-muted-foreground text-xs">۱۲% پرسنل</p>
+                        </div>
+                      </div>
+                      <div
+                        class="hover:bg-muted/30 flex cursor-pointer items-center gap-3 rounded-lg p-2 transition-colors"
+                      >
+                        <div
+                          class="flex size-8 items-center justify-center rounded-full bg-amber-500/10"
+                        >
+                          <span
+                            class="icon-[lucide--credit-card] size-4 text-amber-500"
+                          ></span>
+                        </div>
+                        <div>
+                          <p class="text-sm font-medium">نقدی</p>
+                          <p class="text-muted-foreground text-xs">۳% پرسنل</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title">اقدامات سریع</h3>
+                  </div>
+                  <div class="card-content">
+                    <div class="grid grid-cols-2 gap-2">
+                      <button
+                        class="flex flex-col items-center gap-2 rounded-lg border border-dashed border-blue-500/30 p-3 transition-all hover:border-blue-500/60 hover:bg-blue-500/5"
+                      >
+                        <span
+                          class="icon-[material-symbols--description] size-5 text-blue-500"
+                        ></span>
+                        <span class="text-xs font-medium">گزارش</span>
+                      </button>
+                      <button
+                        class="flex flex-col items-center gap-2 rounded-lg border border-dashed border-emerald-500/30 p-3 transition-all hover:border-emerald-500/60 hover:bg-emerald-500/5"
+                      >
+                        <span
+                          class="icon-[material-symbols--settings] size-5 text-emerald-500"
+                        ></span>
+                        <span class="text-xs font-medium">تنظیمات</span>
+                      </button>
+                      <button
+                        class="flex flex-col items-center gap-2 rounded-lg border border-dashed border-violet-500/30 p-3 transition-all hover:border-violet-500/60 hover:bg-violet-500/5"
+                      >
+                        <span
+                          class="icon-[material-symbols--backup] size-5 text-violet-500"
+                        ></span>
+                        <span class="text-xs font-medium">پشتیبان</span>
+                      </button>
+                      <button
+                        class="flex flex-col items-center gap-2 rounded-lg border border-dashed border-amber-500/30 p-3 transition-all hover:border-amber-500/60 hover:bg-amber-500/5"
+                      >
+                        <span
+                          class="icon-[material-symbols--help] size-5 text-amber-500"
+                        ></span>
+                        <span class="text-xs font-medium">راهنما</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Payroll Compliance -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title flex items-center gap-2">
+                  <span
+                    class="icon-[material-symbols--verified] size-5 text-green-500"
+                  ></span>
+                  انطباق با قوانین
+                </h3>
+                <p class="card-description">
+                  وضعیت رعایت قوانین کار و تامین اجتماعی
+                </p>
+              </div>
+              <div class="card-content">
+                <div
+                  class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4"
+                >
+                  <!-- Insurance Compliance -->
+                  <div class="text-center">
+                    <div
+                      class="mx-auto mb-3 flex size-16 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-green-600 text-lg font-bold text-white"
+                    >
+                      ۱۰۰%
+                    </div>
+                    <div class="text-sm font-medium">پوشش بیمه</div>
+                    <div class="text-muted-foreground text-xs">
+                      همه پرسنل بیمه شده
+                    </div>
+                  </div>
+
+                  <!-- Tax Compliance -->
+                  <div class="text-center">
+                    <div
+                      class="mx-auto mb-3 flex size-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-lg font-bold text-white"
+                    >
+                      ۹۸%
+                    </div>
+                    <div class="text-sm font-medium">رعایت مالیات</div>
+                    <div class="text-muted-foreground text-xs">
+                      مالیات‌های پرداخت شده
+                    </div>
+                  </div>
+
+                  <!-- Minimum Wage -->
+                  <div class="text-center">
+                    <div
+                      class="mx-auto mb-3 flex size-16 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 text-lg font-bold text-white"
+                    >
+                      ۱۰۰%
+                    </div>
+                    <div class="text-sm font-medium">حداقل حقوق</div>
+                    <div class="text-muted-foreground text-xs">
+                      بالای حداقل قانونی
+                    </div>
+                  </div>
+
+                  <!-- Overtime Pay -->
+                  <div class="text-center">
+                    <div
+                      class="mx-auto mb-3 flex size-16 items-center justify-center rounded-full bg-gradient-to-br from-amber-500 to-amber-600 text-lg font-bold text-white"
+                    >
+                      ۹۵%
+                    </div>
+                    <div class="text-sm font-medium">پرداخت اضافه کاری</div>
+                    <div class="text-muted-foreground text-xs">
+                      طبق قوانین کار
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Global Footer -->
+    <footer
+  class="bg-sidebar fixed inset-x-0 bottom-0 z-40 hidden h-(--footer-height) justify-between border-t lg:flex"
+>
+  <!-- Sidebar Footer with Controls -->
+  <div class="flex items-center gap-2">
+    <button
+      data-sidebar-hide
+      class="button"
+      variant="ghost"
+      size="icon-sm"
+      data-tooltip="مخفی کردن"
+    >
+      <span class="icon-[flowbite--open-sidebar-solid] size-4"></span>
+    </button>
+    <button
+      data-sidebar-expand
+      class="button"
+      variant="ghost"
+      size="icon-sm"
+      data-tooltip="نمایش کردن"
+    >
+      <span class="icon-[flowbite--close-sidebar-solid] size-4"></span>
+    </button>
+  </div>
+</footer>
+
+  </body>
+</html>

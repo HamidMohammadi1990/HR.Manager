@@ -1,0 +1,177 @@
+import { ReactNode } from 'react';
+
+export interface NavItem {
+  label: string;
+  path?: string;
+  icon?: string;
+  children?: NavItem[];
+}
+
+export const mainNavItems: NavItem[] = [
+  { label: 'داشبورد', path: '/', icon: 'material-symbols:home' },
+  { label: 'تقویم', path: '/calendar', icon: 'material-symbols:calendar-month' },
+];
+
+export const usersNavItems: NavItem[] = [
+  { label: 'لیست کاربران', path: '/users' },
+  { label: 'کاربر جدید', path: '/users/new' },
+  { label: 'نقش‌ها', path: '/roles' },
+  { label: 'دسترسی‌ها', path: '/permissions' },
+];
+
+export const hrNavItems: NavItem[] = [
+  { label: 'کارمندان', path: '/employees' },
+  { label: 'بخش‌ها', path: '/departments' },
+  { label: 'حضور و غیاب', path: '/attendance' },
+  { label: 'مرخصی‌ها', path: '/leaves' },
+  { label: 'حقوق و دستمزد', path: '/payroll' },
+];
+
+export const toolsNavItems: NavItem[] = [
+  { label: 'لیست کارها', path: '/todo' },
+  { label: 'اطلاعیه‌ها', path: '/announcements' },
+  { label: 'اعلان‌ها', path: '/notifications' },
+  { label: 'پشتیبان‌گیری', path: '/backup' },
+];
+
+export const quickAccessActions = [
+  {
+    label: 'افزودن کاربر',
+    description: 'ایجاد کاربر جدید در سیستم',
+    path: '/users/new',
+    icon: 'material-symbols:person-add',
+    color: 'text-primary',
+    bg: 'bg-primary/10',
+    shortcut: ['Alt', 'N'],
+  },
+  {
+    label: 'درخواست مرخصی',
+    description: 'ثبت مرخصی جدید',
+    path: '/leaves',
+    icon: 'material-symbols:event-note',
+    color: 'text-emerald-500',
+    bg: 'bg-emerald-500/10',
+    shortcut: ['Alt', 'L'],
+  },
+  {
+    label: 'کاربران',
+    description: 'مدیریت کاربران سیستم',
+    path: '/users',
+    icon: 'material-symbols:group',
+    color: 'text-sky-500',
+    bg: 'bg-sky-500/10',
+    shortcut: ['Alt', 'U'],
+  },
+  {
+    label: 'گزارش حضور',
+    description: 'آمار حضور و غیاب',
+    path: '/attendance',
+    icon: 'material-symbols:analytics',
+    color: 'text-violet-500',
+    bg: 'bg-violet-500/10',
+    shortcut: ['Alt', 'A'],
+  },
+];
+
+export const quickAccessPages = [
+  { label: 'داشبورد', path: '/', icon: 'material-symbols:home' },
+  { label: 'کارمندان', path: '/employees', icon: 'material-symbols:badge' },
+  { label: 'حضور و غیاب', path: '/attendance', icon: 'material-symbols:schedule' },
+  { label: 'مرخصی‌ها', path: '/leaves', icon: 'material-symbols:event-note' },
+  { label: 'حقوق و دستمزد', path: '/payroll', icon: 'material-symbols:payments' },
+  { label: 'کاربران', path: '/users', icon: 'material-symbols:group' },
+  { label: 'تنظیمات', path: '/settings', icon: 'material-symbols:settings' },
+];
+
+export interface NotificationItem {
+  id: string;
+  title: string;
+  description: string;
+  time: string;
+  icon: string;
+  iconColor: string;
+  iconBg: string;
+  unread?: boolean;
+}
+
+export const headerNotifications: NotificationItem[] = [
+  {
+    id: '1',
+    title: 'درخواست مرخصی جدید',
+    description: 'سارا احمدی • ۳ روز استحقاقی',
+    time: '۵ دقیقه پیش',
+    icon: 'material-symbols:event-note',
+    iconColor: 'text-primary',
+    iconBg: 'bg-primary/10',
+    unread: true,
+  },
+  {
+    id: '2',
+    title: 'کارمند جدید استخدام شد',
+    description: 'رضا کریمی • فروش',
+    time: '۱۰ دقیقه پیش',
+    icon: 'material-symbols:person-add',
+    iconColor: 'text-emerald-500',
+    iconBg: 'bg-emerald-500/10',
+    unread: true,
+  },
+  {
+    id: '3',
+    title: 'تاخیر در حضور',
+    description: '۸ نفر امروز با تاخیر وارد شدند',
+    time: '۳۰ دقیقه پیش',
+    icon: 'material-symbols:schedule',
+    iconColor: 'text-amber-500',
+    iconBg: 'bg-amber-500/10',
+    unread: true,
+  },
+];
+
+export const currentUser = {
+  name: 'مدیر سیستم',
+  email: 'admin@example.com',
+  initials: 'م',
+};
+
+export interface BreadcrumbItem {
+  label: string;
+  path?: string;
+}
+
+export function buildBreadcrumbs(path: string): BreadcrumbItem[] {
+  const map: Record<string, string> = {
+    '/': 'داشبورد',
+    '/calendar': 'تقویم',
+    '/users': 'کاربران',
+    '/users/new': 'کاربر جدید',
+    '/roles': 'نقش‌ها',
+    '/permissions': 'دسترسی‌ها',
+    '/employees': 'کارمندان',
+    '/departments': 'بخش‌ها',
+    '/attendance': 'حضور و غیاب',
+    '/leaves': 'مرخصی‌ها',
+    '/payroll': 'حقوق و دستمزد',
+    '/settings': 'تنظیمات',
+    '/notifications': 'اعلان‌ها',
+    '/announcements': 'اطلاعیه‌ها',
+    '/todo': 'لیست کارها',
+    '/backup': 'پشتیبان‌گیری',
+    '/profile': 'پروفایل',
+    '/account-settings': 'تنظیمات حساب',
+  };
+  const label = map[path];
+  return label ? [{ label }] : [];
+}
+
+export type PageMeta = {
+  title: string;
+  description?: string;
+};
+
+export const pageMeta: Record<string, PageMeta> = {
+  '/': { title: 'داشبورد', description: 'خوش آمدید به پنل مدیریت منابع انسانی' },
+  '/employees': { title: 'مدیریت پرسنل', description: 'پروفایل، عملکرد و سازماندهی کارکنان' },
+  '/attendance': { title: 'مدیریت حضور و غیاب', description: 'ثبت تردد، مرخصی‌ها و گزارش‌های زمانی' },
+  '/leaves': { title: 'مدیریت مرخصی‌ها', description: 'درخواست، تایید و پیگیری مرخصی‌های پرسنل' },
+  '/payroll': { title: 'مدیریت حقوق و دستمزد', description: 'محاسبه حقوق، فیش حقوقی و پرداخت‌های پرسنلی' },
+};

@@ -1,0 +1,1494 @@
+<!doctype html>
+<html lang="fa-IR" class="light" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>مرخصی‌ها | پنل مدیریت</title>
+    <link rel="stylesheet" href="./assets/styles/app.css" />
+    <link rel="stylesheet" href="./assets/styles/themes.css" />
+
+    <script src="./assets/scripts/mount.js"></script>
+    <script defer src="./assets/scripts/app.js"></script>
+  </head>
+
+  <body class="app-layout">
+    <!-- Desktop Sidebar -->
+   <aside id="mobile-sidebar" class="sidebar">
+  <nav class="sidebar-content scrollbar-thin">
+    <!-- Main Menu -->
+    <div class="sidebar-group">
+      <div class="sidebar-group-title">منوی اصلی</div>
+      <div class="sidebar-menu">
+        <a href="index.html" class="sidebar-item">
+          <span class="icon-[material-symbols--home] sidebar-item-icon"></span>
+          <span class="sidebar-label">داشبورد</span>
+        </a>
+        
+        
+        <a href="calendar.html" class="sidebar-item">
+          <span
+            class="icon-[material-symbols--calendar-month] sidebar-item-icon"
+          ></span>
+          <span class="sidebar-label">تقویم</span>
+        </a>
+      </div>
+    </div>
+
+    
+
+    <!-- Users & HR -->
+    <div class="sidebar-group">
+      <div class="sidebar-group-title">کاربران و منابع انسانی</div>
+      <div class="sidebar-menu">
+        <!-- Users -->
+        <div data-accordion>
+          <button
+            class="sidebar-item accordion-trigger w-full"
+            data-accordion-trigger
+          >
+            <div class="flex items-center gap-3">
+              <span
+                class="icon-[material-symbols--group] sidebar-item-icon"
+              ></span>
+              <span class="sidebar-label">کاربران</span>
+            </div>
+            <span
+              class="icon-[material-symbols--keyboard-arrow-down] sidebar-label size-5"
+              data-accordion-icon
+            ></span>
+          </button>
+          <div data-accordion-content>
+            <div class="space-y-1 py-1 ps-8">
+              <a href="users.html" class="sidebar-item text-sm">لیست کاربران</a>
+              <a href="add-user.html" class="sidebar-item text-sm"
+                >کاربر جدید</a
+              >
+              <a href="roles.html" class="sidebar-item text-sm">نقش‌ها</a>
+              <a href="permissions.html" class="sidebar-item text-sm"
+                >دسترسی‌ها</a
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- HR -->
+        <div data-accordion>
+          <button
+            class="sidebar-item accordion-trigger w-full"
+            data-accordion-trigger
+          >
+            <div class="flex items-center gap-3">
+              <span
+                class="icon-[material-symbols--badge] sidebar-item-icon"
+              ></span>
+              <span class="sidebar-label">پرسنل</span>
+            </div>
+            <span
+              class="icon-[material-symbols--keyboard-arrow-down] sidebar-label size-5"
+              data-accordion-icon
+            ></span>
+          </button>
+          <div data-accordion-content>
+            <div class="space-y-1 py-1 ps-8">
+              <a href="employees.html" class="sidebar-item text-sm">کارمندان</a>
+              <a href="departments.html" class="sidebar-item text-sm">بخش‌ها</a>
+              <a href="attendance.html" class="sidebar-item text-sm"
+                >حضور و غیاب</a
+              >
+              <a href="leaves.html" class="sidebar-item text-sm">مرخصی‌ها</a>
+              <a href="payroll.html" class="sidebar-item text-sm"
+                >حقوق و دستمزد</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+   
+
+  
+   
+  </nav>
+</aside>
+
+    <!-- Global Header -->
+    <header class="app-header">
+  <div class="app-header-content">
+    <div class="flex items-center gap-3">
+      <!-- Mobile Menu Button -->
+      <button
+        data-drawer-trigger="mobile-sidebar"
+        class="button lg:hidden"
+        variant="ghost"
+        size="icon"
+      >
+        <span class="icon-[material-symbols--menu] size-6"></span>
+      </button>
+      <!-- Sidebar Show Button (when hidden on desktop) -->
+      <button
+        data-sidebar-expand
+        class="button hidden lg:hidden"
+        variant="ghost"
+        size="icon"
+        id="show-sidebar-btn"
+      >
+        <span class="icon-[material-symbols--right-panel-open] size-5"></span>
+      </button>
+
+      <!-- Quick Access Search Button -->
+      <button
+        data-dialog-trigger="quick-access-dialog"
+        class="bg-muted/50 hover:bg-muted border-border text-muted-foreground hidden h-9 w-64 items-center gap-3 rounded-lg border px-3 py-2 text-sm transition-colors sm:flex lg:w-80"
+      >
+        <span class="icon-[material-symbols--search] size-4"></span>
+        <span class="flex-1 text-start">جستجو یا دسترسی سریع...</span>
+        <span class="kbd-group hidden lg:inline-flex">
+          <kbd class="kbd">Ctrl</kbd>
+          <span class="text-[10px]">+</span>
+          <kbd class="kbd">K</kbd>
+        </span>
+      </button>
+
+      <!-- Mobile Search Button -->
+      <button
+        data-dialog-trigger="quick-access-dialog"
+        class="button sm:hidden"
+        variant="ghost"
+        size="icon"
+      >
+        <span class="icon-[material-symbols--search] size-5"></span>
+      </button>
+    </div>
+
+    <div class="flex items-center gap-1">
+      <!-- User Menu -->
+      <div class="relative" data-dropdown>
+        <button
+          data-dropdown-trigger
+          class="hover:bg-accent flex items-center gap-2 rounded-lg p-1.5 transition-colors"
+        >
+          <div class="avatar ring-primary/20 size-8 ring-2">
+            <div
+              class="avatar-fallback from-primary to-primary/70 text-primary-foreground bg-linear-to-br text-sm font-semibold"
+            >
+              م
+            </div>
+          </div>
+          <div class="hidden text-start sm:block">
+            <p class="text-sm leading-none font-medium">مدیر سیستم</p>
+            <p class="text-muted-foreground text-xs">admin@example.com</p>
+          </div>
+          <span
+            class="icon-[material-symbols--keyboard-arrow-down] text-muted-foreground hidden size-4 sm:block"
+          ></span>
+        </button>
+        <div
+          data-dropdown-content
+          class="dropdown-content end-0 top-full mt-2 hidden w-56 overflow-hidden p-0"
+        >
+          <div class="bg-muted/30 border-b px-3 py-3">
+            <p class="text-sm font-semibold">مدیر سیستم</p>
+            <p class="text-muted-foreground text-xs">admin@example.com</p>
+          </div>
+          <div class="p-1">
+            <a href="#" class="dropdown-item py-2">
+              <span class="icon-[material-symbols--person] size-4"></span>
+              <span>پروفایل کاربری</span>
+            </a>
+            <a href="settings.html" class="dropdown-item py-2">
+              <span class="icon-[material-symbols--settings] size-4"></span>
+              <span>تنظیمات</span>
+            </a>
+            <a href="#" class="dropdown-item py-2">
+              <span class="icon-[material-symbols--help] size-4"></span>
+              <span>راهنما و پشتیبانی</span>
+            </a>
+          </div>
+          <div class="border-t p-1">
+            <a
+              href="#"
+              class="dropdown-item text-destructive hover:bg-destructive/10 py-2"
+            >
+              <span class="icon-[material-symbols--logout] size-4"></span>
+              <span>خروج از حساب</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <!-- Separator -->
+      <div class="bg-border mx-1 hidden h-6 w-px sm:block"></div>
+
+      <!-- Theme Toggle -->
+      <button
+        onclick="toggleTheme()"
+        class="button"
+        variant="ghost"
+        size="icon"
+        data-tooltip-position="bottom"
+        data-tooltip="تغییر تم"
+      >
+        <span
+          class="icon-[material-symbols--light-mode] size-5 dark:hidden"
+        ></span>
+        <span
+          class="icon-[material-symbols--dark-mode] hidden size-5 dark:block"
+        ></span>
+      </button>
+
+      <!-- Notifications -->
+      <div class="relative" data-dropdown>
+        <button
+          data-dropdown-trigger
+          class="button relative"
+          variant="ghost"
+          size="icon"
+          data-tooltip-position="bottom"
+          data-tooltip="اعلان‌ها"
+        >
+          <span class="icon-[material-symbols--notifications] size-5"></span>
+          <span
+            class="bg-destructive absolute -start-0.5 -top-0.5 flex size-4.5 animate-pulse items-center justify-center rounded-full text-[10px] font-medium text-white"
+            >۳</span
+          >
+        </button>
+        <div
+          data-dropdown-content
+          class="dropdown-content end-0 top-full mt-2 hidden w-80 overflow-hidden p-0"
+        >
+          <div
+            class="bg-muted/30 flex items-center justify-between border-b px-4 py-3"
+          >
+            <div class="flex items-center gap-2">
+              <span
+                class="icon-[material-symbols--notifications] text-primary size-4"
+              ></span>
+              <p class="text-sm font-semibold">اعلان‌ها</p>
+            </div>
+            <button class="text-primary text-xs hover:underline">
+              خواندن همه
+            </button>
+          </div>
+          <div class="max-h-80 overflow-y-auto">
+            <a
+              href="#"
+              class="hover:bg-muted/50 border-border/50 flex gap-3 border-b p-3 transition-colors"
+            >
+              <div
+                class="bg-primary/10 flex size-10 shrink-0 items-center justify-center rounded-full"
+              >
+                <span
+                  class="icon-[material-symbols--shopping-cart] text-primary size-5"
+                ></span>
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-sm font-medium">سفارش جدید #۱۲۵۶</p>
+                <p class="text-muted-foreground text-xs">
+                  علی محمدی - ۲,۵۰۰,۰۰۰ تومان
+                </p>
+                <p class="text-muted-foreground mt-1 text-xs">۵ دقیقه پیش</p>
+              </div>
+              <div class="bg-primary mt-2 size-2 shrink-0 rounded-full"></div>
+            </a>
+            <a
+              href="#"
+              class="hover:bg-muted/50 border-border/50 flex gap-3 border-b p-3 transition-colors"
+            >
+              <div
+                class="flex size-10 shrink-0 items-center justify-center rounded-full bg-emerald-500/10"
+              >
+                <span
+                  class="icon-[material-symbols--person-add] size-5 text-emerald-500"
+                ></span>
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-sm font-medium">
+                  کاربر جدید ثبت نام کرد
+                </p>
+                <p class="text-muted-foreground text-xs">سارا احمدی</p>
+                <p class="text-muted-foreground mt-1 text-xs">۱۰ دقیقه پیش</p>
+              </div>
+              <div class="bg-primary mt-2 size-2 shrink-0 rounded-full"></div>
+            </a>
+            <a
+              href="#"
+              class="hover:bg-muted/50 flex gap-3 p-3 transition-colors"
+            >
+              <div
+                class="flex size-10 shrink-0 items-center justify-center rounded-full bg-amber-500/10"
+              >
+                <span
+                  class="icon-[material-symbols--inventory-2] size-5 text-amber-500"
+                ></span>
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-sm font-medium">موجودی کم</p>
+                <p class="text-muted-foreground text-xs">
+                  ۵ محصول نیاز به تأمین دارند
+                </p>
+                <p class="text-muted-foreground mt-1 text-xs">۳۰ دقیقه پیش</p>
+              </div>
+              <div class="bg-primary mt-2 size-2 shrink-0 rounded-full"></div>
+            </a>
+          </div>
+          <div class="bg-muted/30 border-t px-4 py-3">
+            <a
+              href="notifications.html"
+              class="text-primary flex items-center justify-center gap-1 text-sm hover:underline"
+            >
+              <span>مشاهده همه اعلان‌ها</span>
+              <span
+                class="icon-[material-symbols--arrow-forward] size-4 rtl:rotate-180"
+              ></span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Quick Access Dialog (Command Palette) -->
+<div
+  id="quick-access-dialog"
+  data-dialog
+  class="dialog hidden"
+  data-state="closed"
+>
+  <div data-dialog-overlay class="dialog-overlay"></div>
+  <div
+    class="dialog-content top-[20%]! max-w-xl translate-y-0! overflow-hidden p-0"
+  >
+    <!-- Search Input -->
+    <div class="flex items-center gap-3 border-b px-4 py-3">
+      <span
+        class="icon-[material-symbols--search] text-muted-foreground size-5"
+      ></span>
+      <input
+        type="text"
+        id="quick-access-search"
+        placeholder="جستجو در منوها، صفحات و دستورات..."
+        class="placeholder:text-muted-foreground flex-1 border-0 bg-transparent text-sm outline-none"
+        autocomplete="off"
+      />
+      <button
+        data-dialog-close
+        class="button p-1"
+        variant="ghost"
+        size="icon-sm"
+      >
+        <span class="icon-[material-symbols--close] size-4"></span>
+      </button>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="max-h-96 overflow-y-auto">
+      <!-- Recent/Quick Actions Section -->
+      <div class="border-b p-2">
+        <p class="text-muted-foreground px-2 py-1.5 text-xs font-medium">
+          دسترسی سریع
+        </p>
+        <div class="space-y-0.5" id="quick-actions-list">
+          <a
+            href="products.html"
+            class="quick-access-item hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 transition-colors"
+            data-quick-action
+          >
+            <div
+              class="bg-primary/10 flex size-8 items-center justify-center rounded-lg"
+            >
+              <span
+                class="icon-[material-symbols--add] text-primary size-4"
+              ></span>
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-medium">افزودن محصول جدید</p>
+              <p class="text-muted-foreground text-xs">
+                ایجاد محصول در فروشگاه
+              </p>
+            </div>
+            <span class="kbd-group">
+              <kbd class="kbd">Alt</kbd>
+              <span class="text-[10px]">+</span>
+              <kbd class="kbd">N</kbd>
+            </span>
+          </a>
+          <a
+            href="orders.html"
+            class="quick-access-item hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 transition-colors"
+            data-quick-action
+          >
+            <div
+              class="flex size-8 items-center justify-center rounded-lg bg-emerald-500/10"
+            >
+              <span
+                class="icon-[material-symbols--shopping-cart] size-4 text-emerald-500"
+              ></span>
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-medium">سفارشات</p>
+              <p class="text-muted-foreground text-xs">
+                مدیریت سفارشات مشتریان
+              </p>
+            </div>
+            <span class="kbd-group">
+              <kbd class="kbd">Alt</kbd>
+              <span class="text-[10px]">+</span>
+              <kbd class="kbd">O</kbd>
+            </span>
+          </a>
+          <a
+            href="users.html"
+            class="quick-access-item hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 transition-colors"
+            data-quick-action
+          >
+            <div
+              class="flex size-8 items-center justify-center rounded-lg bg-sky-500/10"
+            >
+              <span
+                class="icon-[material-symbols--group] size-4 text-sky-500"
+              ></span>
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-medium">کاربران</p>
+              <p class="text-muted-foreground text-xs">مدیریت کاربران سیستم</p>
+            </div>
+            <span class="kbd-group">
+              <kbd class="kbd">Alt</kbd>
+              <span class="text-[10px]">+</span>
+              <kbd class="kbd">U</kbd>
+            </span>
+          </a>
+          <a
+            href="analytics.html"
+            class="quick-access-item hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 transition-colors"
+            data-quick-action
+          >
+            <div
+              class="flex size-8 items-center justify-center rounded-lg bg-violet-500/10"
+            >
+              <span
+                class="icon-[material-symbols--analytics] size-4 text-violet-500"
+              ></span>
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-medium">گزارشات و تحلیل</p>
+              <p class="text-muted-foreground text-xs">آمار و نمودارها</p>
+            </div>
+            <span class="kbd-group">
+              <kbd class="kbd">Alt</kbd>
+              <span class="text-[10px]">+</span>
+              <kbd class="kbd">A</kbd>
+            </span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Navigation Section -->
+      <div class="border-b p-2">
+        <p class="text-muted-foreground px-2 py-1.5 text-xs font-medium">
+          صفحات
+        </p>
+        <div class="space-y-0.5" id="quick-pages-list">
+          <a
+            href="index.html"
+            class="quick-access-item hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 transition-colors"
+            data-quick-page
+          >
+            <span
+              class="icon-[material-symbols--home] text-muted-foreground size-4"
+            ></span>
+            <span class="text-sm">داشبورد</span>
+          </a>
+          <a
+            href="products.html"
+            class="quick-access-item hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 transition-colors"
+            data-quick-page
+          >
+            <span
+              class="icon-[material-symbols--inventory-2] text-muted-foreground size-4"
+            ></span>
+            <span class="text-sm">محصولات</span>
+          </a>
+          <a
+            href="orders.html"
+            class="quick-access-item hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 transition-colors"
+            data-quick-page
+          >
+            <span
+              class="icon-[material-symbols--shopping-cart] text-muted-foreground size-4"
+            ></span>
+            <span class="text-sm">سفارشات</span>
+          </a>
+          <a
+            href="users.html"
+            class="quick-access-item hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 transition-colors"
+            data-quick-page
+          >
+            <span
+              class="icon-[material-symbols--group] text-muted-foreground size-4"
+            ></span>
+            <span class="text-sm">کاربران</span>
+          </a>
+          <a
+            href="settings.html"
+            class="quick-access-item hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 transition-colors"
+            data-quick-page
+          >
+            <span
+              class="icon-[material-symbols--settings] text-muted-foreground size-4"
+            ></span>
+            <span class="text-sm">تنظیمات</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Commands Section -->
+      <div class="p-2">
+        <p class="text-muted-foreground px-2 py-1.5 text-xs font-medium">
+          دستورات
+        </p>
+        <div class="space-y-0.5" id="quick-commands-list">
+          <button
+            class="quick-access-item hover:bg-accent flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-start transition-colors"
+            onclick="
+              toggleTheme();
+              window.dialogManager?.closeDialog('quick-access-dialog');
+            "
+          >
+            <span
+              class="icon-[material-symbols--dark-mode] text-muted-foreground size-4"
+            ></span>
+            <span class="text-sm">تغییر تم (روشن/تاریک)</span>
+            <span class="kbd-group mr-auto">
+              <kbd class="kbd">Alt</kbd>
+              <span class="text-[10px]">+</span>
+              <kbd class="kbd">T</kbd>
+            </span>
+          </button>
+
+          <a
+            href="#"
+            class="quick-access-item hover:bg-accent text-destructive flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 transition-colors"
+          >
+            <span class="icon-[material-symbols--logout] size-4"></span>
+            <span class="text-sm">خروج از حساب</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div
+      class="bg-muted/30 text-muted-foreground flex items-center justify-between border-t px-4 py-2.5 text-xs"
+    >
+      <div class="flex items-center gap-4">
+        <span class="flex items-center gap-1.5">
+          <span class="kbd-group">
+            <kbd class="kbd">↑</kbd>
+            <kbd class="kbd">↓</kbd>
+          </span>
+          <span>پیمایش</span>
+        </span>
+        <span class="flex items-center gap-1.5">
+          <kbd class="kbd">Enter</kbd>
+          <span>انتخاب</span>
+        </span>
+        <span class="flex items-center gap-1.5">
+          <kbd class="kbd">Esc</kbd>
+          <span>بستن</span>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    <!-- Main Content Area -->
+    <div class="app-body">
+      <main class="app-main flex flex-col">
+        <div class="flex-1 p-4 lg:p-6">
+          <div class="mb-6">
+            <div class="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <h1 class="text-2xl font-bold">مدیریت مرخصی‌ها</h1>
+                <p class="text-muted-foreground">
+                  درخواست، تایید و پیگیری مرخصی‌های پرسنل
+                </p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button class="button" variant="outline" size="default">
+                  <span
+                    class="icon-[material-symbols--calendar-month] size-4"
+                  ></span>
+                  تقویم مرخصی
+                </button>
+                <button class="button" variant="default" size="default">
+                  <span class="icon-[material-symbols--add] size-4"></span>
+                  درخواست مرخصی
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Leave Overview -->
+          <div class="space-y-6">
+            <!-- Key Metrics -->
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <div
+                class="bg-card hover:bg-accent/50 group cursor-pointer rounded-xl border p-4 transition-colors"
+              >
+                <div
+                  class="mb-3 flex size-10 items-center justify-center rounded-lg"
+                  style="background-color: #10b98115"
+                >
+                  <span
+                    class="icon-[material-symbols--event-available] size-5 text-emerald-500"
+                  ></span>
+                </div>
+                <p class="mb-0.5 text-sm font-medium">مرخصی‌های تایید شده</p>
+                <div class="flex items-center justify-between">
+                  <span class="text-2xl font-bold">۴۲</span>
+                  <span class="text-xs text-emerald-600">ماه جاری</span>
+                </div>
+              </div>
+              <div
+                class="bg-card hover:bg-accent/50 group cursor-pointer rounded-xl border p-4 transition-colors"
+              >
+                <div
+                  class="mb-3 flex size-10 items-center justify-center rounded-lg"
+                  style="background-color: #f59e0b15"
+                >
+                  <span
+                    class="icon-[material-symbols--schedule] size-5 text-amber-500"
+                  ></span>
+                </div>
+                <p class="mb-0.5 text-sm font-medium">در انتظار تایید</p>
+                <div class="flex items-center justify-between">
+                  <span class="text-2xl font-bold">۸</span>
+                  <span class="text-xs text-amber-600">نیاز به بررسی</span>
+                </div>
+              </div>
+              <div
+                class="bg-card hover:bg-accent/50 group cursor-pointer rounded-xl border p-4 transition-colors"
+              >
+                <div
+                  class="mb-3 flex size-10 items-center justify-center rounded-lg"
+                  style="background-color: #ef444415"
+                >
+                  <span
+                    class="icon-[material-symbols--event-busy] size-5 text-red-500"
+                  ></span>
+                </div>
+                <p class="mb-0.5 text-sm font-medium">مرخصی‌های رد شده</p>
+                <div class="flex items-center justify-between">
+                  <span class="text-2xl font-bold">۳</span>
+                  <span class="text-xs text-red-600">ماه جاری</span>
+                </div>
+              </div>
+              <div
+                class="bg-card hover:bg-accent/50 group cursor-pointer rounded-xl border p-4 transition-colors"
+              >
+                <div
+                  class="mb-3 flex size-10 items-center justify-center rounded-lg"
+                  style="background-color: #8b5cf615"
+                >
+                  <span
+                    class="icon-[material-symbols--calendar-today] size-5 text-violet-500"
+                  ></span>
+                </div>
+                <p class="mb-0.5 text-sm font-medium">مرخصی‌های امروز</p>
+                <div class="flex items-center justify-between">
+                  <span class="text-2xl font-bold">۵</span>
+                  <span class="text-xs text-violet-600">در مرخصی</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Leave Request Workflow -->
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+              <!-- Quick Request Form -->
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title flex items-center gap-2">
+                    <span
+                      class="icon-[material-symbols--add-circle] size-5 text-blue-500"
+                    ></span>
+                    درخواست مرخصی جدید
+                  </h3>
+                </div>
+                <div class="card-content">
+                  <div class="space-y-4">
+                    <div>
+                      <label class="mb-2 block text-sm font-medium"
+                        >نوع مرخصی</label
+                      >
+                      <select class="select-trigger">
+                        <option>مرخصی استحقاقی</option>
+                        <option>مرخصی ساعتی</option>
+                        <option>مرخصی بیماری</option>
+                        <option>مرخصی بدون حقوق</option>
+                        <option>مرخصی زایمان</option>
+                      </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                      <div>
+                        <label class="mb-2 block text-sm font-medium"
+                          >از تاریخ</label
+                        >
+                        <input type="date" class="input" />
+                      </div>
+                      <div>
+                        <label class="mb-2 block text-sm font-medium"
+                          >تا تاریخ</label
+                        >
+                        <input type="date" class="input" />
+                      </div>
+                    </div>
+                    <div>
+                      <label class="mb-2 block text-sm font-medium"
+                        >توضیحات</label
+                      >
+                      <textarea
+                        class="input"
+                        rows="3"
+                        placeholder="دلیل مرخصی..."
+                      ></textarea>
+                    </div>
+                    <button
+                      class="button w-full bg-blue-500 text-white hover:bg-blue-600"
+                    >
+                      <span class="icon-[material-symbols--send] size-4"></span>
+                      ارسال درخواست
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Leave Balance -->
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title flex items-center gap-2">
+                    <span
+                      class="icon-[material-symbols--account-balance-wallet] size-5 text-emerald-500"
+                    ></span>
+                    موجودی مرخصی
+                  </h3>
+                </div>
+                <div class="card-content">
+                  <div class="space-y-4">
+                    <!-- Annual Leave -->
+                    <div>
+                      <div class="mb-2 flex items-center justify-between">
+                        <span class="text-sm font-medium">مرخصی استحقاقی</span>
+                        <span class="text-sm font-bold">۲۲/۳۰ روز</span>
+                      </div>
+                      <div class="bg-muted h-2 w-full rounded-full">
+                        <div
+                          class="h-2 rounded-full bg-emerald-500"
+                          style="width: 73%"
+                        ></div>
+                      </div>
+                      <div class="text-muted-foreground mt-1 text-xs">
+                        ۸ روز باقی مانده
+                      </div>
+                    </div>
+
+                    <!-- Sick Leave -->
+                    <div>
+                      <div class="mb-2 flex items-center justify-between">
+                        <span class="text-sm font-medium">مرخصی بیماری</span>
+                        <span class="text-sm font-bold">۵/۱۰ روز</span>
+                      </div>
+                      <div class="bg-muted h-2 w-full rounded-full">
+                        <div
+                          class="h-2 rounded-full bg-red-500"
+                          style="width: 50%"
+                        ></div>
+                      </div>
+                      <div class="text-muted-foreground mt-1 text-xs">
+                        ۵ روز باقی مانده
+                      </div>
+                    </div>
+
+                    <!-- Personal Leave -->
+                    <div>
+                      <div class="mb-2 flex items-center justify-between">
+                        <span class="text-sm font-medium">مرخصی شخصی</span>
+                        <span class="text-sm font-bold">۲/۵ روز</span>
+                      </div>
+                      <div class="bg-muted h-2 w-full rounded-full">
+                        <div
+                          class="h-2 rounded-full bg-blue-500"
+                          style="width: 40%"
+                        ></div>
+                      </div>
+                      <div class="text-muted-foreground mt-1 text-xs">
+                        ۳ روز باقی مانده
+                      </div>
+                    </div>
+
+                    <!-- Carry Forward -->
+                    <div class="bg-muted/30 rounded-lg p-3">
+                      <div class="mb-1 text-sm font-medium">
+                        انتقال به سال بعد
+                      </div>
+                      <div class="text-muted-foreground text-xs">
+                        حداکثر ۵ روز قابل انتقال
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Leave Types -->
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title flex items-center gap-2">
+                    <span
+                      class="icon-[material-symbols--category] size-5 text-violet-500"
+                    ></span>
+                    انواع مرخصی
+                  </h3>
+                </div>
+                <div class="card-content">
+                  <div class="space-y-3">
+                    <div
+                      class="hover:bg-muted/30 flex cursor-pointer items-center gap-3 rounded-lg p-2 transition-colors"
+                    >
+                      <div
+                        class="flex size-8 items-center justify-center rounded-full bg-emerald-500/10"
+                      >
+                        <span
+                          class="icon-[material-symbols--beach-access] size-4 text-emerald-500"
+                        ></span>
+                      </div>
+                      <div>
+                        <p class="text-sm font-medium">استحقاقی</p>
+                        <p class="text-muted-foreground text-xs">
+                          ۳۰ روز سالانه
+                        </p>
+                      </div>
+                    </div>
+                    <div
+                      class="hover:bg-muted/30 flex cursor-pointer items-center gap-3 rounded-lg p-2 transition-colors"
+                    >
+                      <div
+                        class="flex size-8 items-center justify-center rounded-full bg-red-500/10"
+                      >
+                        <span
+                          class="icon-[material-symbols--sick] size-4 text-red-500"
+                        ></span>
+                      </div>
+                      <div>
+                        <p class="text-sm font-medium">بیماری</p>
+                        <p class="text-muted-foreground text-xs">
+                          ۱۰ روز سالانه
+                        </p>
+                      </div>
+                    </div>
+                    <div
+                      class="hover:bg-muted/30 flex cursor-pointer items-center gap-3 rounded-lg p-2 transition-colors"
+                    >
+                      <div
+                        class="flex size-8 items-center justify-center rounded-full bg-blue-500/10"
+                      >
+                        <span
+                          class="icon-[material-symbols--person] size-4 text-blue-500"
+                        ></span>
+                      </div>
+                      <div>
+                        <p class="text-sm font-medium">شخصی</p>
+                        <p class="text-muted-foreground text-xs">
+                          ۵ روز سالانه
+                        </p>
+                      </div>
+                    </div>
+                    <div
+                      class="hover:bg-muted/30 flex cursor-pointer items-center gap-3 rounded-lg p-2 transition-colors"
+                    >
+                      <div
+                        class="flex size-8 items-center justify-center rounded-full bg-amber-500/10"
+                      >
+                        <span
+                          class="icon-[material-symbols--pregnant-woman] size-4 text-amber-500"
+                        ></span>
+                      </div>
+                      <div>
+                        <p class="text-sm font-medium">زایمان</p>
+                        <p class="text-muted-foreground text-xs">۹۰ روز</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Leave Management Dashboard -->
+            <div class="grid grid-cols-1 gap-6 xl:grid-cols-3">
+              <!-- Pending Approvals -->
+              <div class="space-y-6 xl:col-span-2">
+                <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title flex items-center gap-2">
+                      <span
+                        class="icon-[material-symbols--pending] size-5 text-amber-500"
+                      ></span>
+                      درخواست‌های در انتظار تایید
+                    </h3>
+                    <p class="card-description">
+                      مرخصی‌هایی که نیاز به تایید شما دارند
+                    </p>
+                  </div>
+                  <div class="card-content">
+                    <div class="space-y-4">
+                      <!-- Leave Request 1 -->
+                      <div
+                        class="rounded-lg border border-amber-500/20 bg-amber-500/5 p-4"
+                      >
+                        <div class="mb-3 flex items-start justify-between">
+                          <div class="flex items-center gap-3">
+                            <div
+                              class="flex size-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-sm font-bold text-white"
+                            >
+                              سا
+                            </div>
+                            <div>
+                              <div class="text-sm font-medium">سارا احمدی</div>
+                              <div class="text-muted-foreground text-xs">
+                                توسعه دهنده • فناوری اطلاعات
+                              </div>
+                            </div>
+                          </div>
+                          <div class="flex items-center gap-2">
+                            <span class="badge text-xs" variant="destructive"
+                              >در انتظار</span
+                            >
+                            <span class="text-muted-foreground text-xs"
+                              >۲ ساعت پیش</span
+                            >
+                          </div>
+                        </div>
+                        <div class="mb-3 grid grid-cols-3 gap-4">
+                          <div>
+                            <div class="text-muted-foreground text-xs">
+                              نوع مرخصی
+                            </div>
+                            <div class="text-sm font-medium">استحقاقی</div>
+                          </div>
+                          <div>
+                            <div class="text-muted-foreground text-xs">
+                              تاریخ
+                            </div>
+                            <div class="text-sm font-medium">۱۵-۱۷ دی</div>
+                          </div>
+                          <div>
+                            <div class="text-muted-foreground text-xs">مدت</div>
+                            <div class="text-sm font-medium">۳ روز</div>
+                          </div>
+                        </div>
+                        <div class="text-muted-foreground mb-3 text-sm">
+                          "برای شرکت در دوره آموزشی"
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <button
+                            class="button bg-emerald-500 text-xs text-white hover:bg-emerald-600"
+                          >
+                            <span
+                              class="icon-[material-symbols--check] size-3"
+                            ></span>
+                            تایید
+                          </button>
+                          <button
+                            class="button bg-red-500 text-xs text-white hover:bg-red-600"
+                          >
+                            <span
+                              class="icon-[material-symbols--close] size-3"
+                            ></span>
+                            رد
+                          </button>
+                          <button class="button" variant="outline" size="sm">
+                            جزئیات
+                          </button>
+                        </div>
+                      </div>
+
+                      <!-- Leave Request 2 -->
+                      <div
+                        class="rounded-lg border border-amber-500/20 bg-amber-500/5 p-4"
+                      >
+                        <div class="mb-3 flex items-start justify-between">
+                          <div class="flex items-center gap-3">
+                            <div
+                              class="flex size-10 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 text-sm font-bold text-white"
+                            >
+                              علی
+                            </div>
+                            <div>
+                              <div class="text-sm font-medium">علی محمدی</div>
+                              <div class="text-muted-foreground text-xs">
+                                مدیر فروش • فروش و بازاریابی
+                              </div>
+                            </div>
+                          </div>
+                          <div class="flex items-center gap-2">
+                            <span class="badge text-xs" variant="destructive"
+                              >در انتظار</span
+                            >
+                            <span class="text-muted-foreground text-xs"
+                              >۴ ساعت پیش</span
+                            >
+                          </div>
+                        </div>
+                        <div class="mb-3 grid grid-cols-3 gap-4">
+                          <div>
+                            <div class="text-muted-foreground text-xs">
+                              نوع مرخصی
+                            </div>
+                            <div class="text-sm font-medium">ساعتی</div>
+                          </div>
+                          <div>
+                            <div class="text-muted-foreground text-xs">
+                              تاریخ
+                            </div>
+                            <div class="text-sm font-medium">۱۴ دی</div>
+                          </div>
+                          <div>
+                            <div class="text-muted-foreground text-xs">مدت</div>
+                            <div class="text-sm font-medium">۴ ساعت</div>
+                          </div>
+                        </div>
+                        <div class="text-muted-foreground mb-3 text-sm">
+                          "برای امور پزشکی"
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <button
+                            class="button bg-emerald-500 text-xs text-white hover:bg-emerald-600"
+                          >
+                            <span
+                              class="icon-[material-symbols--check] size-3"
+                            ></span>
+                            تایید
+                          </button>
+                          <button
+                            class="button bg-red-500 text-xs text-white hover:bg-red-600"
+                          >
+                            <span
+                              class="icon-[material-symbols--close] size-3"
+                            ></span>
+                            رد
+                          </button>
+                          <button class="button" variant="outline" size="sm">
+                            جزئیات
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Upcoming Leaves -->
+                <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title flex items-center gap-2">
+                      <span
+                        class="icon-[material-symbols--event-upcoming] size-5 text-blue-500"
+                      ></span>
+                      مرخصی‌های آینده
+                    </h3>
+                  </div>
+                  <div class="card-content">
+                    <div class="space-y-3">
+                      <div
+                        class="hover:bg-muted/30 flex items-center gap-4 rounded-lg p-3 transition-colors"
+                      >
+                        <div
+                          class="flex size-12 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 font-bold text-white"
+                        >
+                          ۱۸
+                        </div>
+                        <div class="flex-1">
+                          <div class="font-medium">مریم رضایی</div>
+                          <div class="text-muted-foreground text-sm">
+                            مرخصی استحقاقی • ۵ روز
+                          </div>
+                        </div>
+                        <div class="text-muted-foreground text-sm">
+                          ۱۸-۲۲ دی
+                        </div>
+                      </div>
+                      <div
+                        class="hover:bg-muted/30 flex items-center gap-4 rounded-lg p-3 transition-colors"
+                      >
+                        <div
+                          class="flex size-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 font-bold text-white"
+                        >
+                          ۲۰
+                        </div>
+                        <div class="flex-1">
+                          <div class="font-medium">حسن کریمی</div>
+                          <div class="text-muted-foreground text-sm">
+                            مرخصی ساعتی • ۳ ساعت
+                          </div>
+                        </div>
+                        <div class="text-muted-foreground text-sm">۲۰ دی</div>
+                      </div>
+                      <div
+                        class="hover:bg-muted/30 flex items-center gap-4 rounded-lg p-3 transition-colors"
+                      >
+                        <div
+                          class="flex size-12 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-violet-600 font-bold text-white"
+                        >
+                          ۲۵
+                        </div>
+                        <div class="flex-1">
+                          <div class="font-medium">نازنین احمدی</div>
+                          <div class="text-muted-foreground text-sm">
+                            مرخصی بیماری • ۲ روز
+                          </div>
+                        </div>
+                        <div class="text-muted-foreground text-sm">
+                          ۲۵-۲۶ دی
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Side Panel -->
+              <div class="space-y-6">
+                <!-- Leave Calendar -->
+                <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title flex items-center gap-2">
+                      <span
+                        class="icon-[material-symbols--calendar-view-month] size-5 text-indigo-500"
+                      ></span>
+                      تقویم دی ۱۴۰۳
+                    </h3>
+                  </div>
+                  <div class="card-content">
+                    <div class="grid grid-cols-7 gap-1 text-center text-xs">
+                      <div class="text-muted-foreground p-2 font-medium">ش</div>
+                      <div class="text-muted-foreground p-2 font-medium">ی</div>
+                      <div class="text-muted-foreground p-2 font-medium">د</div>
+                      <div class="text-muted-foreground p-2 font-medium">س</div>
+                      <div class="text-muted-foreground p-2 font-medium">چ</div>
+                      <div class="text-muted-foreground p-2 font-medium">پ</div>
+                      <div class="text-muted-foreground p-2 font-medium">ج</div>
+
+                      <div class="text-muted-foreground p-2">۱</div>
+                      <div class="text-muted-foreground p-2">۲</div>
+                      <div class="text-muted-foreground p-2">۳</div>
+                      <div class="text-muted-foreground p-2">۴</div>
+                      <div class="text-muted-foreground p-2">۵</div>
+                      <div class="text-muted-foreground p-2">۶</div>
+                      <div
+                        class="rounded bg-blue-500/10 p-2 font-medium text-blue-600"
+                      >
+                        ۷
+                      </div>
+
+                      <div class="text-muted-foreground p-2">۸</div>
+                      <div class="text-muted-foreground p-2">۹</div>
+                      <div class="text-muted-foreground p-2">۱۰</div>
+                      <div class="text-muted-foreground p-2">۱۱</div>
+                      <div class="text-muted-foreground p-2">۱۲</div>
+                      <div class="text-muted-foreground p-2">۱۳</div>
+                      <div
+                        class="rounded bg-emerald-500/10 p-2 font-medium text-emerald-600"
+                      >
+                        ۱۴
+                      </div>
+
+                      <div
+                        class="rounded bg-emerald-500/10 p-2 font-medium text-emerald-600"
+                      >
+                        ۱۵
+                      </div>
+                      <div
+                        class="rounded bg-emerald-500/10 p-2 font-medium text-emerald-600"
+                      >
+                        ۱۶
+                      </div>
+                      <div
+                        class="rounded bg-emerald-500/10 p-2 font-medium text-emerald-600"
+                      >
+                        ۱۷
+                      </div>
+                      <div class="text-muted-foreground p-2">۱۸</div>
+                      <div class="text-muted-foreground p-2">۱۹</div>
+                      <div class="text-muted-foreground p-2">۲۰</div>
+                      <div class="text-muted-foreground p-2">۲۱</div>
+
+                      <div class="text-muted-foreground p-2">۲۲</div>
+                      <div class="text-muted-foreground p-2">۲۳</div>
+                      <div class="text-muted-foreground p-2">۲۴</div>
+                      <div class="text-muted-foreground p-2">۲۵</div>
+                      <div class="text-muted-foreground p-2">۲۶</div>
+                      <div class="text-muted-foreground p-2">۲۷</div>
+                      <div class="text-muted-foreground p-2">۲۸</div>
+
+                      <div class="text-muted-foreground p-2">۲۹</div>
+                      <div class="text-muted-foreground p-2">۳۰</div>
+                      <div class="text-muted-foreground p-2">۳۱</div>
+                      <div class="text-muted-foreground p-2">۱</div>
+                      <div class="text-muted-foreground p-2">۲</div>
+                      <div class="text-muted-foreground p-2">۳</div>
+                      <div class="text-muted-foreground p-2">۴</div>
+                    </div>
+                    <div class="mt-4 flex items-center gap-2 text-xs">
+                      <div class="flex items-center gap-1">
+                        <div class="size-2 rounded-full bg-blue-500"></div>
+                        <span>امروز</span>
+                      </div>
+                      <div class="flex items-center gap-1">
+                        <div class="size-2 rounded-full bg-emerald-500"></div>
+                        <span>مرخصی</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Leave Statistics -->
+                <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title flex items-center gap-2">
+                      <span
+                        class="icon-[material-symbols--analytics] size-5 text-cyan-500"
+                      ></span>
+                      آمار مرخصی
+                    </h3>
+                  </div>
+                  <div class="card-content">
+                    <div class="space-y-4">
+                      <div class="text-center">
+                        <div
+                          class="mx-auto mb-2 flex size-16 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-cyan-600 text-lg font-bold text-white"
+                        >
+                          ۸۵%
+                        </div>
+                        <div class="text-sm font-medium">استفاده از مرخصی</div>
+                        <div class="text-muted-foreground text-xs">
+                          ماه جاری
+                        </div>
+                      </div>
+                      <div class="space-y-2">
+                        <div class="flex items-center justify-between text-sm">
+                          <span>استحقاقی</span>
+                          <span class="font-medium">۶۰%</span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                          <span>بیماری</span>
+                          <span class="font-medium">۱۵%</span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                          <span>ساعتی</span>
+                          <span class="font-medium">۱۰%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title">اقدامات سریع</h3>
+                  </div>
+                  <div class="card-content">
+                    <div class="grid grid-cols-2 gap-2">
+                      <button
+                        class="flex flex-col items-center gap-2 rounded-lg border border-dashed border-blue-500/30 p-3 transition-all hover:border-blue-500/60 hover:bg-blue-500/5"
+                      >
+                        <span
+                          class="icon-[material-symbols--rule] size-5 text-blue-500"
+                        ></span>
+                        <span class="text-xs font-medium">سیاست‌ها</span>
+                      </button>
+                      <button
+                        class="flex flex-col items-center gap-2 rounded-lg border border-dashed border-emerald-500/30 p-3 transition-all hover:border-emerald-500/60 hover:bg-emerald-500/5"
+                      >
+                        <span
+                          class="icon-[material-symbols--description] size-5 text-emerald-500"
+                        ></span>
+                        <span class="text-xs font-medium">گزارش</span>
+                      </button>
+                      <button
+                        class="flex flex-col items-center gap-2 rounded-lg border border-dashed border-violet-500/30 p-3 transition-all hover:border-violet-500/60 hover:bg-violet-500/5"
+                      >
+                        <span
+                          class="icon-[material-symbols--settings] size-5 text-violet-500"
+                        ></span>
+                        <span class="text-xs font-medium">تنظیمات</span>
+                      </button>
+                      <button
+                        class="flex flex-col items-center gap-2 rounded-lg border border-dashed border-amber-500/30 p-3 transition-all hover:border-amber-500/60 hover:bg-amber-500/5"
+                      >
+                        <span
+                          class="icon-[material-symbols--help] size-5 text-amber-500"
+                        ></span>
+                        <span class="text-xs font-medium">راهنما</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Leave History -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title flex items-center gap-2">
+                  <span
+                    class="icon-[material-symbols--history] size-5 text-gray-500"
+                  ></span>
+                  تاریخچه مرخصی‌ها
+                </h3>
+                <p class="card-description">
+                  مرخصی‌های تایید شده و رد شده اخیر
+                </p>
+              </div>
+              <div class="card-content">
+                <div class="overflow-x-auto">
+                  <table class="w-full">
+                    <thead>
+                      <tr class="border-b">
+                        <th
+                          class="text-muted-foreground p-3 text-start text-xs font-medium"
+                        >
+                          کارمند
+                        </th>
+                        <th
+                          class="text-muted-foreground p-3 text-start text-xs font-medium"
+                        >
+                          نوع
+                        </th>
+                        <th
+                          class="text-muted-foreground p-3 text-start text-xs font-medium"
+                        >
+                          تاریخ
+                        </th>
+                        <th
+                          class="text-muted-foreground p-3 text-start text-xs font-medium"
+                        >
+                          مدت
+                        </th>
+                        <th
+                          class="text-muted-foreground p-3 text-start text-xs font-medium"
+                        >
+                          وضعیت
+                        </th>
+                        <th
+                          class="text-muted-foreground p-3 text-start text-xs font-medium"
+                        >
+                          تایید کننده
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        class="hover:bg-muted/30 border-b transition-colors last:border-b-0"
+                      >
+                        <td class="p-3 text-sm">
+                          <div class="flex items-center gap-2">
+                            <div
+                              class="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-xs font-bold text-white"
+                            >
+                              سا
+                            </div>
+                            سارا احمدی
+                          </div>
+                        </td>
+                        <td class="p-3 text-sm">استحقاقی</td>
+                        <td class="p-3 text-sm">۱۰-۱۲ آذر</td>
+                        <td class="p-3 text-sm">۳ روز</td>
+                        <td class="p-3 text-sm">
+                          <span class="badge" variant="success">تایید شده</span>
+                        </td>
+                        <td class="p-3 text-sm">مدیر منابع انسانی</td>
+                      </tr>
+                      <tr
+                        class="hover:bg-muted/30 border-b transition-colors last:border-b-0"
+                      >
+                        <td class="p-3 text-sm">
+                          <div class="flex items-center gap-2">
+                            <div
+                              class="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 text-xs font-bold text-white"
+                            >
+                              علی
+                            </div>
+                            علی محمدی
+                          </div>
+                        </td>
+                        <td class="p-3 text-sm">ساعتی</td>
+                        <td class="p-3 text-sm">۵ آذر</td>
+                        <td class="p-3 text-sm">۴ ساعت</td>
+                        <td class="p-3 text-sm">
+                          <span class="badge" variant="success">تایید شده</span>
+                        </td>
+                        <td class="p-3 text-sm">مدیر فروش</td>
+                      </tr>
+                      <tr
+                        class="hover:bg-muted/30 border-b transition-colors last:border-b-0"
+                      >
+                        <td class="p-3 text-sm">
+                          <div class="flex items-center gap-2">
+                            <div
+                              class="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-red-600 text-xs font-bold text-white"
+                            >
+                              مری
+                            </div>
+                            مریم رضایی
+                          </div>
+                        </td>
+                        <td class="p-3 text-sm">بیماری</td>
+                        <td class="p-3 text-sm">۱ آذر</td>
+                        <td class="p-3 text-sm">۱ روز</td>
+                        <td class="p-3 text-sm">
+                          <span class="badge" variant="destructive"
+                            >رد شده</span
+                          >
+                        </td>
+                        <td class="p-3 text-sm">مدیر منابع انسانی</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Global Footer -->
+    <footer
+  class="bg-sidebar fixed inset-x-0 bottom-0 z-40 hidden h-(--footer-height) justify-between border-t lg:flex"
+>
+  <!-- Sidebar Footer with Controls -->
+  <div class="flex items-center gap-2">
+    <button
+      data-sidebar-hide
+      class="button"
+      variant="ghost"
+      size="icon-sm"
+      data-tooltip="مخفی کردن"
+    >
+      <span class="icon-[flowbite--open-sidebar-solid] size-4"></span>
+    </button>
+    <button
+      data-sidebar-expand
+      class="button"
+      variant="ghost"
+      size="icon-sm"
+      data-tooltip="نمایش کردن"
+    >
+      <span class="icon-[flowbite--close-sidebar-solid] size-4"></span>
+    </button>
+  </div>
+</footer>
+
+  </body>
+</html>

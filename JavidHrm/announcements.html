@@ -1,0 +1,1102 @@
+<!doctype html>
+<html lang="fa-IR" class="light" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>اطلاعیه‌ها | پنل مدیریت</title>
+    <link rel="stylesheet" href="./assets/styles/app.css" />
+    <link rel="stylesheet" href="./assets/styles/themes.css" />
+
+    <script src="./assets/scripts/mount.js"></script>
+    <script defer src="./assets/scripts/app.js"></script>
+  </head>
+
+  <body class="app-layout">
+    <!-- Desktop Sidebar -->
+   <aside id="mobile-sidebar" class="sidebar">
+  <nav class="sidebar-content scrollbar-thin">
+    <!-- Main Menu -->
+    <div class="sidebar-group">
+      <div class="sidebar-group-title">منوی اصلی</div>
+      <div class="sidebar-menu">
+        <a href="index.html" class="sidebar-item">
+          <span class="icon-[material-symbols--home] sidebar-item-icon"></span>
+          <span class="sidebar-label">داشبورد</span>
+        </a>
+        
+        
+        <a href="calendar.html" class="sidebar-item">
+          <span
+            class="icon-[material-symbols--calendar-month] sidebar-item-icon"
+          ></span>
+          <span class="sidebar-label">تقویم</span>
+        </a>
+      </div>
+    </div>
+
+    
+
+    <!-- Users & HR -->
+    <div class="sidebar-group">
+      <div class="sidebar-group-title">کاربران و منابع انسانی</div>
+      <div class="sidebar-menu">
+        <!-- Users -->
+        <div data-accordion>
+          <button
+            class="sidebar-item accordion-trigger w-full"
+            data-accordion-trigger
+          >
+            <div class="flex items-center gap-3">
+              <span
+                class="icon-[material-symbols--group] sidebar-item-icon"
+              ></span>
+              <span class="sidebar-label">کاربران</span>
+            </div>
+            <span
+              class="icon-[material-symbols--keyboard-arrow-down] sidebar-label size-5"
+              data-accordion-icon
+            ></span>
+          </button>
+          <div data-accordion-content>
+            <div class="space-y-1 py-1 ps-8">
+              <a href="users.html" class="sidebar-item text-sm">لیست کاربران</a>
+              <a href="add-user.html" class="sidebar-item text-sm"
+                >کاربر جدید</a
+              >
+              <a href="roles.html" class="sidebar-item text-sm">نقش‌ها</a>
+              <a href="permissions.html" class="sidebar-item text-sm"
+                >دسترسی‌ها</a
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- HR -->
+        <div data-accordion>
+          <button
+            class="sidebar-item accordion-trigger w-full"
+            data-accordion-trigger
+          >
+            <div class="flex items-center gap-3">
+              <span
+                class="icon-[material-symbols--badge] sidebar-item-icon"
+              ></span>
+              <span class="sidebar-label">پرسنل</span>
+            </div>
+            <span
+              class="icon-[material-symbols--keyboard-arrow-down] sidebar-label size-5"
+              data-accordion-icon
+            ></span>
+          </button>
+          <div data-accordion-content>
+            <div class="space-y-1 py-1 ps-8">
+              <a href="employees.html" class="sidebar-item text-sm">کارمندان</a>
+              <a href="departments.html" class="sidebar-item text-sm">بخش‌ها</a>
+              <a href="attendance.html" class="sidebar-item text-sm"
+                >حضور و غیاب</a
+              >
+              <a href="leaves.html" class="sidebar-item text-sm">مرخصی‌ها</a>
+              <a href="payroll.html" class="sidebar-item text-sm"
+                >حقوق و دستمزد</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+   
+
+  
+   
+  </nav>
+</aside>
+
+    <!-- Global Header -->
+    <header class="app-header">
+  <div class="app-header-content">
+    <div class="flex items-center gap-3">
+      <!-- Mobile Menu Button -->
+      <button
+        data-drawer-trigger="mobile-sidebar"
+        class="button lg:hidden"
+        variant="ghost"
+        size="icon"
+      >
+        <span class="icon-[material-symbols--menu] size-6"></span>
+      </button>
+      <!-- Sidebar Show Button (when hidden on desktop) -->
+      <button
+        data-sidebar-expand
+        class="button hidden lg:hidden"
+        variant="ghost"
+        size="icon"
+        id="show-sidebar-btn"
+      >
+        <span class="icon-[material-symbols--right-panel-open] size-5"></span>
+      </button>
+
+      <!-- Quick Access Search Button -->
+      <button
+        data-dialog-trigger="quick-access-dialog"
+        class="bg-muted/50 hover:bg-muted border-border text-muted-foreground hidden h-9 w-64 items-center gap-3 rounded-lg border px-3 py-2 text-sm transition-colors sm:flex lg:w-80"
+      >
+        <span class="icon-[material-symbols--search] size-4"></span>
+        <span class="flex-1 text-start">جستجو یا دسترسی سریع...</span>
+        <span class="kbd-group hidden lg:inline-flex">
+          <kbd class="kbd">Ctrl</kbd>
+          <span class="text-[10px]">+</span>
+          <kbd class="kbd">K</kbd>
+        </span>
+      </button>
+
+      <!-- Mobile Search Button -->
+      <button
+        data-dialog-trigger="quick-access-dialog"
+        class="button sm:hidden"
+        variant="ghost"
+        size="icon"
+      >
+        <span class="icon-[material-symbols--search] size-5"></span>
+      </button>
+    </div>
+
+    <div class="flex items-center gap-1">
+      <!-- User Menu -->
+      <div class="relative" data-dropdown>
+        <button
+          data-dropdown-trigger
+          class="hover:bg-accent flex items-center gap-2 rounded-lg p-1.5 transition-colors"
+        >
+          <div class="avatar ring-primary/20 size-8 ring-2">
+            <div
+              class="avatar-fallback from-primary to-primary/70 text-primary-foreground bg-linear-to-br text-sm font-semibold"
+            >
+              م
+            </div>
+          </div>
+          <div class="hidden text-start sm:block">
+            <p class="text-sm leading-none font-medium">مدیر سیستم</p>
+            <p class="text-muted-foreground text-xs">admin@example.com</p>
+          </div>
+          <span
+            class="icon-[material-symbols--keyboard-arrow-down] text-muted-foreground hidden size-4 sm:block"
+          ></span>
+        </button>
+        <div
+          data-dropdown-content
+          class="dropdown-content end-0 top-full mt-2 hidden w-56 overflow-hidden p-0"
+        >
+          <div class="bg-muted/30 border-b px-3 py-3">
+            <p class="text-sm font-semibold">مدیر سیستم</p>
+            <p class="text-muted-foreground text-xs">admin@example.com</p>
+          </div>
+          <div class="p-1">
+            <a href="#" class="dropdown-item py-2">
+              <span class="icon-[material-symbols--person] size-4"></span>
+              <span>پروفایل کاربری</span>
+            </a>
+            <a href="settings.html" class="dropdown-item py-2">
+              <span class="icon-[material-symbols--settings] size-4"></span>
+              <span>تنظیمات</span>
+            </a>
+            <a href="#" class="dropdown-item py-2">
+              <span class="icon-[material-symbols--help] size-4"></span>
+              <span>راهنما و پشتیبانی</span>
+            </a>
+          </div>
+          <div class="border-t p-1">
+            <a
+              href="#"
+              class="dropdown-item text-destructive hover:bg-destructive/10 py-2"
+            >
+              <span class="icon-[material-symbols--logout] size-4"></span>
+              <span>خروج از حساب</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <!-- Separator -->
+      <div class="bg-border mx-1 hidden h-6 w-px sm:block"></div>
+
+      <!-- Theme Toggle -->
+      <button
+        onclick="toggleTheme()"
+        class="button"
+        variant="ghost"
+        size="icon"
+        data-tooltip-position="bottom"
+        data-tooltip="تغییر تم"
+      >
+        <span
+          class="icon-[material-symbols--light-mode] size-5 dark:hidden"
+        ></span>
+        <span
+          class="icon-[material-symbols--dark-mode] hidden size-5 dark:block"
+        ></span>
+      </button>
+
+      <!-- Notifications -->
+      <div class="relative" data-dropdown>
+        <button
+          data-dropdown-trigger
+          class="button relative"
+          variant="ghost"
+          size="icon"
+          data-tooltip-position="bottom"
+          data-tooltip="اعلان‌ها"
+        >
+          <span class="icon-[material-symbols--notifications] size-5"></span>
+          <span
+            class="bg-destructive absolute -start-0.5 -top-0.5 flex size-4.5 animate-pulse items-center justify-center rounded-full text-[10px] font-medium text-white"
+            >۳</span
+          >
+        </button>
+        <div
+          data-dropdown-content
+          class="dropdown-content end-0 top-full mt-2 hidden w-80 overflow-hidden p-0"
+        >
+          <div
+            class="bg-muted/30 flex items-center justify-between border-b px-4 py-3"
+          >
+            <div class="flex items-center gap-2">
+              <span
+                class="icon-[material-symbols--notifications] text-primary size-4"
+              ></span>
+              <p class="text-sm font-semibold">اعلان‌ها</p>
+            </div>
+            <button class="text-primary text-xs hover:underline">
+              خواندن همه
+            </button>
+          </div>
+          <div class="max-h-80 overflow-y-auto">
+            <a
+              href="#"
+              class="hover:bg-muted/50 border-border/50 flex gap-3 border-b p-3 transition-colors"
+            >
+              <div
+                class="bg-primary/10 flex size-10 shrink-0 items-center justify-center rounded-full"
+              >
+                <span
+                  class="icon-[material-symbols--shopping-cart] text-primary size-5"
+                ></span>
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-sm font-medium">سفارش جدید #۱۲۵۶</p>
+                <p class="text-muted-foreground text-xs">
+                  علی محمدی - ۲,۵۰۰,۰۰۰ تومان
+                </p>
+                <p class="text-muted-foreground mt-1 text-xs">۵ دقیقه پیش</p>
+              </div>
+              <div class="bg-primary mt-2 size-2 shrink-0 rounded-full"></div>
+            </a>
+            <a
+              href="#"
+              class="hover:bg-muted/50 border-border/50 flex gap-3 border-b p-3 transition-colors"
+            >
+              <div
+                class="flex size-10 shrink-0 items-center justify-center rounded-full bg-emerald-500/10"
+              >
+                <span
+                  class="icon-[material-symbols--person-add] size-5 text-emerald-500"
+                ></span>
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-sm font-medium">
+                  کاربر جدید ثبت نام کرد
+                </p>
+                <p class="text-muted-foreground text-xs">سارا احمدی</p>
+                <p class="text-muted-foreground mt-1 text-xs">۱۰ دقیقه پیش</p>
+              </div>
+              <div class="bg-primary mt-2 size-2 shrink-0 rounded-full"></div>
+            </a>
+            <a
+              href="#"
+              class="hover:bg-muted/50 flex gap-3 p-3 transition-colors"
+            >
+              <div
+                class="flex size-10 shrink-0 items-center justify-center rounded-full bg-amber-500/10"
+              >
+                <span
+                  class="icon-[material-symbols--inventory-2] size-5 text-amber-500"
+                ></span>
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-sm font-medium">موجودی کم</p>
+                <p class="text-muted-foreground text-xs">
+                  ۵ محصول نیاز به تأمین دارند
+                </p>
+                <p class="text-muted-foreground mt-1 text-xs">۳۰ دقیقه پیش</p>
+              </div>
+              <div class="bg-primary mt-2 size-2 shrink-0 rounded-full"></div>
+            </a>
+          </div>
+          <div class="bg-muted/30 border-t px-4 py-3">
+            <a
+              href="notifications.html"
+              class="text-primary flex items-center justify-center gap-1 text-sm hover:underline"
+            >
+              <span>مشاهده همه اعلان‌ها</span>
+              <span
+                class="icon-[material-symbols--arrow-forward] size-4 rtl:rotate-180"
+              ></span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Quick Access Dialog (Command Palette) -->
+<div
+  id="quick-access-dialog"
+  data-dialog
+  class="dialog hidden"
+  data-state="closed"
+>
+  <div data-dialog-overlay class="dialog-overlay"></div>
+  <div
+    class="dialog-content top-[20%]! max-w-xl translate-y-0! overflow-hidden p-0"
+  >
+    <!-- Search Input -->
+    <div class="flex items-center gap-3 border-b px-4 py-3">
+      <span
+        class="icon-[material-symbols--search] text-muted-foreground size-5"
+      ></span>
+      <input
+        type="text"
+        id="quick-access-search"
+        placeholder="جستجو در منوها، صفحات و دستورات..."
+        class="placeholder:text-muted-foreground flex-1 border-0 bg-transparent text-sm outline-none"
+        autocomplete="off"
+      />
+      <button
+        data-dialog-close
+        class="button p-1"
+        variant="ghost"
+        size="icon-sm"
+      >
+        <span class="icon-[material-symbols--close] size-4"></span>
+      </button>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="max-h-96 overflow-y-auto">
+      <!-- Recent/Quick Actions Section -->
+      <div class="border-b p-2">
+        <p class="text-muted-foreground px-2 py-1.5 text-xs font-medium">
+          دسترسی سریع
+        </p>
+        <div class="space-y-0.5" id="quick-actions-list">
+          <a
+            href="products.html"
+            class="quick-access-item hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 transition-colors"
+            data-quick-action
+          >
+            <div
+              class="bg-primary/10 flex size-8 items-center justify-center rounded-lg"
+            >
+              <span
+                class="icon-[material-symbols--add] text-primary size-4"
+              ></span>
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-medium">افزودن محصول جدید</p>
+              <p class="text-muted-foreground text-xs">
+                ایجاد محصول در فروشگاه
+              </p>
+            </div>
+            <span class="kbd-group">
+              <kbd class="kbd">Alt</kbd>
+              <span class="text-[10px]">+</span>
+              <kbd class="kbd">N</kbd>
+            </span>
+          </a>
+          <a
+            href="orders.html"
+            class="quick-access-item hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 transition-colors"
+            data-quick-action
+          >
+            <div
+              class="flex size-8 items-center justify-center rounded-lg bg-emerald-500/10"
+            >
+              <span
+                class="icon-[material-symbols--shopping-cart] size-4 text-emerald-500"
+              ></span>
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-medium">سفارشات</p>
+              <p class="text-muted-foreground text-xs">
+                مدیریت سفارشات مشتریان
+              </p>
+            </div>
+            <span class="kbd-group">
+              <kbd class="kbd">Alt</kbd>
+              <span class="text-[10px]">+</span>
+              <kbd class="kbd">O</kbd>
+            </span>
+          </a>
+          <a
+            href="users.html"
+            class="quick-access-item hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 transition-colors"
+            data-quick-action
+          >
+            <div
+              class="flex size-8 items-center justify-center rounded-lg bg-sky-500/10"
+            >
+              <span
+                class="icon-[material-symbols--group] size-4 text-sky-500"
+              ></span>
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-medium">کاربران</p>
+              <p class="text-muted-foreground text-xs">مدیریت کاربران سیستم</p>
+            </div>
+            <span class="kbd-group">
+              <kbd class="kbd">Alt</kbd>
+              <span class="text-[10px]">+</span>
+              <kbd class="kbd">U</kbd>
+            </span>
+          </a>
+          <a
+            href="analytics.html"
+            class="quick-access-item hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 transition-colors"
+            data-quick-action
+          >
+            <div
+              class="flex size-8 items-center justify-center rounded-lg bg-violet-500/10"
+            >
+              <span
+                class="icon-[material-symbols--analytics] size-4 text-violet-500"
+              ></span>
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-medium">گزارشات و تحلیل</p>
+              <p class="text-muted-foreground text-xs">آمار و نمودارها</p>
+            </div>
+            <span class="kbd-group">
+              <kbd class="kbd">Alt</kbd>
+              <span class="text-[10px]">+</span>
+              <kbd class="kbd">A</kbd>
+            </span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Navigation Section -->
+      <div class="border-b p-2">
+        <p class="text-muted-foreground px-2 py-1.5 text-xs font-medium">
+          صفحات
+        </p>
+        <div class="space-y-0.5" id="quick-pages-list">
+          <a
+            href="index.html"
+            class="quick-access-item hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 transition-colors"
+            data-quick-page
+          >
+            <span
+              class="icon-[material-symbols--home] text-muted-foreground size-4"
+            ></span>
+            <span class="text-sm">داشبورد</span>
+          </a>
+          <a
+            href="products.html"
+            class="quick-access-item hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 transition-colors"
+            data-quick-page
+          >
+            <span
+              class="icon-[material-symbols--inventory-2] text-muted-foreground size-4"
+            ></span>
+            <span class="text-sm">محصولات</span>
+          </a>
+          <a
+            href="orders.html"
+            class="quick-access-item hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 transition-colors"
+            data-quick-page
+          >
+            <span
+              class="icon-[material-symbols--shopping-cart] text-muted-foreground size-4"
+            ></span>
+            <span class="text-sm">سفارشات</span>
+          </a>
+          <a
+            href="users.html"
+            class="quick-access-item hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 transition-colors"
+            data-quick-page
+          >
+            <span
+              class="icon-[material-symbols--group] text-muted-foreground size-4"
+            ></span>
+            <span class="text-sm">کاربران</span>
+          </a>
+          <a
+            href="settings.html"
+            class="quick-access-item hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 transition-colors"
+            data-quick-page
+          >
+            <span
+              class="icon-[material-symbols--settings] text-muted-foreground size-4"
+            ></span>
+            <span class="text-sm">تنظیمات</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Commands Section -->
+      <div class="p-2">
+        <p class="text-muted-foreground px-2 py-1.5 text-xs font-medium">
+          دستورات
+        </p>
+        <div class="space-y-0.5" id="quick-commands-list">
+          <button
+            class="quick-access-item hover:bg-accent flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-start transition-colors"
+            onclick="
+              toggleTheme();
+              window.dialogManager?.closeDialog('quick-access-dialog');
+            "
+          >
+            <span
+              class="icon-[material-symbols--dark-mode] text-muted-foreground size-4"
+            ></span>
+            <span class="text-sm">تغییر تم (روشن/تاریک)</span>
+            <span class="kbd-group mr-auto">
+              <kbd class="kbd">Alt</kbd>
+              <span class="text-[10px]">+</span>
+              <kbd class="kbd">T</kbd>
+            </span>
+          </button>
+
+          <a
+            href="#"
+            class="quick-access-item hover:bg-accent text-destructive flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 transition-colors"
+          >
+            <span class="icon-[material-symbols--logout] size-4"></span>
+            <span class="text-sm">خروج از حساب</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div
+      class="bg-muted/30 text-muted-foreground flex items-center justify-between border-t px-4 py-2.5 text-xs"
+    >
+      <div class="flex items-center gap-4">
+        <span class="flex items-center gap-1.5">
+          <span class="kbd-group">
+            <kbd class="kbd">↑</kbd>
+            <kbd class="kbd">↓</kbd>
+          </span>
+          <span>پیمایش</span>
+        </span>
+        <span class="flex items-center gap-1.5">
+          <kbd class="kbd">Enter</kbd>
+          <span>انتخاب</span>
+        </span>
+        <span class="flex items-center gap-1.5">
+          <kbd class="kbd">Esc</kbd>
+          <span>بستن</span>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    <!-- Main Content Area -->
+    <div class="app-body">
+      <main class="app-main flex flex-col">
+        <div class="flex-1 p-4 lg:p-6">
+          <div class="mx-auto max-w-7xl space-y-6">
+            <!-- Page Header -->
+            <div class="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <h1 class="text-2xl font-bold">اطلاعیه‌ها</h1>
+                <p class="text-muted-foreground">
+                  مدیریت اطلاعیه‌ها و پیام‌های عمومی
+                </p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button class="button" variant="outline">
+                  <span class="icon-[material-symbols--history] size-4"></span>
+                  آرشیو
+                </button>
+                <button
+                  data-drawer-trigger="announcement-compose-drawer"
+                  class="button"
+                  variant="default"
+                >
+                  <span class="icon-[material-symbols--campaign] size-4"></span>
+                  اطلاعیه جدید
+                </button>
+              </div>
+            </div>
+
+            <!-- Search and Filters -->
+            <div class="bg-card rounded-2xl border p-4">
+              <div class="flex items-center gap-3 max-md:flex-wrap">
+                <div class="relative min-w-80 flex-1">
+                  <span
+                    class="icon-[material-symbols--search] text-muted-foreground absolute start-3 top-1/2 size-5 -translate-y-1/2"
+                  ></span>
+                  <input
+                    class="input w-full ps-10"
+                    placeholder="جستجو اطلاعیه‌ها..."
+                  />
+                </div>
+                <select class="select-trigger">
+                  <option value="">همه وضعیت‌ها</option>
+                  <option value=" scheduled">زمانبندیشده</option>
+                  <option value="sent">ارسالشده</option>
+                  <option value="draft">پیش‌نویس</option>
+                  <option value="error">خطا</option>
+                </select>
+                <div class="flex items-center gap-2">
+                  <span class="badge" variant="success">۱۸ ارسالشده</span>
+                  <span class="badge" variant="destructive">۴ زمانبندیشده</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Key Metrics -->
+            <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+              <div class="card">
+                <div class="card-content">
+                  <div class="mb-2 flex items-center justify-between">
+                    <span class="text-muted-foreground text-sm"
+                      >کل اطلاعیه‌ها</span
+                    >
+                    <span
+                      class="icon-[material-symbols--campaign] text-primary size-5"
+                    ></span>
+                  </div>
+                  <p class="text-2xl font-bold">۲۵</p>
+                  <p
+                    class="mt-1 flex items-center gap-1 text-xs text-emerald-600"
+                  >
+                    <span
+                      class="icon-[material-symbols--arrow-upward] size-3"
+                    ></span>
+                    +۳ این ماه
+                  </p>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-content">
+                  <div class="mb-2 flex items-center justify-between">
+                    <span class="text-muted-foreground text-sm">ارسالشده</span>
+                    <span
+                      class="icon-[material-symbols--send] size-5 text-emerald-500"
+                    ></span>
+                  </div>
+                  <p class="text-2xl font-bold">۱۸</p>
+                  <p class="text-muted-foreground mt-1 text-xs">۷ روز اخیر</p>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-content">
+                  <div class="mb-2 flex items-center justify-between">
+                    <span class="text-muted-foreground text-sm"
+                      >زمانبندیشده</span
+                    >
+                    <span
+                      class="icon-[material-symbols--schedule] size-5 text-amber-500"
+                    ></span>
+                  </div>
+                  <p class="text-2xl font-bold">۴</p>
+                  <p class="text-muted-foreground mt-1 text-xs">در صف ارسال</p>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-content">
+                  <div class="mb-2 flex items-center justify-between">
+                    <span class="text-muted-foreground text-sm"
+                      >نرخ باز شدن</span
+                    >
+                    <span
+                      class="icon-[material-symbols--visibility] size-5 text-sky-500"
+                    ></span>
+                  </div>
+                  <p class="text-2xl font-bold">۷۲%</p>
+                  <p class="mt-1 text-xs text-emerald-600">
+                    +۵% نسبت به ماه قبل
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Announcements Table -->
+            <section class="card">
+              <div class="card-header">
+                <h2 class="card-title">لیست اطلاعیه‌ها</h2>
+                <p class="card-description">
+                  مدیریت و ویرایش اطلاعیه‌های ارسال شده و زمانبندیشده
+                </p>
+              </div>
+              <div class="card-content">
+                <div class="table-wrapper">
+                  <table class="table">
+                    <thead class="table-header">
+                      <tr>
+                        <th class="table-head">عنوان</th>
+                        <th class="table-head">وضعیت</th>
+                        <th class="table-head">مخاطب</th>
+                        <th class="table-head">کانال</th>
+                        <th class="table-head">زمان ارسال</th>
+                        <th class="table-head">عملیات</th>
+                      </tr>
+                    </thead>
+                    <tbody class="table-body">
+                      <tr class="table-row">
+                        <td class="table-cell font-medium">
+                          یادآوری تمدید اشتراک
+                        </td>
+                        <td class="table-cell">
+                          <span class="badge" variant="destructive"
+                            >زمانبندیشده</span
+                          >
+                        </td>
+                        <td class="table-cell">کاربران فعال</td>
+                        <td class="table-cell">ایمیل + پوش</td>
+                        <td class="text-muted-foreground table-cell text-sm">
+                          فردا ۱۰:۰۰
+                        </td>
+                        <td class="table-cell">
+                          <div class="flex items-center gap-2">
+                            <button
+                              data-drawer-trigger="announcement-preview-drawer"
+                              class="button"
+                              variant="ghost"
+                              size="icon-sm"
+                            >
+                              <span
+                                class="icon-[material-symbols--visibility] size-4"
+                              ></span>
+                            </button>
+                            <button
+                              class="button"
+                              variant="ghost"
+                              size="icon-sm"
+                            >
+                              <span
+                                class="icon-[material-symbols--edit] size-4"
+                              ></span>
+                            </button>
+                            <button
+                              class="button"
+                              variant="ghost"
+                              size="icon-sm"
+                            >
+                              <span
+                                class="icon-[material-symbols--delete] size-4"
+                              ></span>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr class="table-row">
+                        <td class="table-cell font-medium">
+                          بهروزرسانی نسخه داشبورد
+                        </td>
+                        <td class="table-cell">
+                          <span class="badge" variant="success">ارسالشده</span>
+                        </td>
+                        <td class="table-cell">همه کاربران</td>
+                        <td class="table-cell">پوش</td>
+                        <td class="text-muted-foreground table-cell text-sm">
+                          امروز ۱۴:۳۰
+                        </td>
+                        <td class="table-cell">
+                          <div class="flex items-center gap-2">
+                            <button
+                              data-drawer-trigger="announcement-preview-drawer"
+                              class="button"
+                              variant="ghost"
+                              size="icon-sm"
+                            >
+                              <span
+                                class="icon-[material-symbols--visibility] size-4"
+                              ></span>
+                            </button>
+                            <button
+                              class="button"
+                              variant="ghost"
+                              size="icon-sm"
+                            >
+                              <span
+                                class="icon-[material-symbols--edit] size-4"
+                              ></span>
+                            </button>
+                            <button
+                              class="button"
+                              variant="ghost"
+                              size="icon-sm"
+                            >
+                              <span
+                                class="icon-[material-symbols--delete] size-4"
+                              ></span>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr class="table-row">
+                        <td class="table-cell font-medium">تخفیف ویژه نوروز</td>
+                        <td class="table-cell">
+                          <span class="badge">پیش‌نویس</span>
+                        </td>
+                        <td class="table-cell">VIP</td>
+                        <td class="table-cell">ایمیل</td>
+                        <td class="text-muted-foreground table-cell text-sm">
+                          -
+                        </td>
+                        <td class="table-cell">
+                          <div class="flex items-center gap-2">
+                            <button
+                              data-drawer-trigger="announcement-preview-drawer"
+                              class="button"
+                              variant="ghost"
+                              size="icon-sm"
+                            >
+                              <span
+                                class="icon-[material-symbols--visibility] size-4"
+                              ></span>
+                            </button>
+                            <button
+                              class="button"
+                              variant="ghost"
+                              size="icon-sm"
+                            >
+                              <span
+                                class="icon-[material-symbols--edit] size-4"
+                              ></span>
+                            </button>
+                            <button
+                              class="button"
+                              variant="ghost"
+                              size="icon-sm"
+                            >
+                              <span
+                                class="icon-[material-symbols--delete] size-4"
+                              ></span>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr class="table-row">
+                        <td class="table-cell font-medium">مشکل فنی موقت</td>
+                        <td class="table-cell">
+                          <span class="badge" variant="destructive">خطا</span>
+                        </td>
+                        <td class="table-cell">همه کاربران</td>
+                        <td class="table-cell">پوش</td>
+                        <td class="text-muted-foreground table-cell text-sm">
+                          ۲ روز پیش
+                        </td>
+                        <td class="table-cell">
+                          <div class="flex items-center gap-2">
+                            <button
+                              data-drawer-trigger="announcement-preview-drawer"
+                              class="button"
+                              variant="ghost"
+                              size="icon-sm"
+                            >
+                              <span
+                                class="icon-[material-symbols--visibility] size-4"
+                              ></span>
+                            </button>
+                            <button
+                              class="button"
+                              variant="ghost"
+                              size="icon-sm"
+                            >
+                              <span
+                                class="icon-[material-symbols--edit] size-4"
+                              ></span>
+                            </button>
+                            <button
+                              class="button"
+                              variant="ghost"
+                              size="icon-sm"
+                            >
+                              <span
+                                class="icon-[material-symbols--delete] size-4"
+                              ></span>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+
+            <aside
+              id="announcement-compose-drawer"
+              class="drawer drawer-right z-80"
+              data-state="closed"
+            >
+              <div class="flex h-full flex-col">
+                <div class="drawer-header">
+                  <div>
+                    <p class="font-semibold">ساخت اطلاعیه</p>
+                    <p class="text-muted-foreground text-xs">
+                      متن، مخاطب، زمانبندی
+                    </p>
+                  </div>
+                  <button
+                    data-drawer-close
+                    class="button"
+                    variant="ghost"
+                    size="icon-sm"
+                  >
+                    <span class="icon-[material-symbols--close] size-5"></span>
+                  </button>
+                </div>
+                <div class="drawer-content flex-1 space-y-4">
+                  <div class="space-y-2">
+                    <label class="label">عنوان</label>
+                    <input class="input" placeholder="مثلاً: بروزرسانی مهم" />
+                  </div>
+                  <div class="space-y-2">
+                    <label class="label">پیام</label>
+                    <textarea
+                      class="textarea"
+                      rows="6"
+                      placeholder="متن اطلاعیه..."
+                    ></textarea>
+                  </div>
+                  <div class="space-y-2">
+                    <label class="label">مخاطب</label>
+                    <div class="relative" data-dropdown>
+                      <button
+                        data-dropdown-trigger
+                        class="button w-full justify-between"
+                        variant="outline"
+                      >
+                        همه کاربران
+                        <span
+                          class="icon-[material-symbols--expand-more] size-4"
+                        ></span>
+                      </button>
+                      <div
+                        data-dropdown-content
+                        class="dropdown-content start-0 top-full mt-1 hidden w-full"
+                      >
+                        <a href="#" class="dropdown-item">همه کاربران</a>
+                        <a href="#" class="dropdown-item">کاربران فعال</a>
+                        <a href="#" class="dropdown-item">VIP</a>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                      <label class="label">زمان</label>
+                      <input class="input" placeholder="اکنون / ۱۴۰۴/۰۲/۱۰" />
+                    </div>
+                    <div class="space-y-2">
+                      <label class="label">کانال</label>
+                      <input class="input" placeholder="پوش / ایمیل" />
+                    </div>
+                  </div>
+                </div>
+                <div class="drawer-footer">
+                  <button
+                    data-drawer-close
+                    class="button flex-1"
+                    variant="outline"
+                  >
+                    انصراف
+                  </button>
+                  <button class="button flex-1">ثبت</button>
+                </div>
+              </div>
+            </aside>
+
+            <aside
+              id="announcement-preview-drawer"
+              class="drawer drawer-right z-80"
+              data-state="closed"
+            >
+              <div class="flex h-full flex-col">
+                <div class="drawer-header">
+                  <div>
+                    <p class="font-semibold">پیشنمایش اطلاعیه</p>
+                    <p class="text-muted-foreground text-xs">
+                      نمایش نمونه پیام
+                    </p>
+                  </div>
+                  <button
+                    data-drawer-close
+                    class="button"
+                    variant="ghost"
+                    size="icon-sm"
+                  >
+                    <span class="icon-[material-symbols--close] size-5"></span>
+                  </button>
+                </div>
+                <div class="drawer-content flex-1 space-y-4">
+                  <div class="bg-muted/15 rounded-2xl border p-4">
+                    <p class="font-semibold">بهروزرسانی نسخه داشبورد</p>
+                    <p class="text-muted-foreground mt-2 text-sm leading-6">
+                      ویژگی‌های جدید گزارش فروش فعال شد.
+                    </p>
+                  </div>
+                  <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-card rounded-xl border p-3">
+                      <p class="text-muted-foreground text-xs">کانال</p>
+                      <p class="mt-1 font-semibold">Push</p>
+                    </div>
+                    <div class="bg-card rounded-xl border p-3">
+                      <p class="text-muted-foreground text-xs">مخاطب</p>
+                      <p class="mt-1 font-semibold">کاربران فعال</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="drawer-footer">
+                  <button
+                    data-drawer-close
+                    class="button flex-1"
+                    variant="outline"
+                  >
+                    بستن
+                  </button>
+                  <button class="button flex-1">ارسال</button>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Global Footer -->
+    <footer
+  class="bg-sidebar fixed inset-x-0 bottom-0 z-40 hidden h-(--footer-height) justify-between border-t lg:flex"
+>
+  <!-- Sidebar Footer with Controls -->
+  <div class="flex items-center gap-2">
+    <button
+      data-sidebar-hide
+      class="button"
+      variant="ghost"
+      size="icon-sm"
+      data-tooltip="مخفی کردن"
+    >
+      <span class="icon-[flowbite--open-sidebar-solid] size-4"></span>
+    </button>
+    <button
+      data-sidebar-expand
+      class="button"
+      variant="ghost"
+      size="icon-sm"
+      data-tooltip="نمایش کردن"
+    >
+      <span class="icon-[flowbite--close-sidebar-solid] size-4"></span>
+    </button>
+  </div>
+</footer>
+
+  </body>
+</html>

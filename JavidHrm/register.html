@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="fa-IR" class="light" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ثبت‌نام | پنل مدیریت</title>
+    <link rel="stylesheet" href="./assets/styles/app.css" />
+    <link rel="stylesheet" href="./assets/styles/themes.css" />
+    <script src="./assets/scripts/mount.js"></script>
+    <script defer src="./assets/scripts/app.js"></script>
+  </head>
+
+  <body class="bg-background min-h-screen">
+    <!-- Progress Steps -->
+    <div class="bg-card sticky top-0 z-50 border-b">
+      <div class="container mx-auto px-4 py-4">
+        <div class="mx-auto flex max-w-2xl items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div
+              class="bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-full text-sm font-semibold"
+            >
+              ۱
+            </div>
+            <span class="hidden text-sm font-medium sm:inline"
+              >اطلاعات اولیه</span
+            >
+          </div>
+          <div class="bg-muted mx-2 h-0.5 flex-1"></div>
+          <div class="flex items-center gap-2">
+            <div
+              class="bg-muted text-muted-foreground flex size-8 items-center justify-center rounded-full text-sm font-semibold"
+            >
+              ۲
+            </div>
+            <span class="text-muted-foreground hidden text-sm sm:inline"
+              >تأیید هویت</span
+            >
+          </div>
+          <div class="bg-muted mx-2 h-0.5 flex-1"></div>
+          <div class="flex items-center gap-2">
+            <div
+              class="bg-muted text-muted-foreground flex size-8 items-center justify-center rounded-full text-sm font-semibold"
+            >
+              ۳
+            </div>
+            <span class="text-muted-foreground hidden text-sm sm:inline"
+              >تکمیل ثبت‌نام</span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="container mx-auto px-4 py-8">
+      <div class="mx-auto max-w-2xl">
+        <div class="card">
+          <div class="card-header">
+            <h1 class="card-title text-2xl">ایجاد حساب کاربری جدید</h1>
+            <p class="card-description">
+              برای شروع، لطفاً اطلاعات زیر را وارد کنید
+            </p>
+          </div>
+          <div class="card-content">
+            <form class="space-y-6">
+              <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div class="space-y-2">
+                  <label for="fname" class="label">نام</label>
+                  <input
+                    id="fname"
+                    type="text"
+                    class="input"
+                    placeholder="نام خود را وارد کنید"
+                  />
+                </div>
+                <div class="space-y-2">
+                  <label for="lname" class="label">نام خانوادگی</label>
+                  <input
+                    id="lname"
+                    type="text"
+                    class="input"
+                    placeholder="نام خانوادگی"
+                  />
+                </div>
+              </div>
+
+              <div class="space-y-2">
+                <label for="email" class="label">ایمیل</label>
+                <div class="relative">
+                  <span
+                    class="icon-[material-symbols--mail] text-muted-foreground absolute left-3 top-1/2 size-5 -translate-y-1/2"
+                  ></span>
+                  <input
+                    id="email"
+                    type="email"
+                    class="input ps-10"
+                    placeholder="example@domain.com"
+                    dir="ltr"
+                  />
+                </div>
+              </div>
+
+              <div class="space-y-2">
+                <label for="phone" class="label">شماره موبایل</label>
+                <div class="relative">
+                  <span
+                    class="icon-[lucide--phone] text-muted-foreground absolute left-3 top-1/2 size-5 -translate-y-1/2"
+                  ></span>
+                  <input
+                    id="phone"
+                    type="tel"
+                    class="input ps-10"
+                    placeholder="09123456789"
+                    dir="ltr"
+                  />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div class="space-y-2">
+                  <label for="password" class="label">رمز عبور</label>
+                  <input
+                    id="password"
+                    type="password"
+                    class="input placeholder:text-right"
+                    placeholder="حداقل ۸ کاراکتر"
+                    dir="ltr"
+                  />
+                </div>
+                <div class="space-y-2">
+                  <label for="confirm" class="label">تکرار رمز عبور</label>
+                  <input
+                    id="confirm"
+                    type="password"
+                    class="input placeholder:text-right"
+                    placeholder="تکرار رمز عبور"
+                    dir="ltr"
+                  />
+                </div>
+              </div>
+
+              <div class="bg-muted/30 flex items-start gap-3 rounded-xl p-4">
+                <input type="checkbox" id="terms" class="mt-1" />
+                <label for="terms" class="text-muted-foreground text-sm">
+                  با ثبت‌نام،
+                  <a href="terms.html" class="text-primary hover:underline"
+                    >قوانین و مقررات</a
+                  >
+                  و
+                  <a href="privacy.html" class="text-primary hover:underline"
+                    >حریم خصوصی</a
+                  >
+                  را می‌پذیرم
+                </label>
+              </div>
+
+              <button type="submit" class="button w-full" variant="default">
+                ثبت‌نام و ادامه
+                <span
+                  class="icon-[material-symbols--arrow-back] size-5 rotate-180"
+                ></span>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <p class="text-muted-foreground mt-6 text-center text-sm">
+          قبلاً ثبت‌نام کرده‌اید؟
+          <a href="login.html" class="text-primary font-medium hover:underline"
+            >ورود به حساب</a
+          >
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

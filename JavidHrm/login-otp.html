@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="fa-IR" class="light" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>کد تایید | پنل مدیریت</title>
+    <link rel="stylesheet" href="./assets/styles/app.css" />
+    <link rel="stylesheet" href="./assets/styles/themes.css" />
+
+    <script src="./assets/scripts/mount.js"></script>
+    <script src="./assets/scripts/otp.js"></script>
+    <script src="./assets/scripts/timer.js"></script>
+    <script src="./assets/scripts/art.js"></script>
+  </head>
+
+  <body
+    class="bg-background relative flex w-full items-center justify-center overflow-x-hidden sm:min-h-screen"
+  >
+    <!-- background effects -->
+    <div>
+      <div class="pointer-events-none fixed inset-0 print:hidden">
+        <canvas
+          id="art-plum-canvas"
+          width="1360"
+          height="687"
+          style="width: 1360px; height: 687px"
+        ></canvas>
+      </div>
+      <div
+        class="pointer-events-none absolute inset-0 flex w-screen items-center justify-center overflow-hidden mask-[radial-gradient(transparent_15%,white)]"
+      >
+        <svg
+          class="absolute top-0 left-0 size-full stroke-black/20 stroke-2 sm:mask-[linear-gradient(transparent_10%,white,transparent_85%)] dark:stroke-white/10"
+        >
+          <rect
+            width="100%"
+            height="100%"
+            stroke-width="0"
+            fill="url(#grid-pattern-1a4MN34vH0:0)"
+          ></rect>
+          <svg>
+            <rect
+              stroke-width="0"
+              width="95"
+              height="95"
+              x="97"
+              y="97"
+              class="fill-muted hover:fill-muted/80 pointer-events-auto transition duration-500 dark:fill-white/5 dark:hover:fill-white/10"
+            ></rect>
+            <rect
+              stroke-width="0"
+              width="95"
+              height="95"
+              x="385"
+              y="193"
+              class="fill-muted hover:fill-muted/80 pointer-events-auto transition duration-500 dark:fill-white/5 dark:hover:fill-white/10"
+            ></rect>
+            <rect
+              stroke-width="0"
+              width="95"
+              height="95"
+              x="193"
+              y="289"
+              class="fill-muted hover:fill-muted/80 pointer-events-auto transition duration-500 dark:fill-white/5 dark:hover:fill-white/10"
+            ></rect>
+            <rect
+              stroke-width="0"
+              width="95"
+              height="95"
+              x="673"
+              y="289"
+              class="fill-muted hover:fill-muted/80 pointer-events-auto transition duration-500 dark:fill-white/5 dark:hover:fill-white/10"
+            ></rect>
+            <rect
+              stroke-width="0"
+              width="95"
+              height="95"
+              x="481"
+              y="385"
+              class="fill-muted hover:fill-muted/80 pointer-events-auto transition duration-500 dark:fill-white/5 dark:hover:fill-white/10"
+            ></rect>
+            <rect
+              stroke-width="0"
+              width="95"
+              height="95"
+              x="1249"
+              y="97"
+              class="fill-muted hover:fill-muted/80 pointer-events-auto transition duration-500 dark:fill-white/5 dark:hover:fill-white/10"
+            ></rect>
+            <rect
+              stroke-width="0"
+              width="95"
+              height="95"
+              x="1"
+              y="481"
+              class="fill-muted hover:fill-muted/80 pointer-events-auto transition duration-500 dark:fill-white/5 dark:hover:fill-white/10"
+            ></rect>
+            <rect
+              stroke-width="0"
+              width="95"
+              height="95"
+              x="577"
+              y="481"
+              class="fill-muted hover:fill-muted/80 pointer-events-auto transition duration-500 dark:fill-white/5 dark:hover:fill-white/10"
+            ></rect>
+            <rect
+              stroke-width="0"
+              width="95"
+              height="95"
+              x="1441"
+              y="385"
+              class="fill-muted hover:fill-muted/80 pointer-events-auto transition duration-500 dark:fill-white/5 dark:hover:fill-white/10"
+            ></rect>
+            <rect
+              stroke-width="0"
+              width="95"
+              height="95"
+              x="1057"
+              y="289"
+              class="fill-muted hover:fill-muted/80 pointer-events-auto transition duration-500 dark:fill-white/5 dark:hover:fill-white/10"
+            ></rect>
+            <rect
+              stroke-width="0"
+              width="95"
+              height="95"
+              x="961"
+              y="481"
+              class="fill-muted hover:fill-muted/80 pointer-events-auto transition duration-500 dark:fill-white/5 dark:hover:fill-white/10"
+            ></rect>
+            <rect
+              stroke-width="0"
+              width="95"
+              height="95"
+              x="1249"
+              y="577"
+              class="fill-muted hover:fill-muted/80 pointer-events-auto transition duration-500 dark:fill-white/5 dark:hover:fill-white/10"
+            ></rect>
+          </svg>
+          <defs>
+            <pattern
+              id="grid-pattern-1a4MN34vH0:0"
+              viewBox="0 0 64 64"
+              width="96"
+              height="96"
+              patternUnits="userSpaceOnUse"
+            >
+              <path d="M64 0H0V64" fill="none"></path>
+            </pattern>
+          </defs>
+        </svg>
+      </div>
+    </div>
+    <!-- Content -->
+    <main class="sm:container">
+      <div
+        class="bg-card relative mx-auto rounded-xl border max-sm:flex max-sm:min-h-screen max-sm:min-w-screen max-sm:items-center max-sm:justify-center max-sm:overflow-y-auto sm:h-auto sm:max-w-96"
+      >
+        <div class="relative w-full">
+          <!-- Go Back -->
+          <div class="absolute top-6 right-4">
+            <a
+              href="./login.html"
+              class="xs:text-sm text-muted-foreground hover:text-card-foreground flex items-center gap-0.5 duration-300 hover:gap-1.5"
+            >
+              <span class="icon-[lucide--chevron-right] size-5"></span>
+              مرحله قبل
+            </a>
+          </div>
+          <div
+            class="flex flex-col items-center justify-center gap-1 px-4 py-6"
+          >
+            <div
+              class="bg-secondary mb-3 flex size-14 items-center justify-center rounded-full"
+            >
+              <span class="icon-[lucide--user] size-7"></span>
+            </div>
+
+            <h1 class="text-card-foreground text-lg font-semibold">
+              کد تایید را وارد کنید
+            </h1>
+          </div>
+          <form>
+            <div class="px-6 pb-6">
+              <div class="space-y-2">
+                <div
+                  class="flex justify-center gap-6"
+                  dir="ltr"
+                  id="otp-wrapper"
+                >
+                  <input
+                    type="number"
+                    maxlength="1"
+                    inputmode="numeric"
+                    class="data-filled:border-border-light focus:border-border-light input size-14 rounded-lg text-center text-lg duration-200 sm:size-14"
+                    data-filled="true"
+                    data-otp-input-restore="2"
+                  />
+                  <input
+                    type="number"
+                    maxlength="1"
+                    inputmode="numeric"
+                    class="data-filled:border-border-light focus:border-border-light input size-14 rounded-lg text-center text-lg duration-200 sm:size-14"
+                    data-filled="true"
+                    data-otp-input-restore="1"
+                  />
+                  <input
+                    type="number"
+                    maxlength="1"
+                    inputmode="numeric"
+                    class="data-filled:border-border-light focus:border-border-light input size-14 rounded-lg text-center text-lg duration-200 sm:size-14"
+                  />
+                  <input
+                    type="number"
+                    maxlength="1"
+                    inputmode="numeric"
+                    class="data-filled:border-border-light focus:border-border-light input size-14 rounded-lg text-center text-lg duration-200 sm:size-14"
+                  />
+                </div>
+                <p class="text-warning h-5 text-sm">کد تایید اشتباه میباشد</p>
+              </div>
+            </div>
+            <!-- Actions -->
+            <ul class="mb-6 space-y-3 px-6 text-sm">
+              <li>
+                <p
+                  class="text-muted-foreground text-sm select-none"
+                  id="countdownSection"
+                >
+                  زمان باقی‌مانده تا ارسال مجدد
+                  <span id="countdown" class="font-bold">1:52</span>
+                </p>
+                <button
+                  id="resendButton"
+                  type="button"
+                  disabled=""
+                  class="link hidden"
+                  onclick="resendOTP()"
+                >
+                  ارسال مجدد کد تایید
+
+                  <span class="icon-[lucide--chevron-left] size-4.5"></span>
+                </button>
+              </li>
+              <li>
+                <a href="./login.html" class="link">
+                  ورود با کلمه عبور
+                  <span class="icon-[lucide--chevron-left] size-4.5"></span>
+                </a>
+              </li>
+            </ul>
+            <div class="border-t p-6">
+              <button
+                type="button"
+                class="button w-full"
+                variant="primary"
+                size="default"
+                onclick="Submit()"
+              >
+                تایید
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+  </body>
+
+  <script>
+    // Initial OTP Input Functionality
+    const OTPInput = new WebOTP("#otp-wrapper", Submit);
+
+    function Submit(value) {
+      const otpValue = value || OTPInput.getValue();
+      if (otpValue) alert(otpValue);
+    }
+
+    // Resend Section
+    const { startTimer, isPending, resetTimer } = createCountdownTimer({
+      initialSeconds: 120, // 2 minutes
+      countdownWrapperId: "countdownSection",
+      countdownTimerElementId: "countdown",
+      elementToShowId: "resendButton",
+    });
+    // Start the countdown when the page loads
+    startTimer();
+
+    function resendOTP() {
+      if (isPending()) return;
+      // Make request for new OTP
+
+      // After finish
+      resetTimer();
+    }
+  </script>
+</html>

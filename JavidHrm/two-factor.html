@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="fa-IR" class="light" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>تأیید دو مرحله‌ای | پنل مدیریت</title>
+    <link rel="stylesheet" href="./assets/styles/app.css" />
+    <link rel="stylesheet" href="./assets/styles/themes.css" />
+    <script src="./assets/scripts/mount.js"></script>
+    <script src="./assets/scripts/otp.js"></script>
+    <script src="./assets/scripts/timer.js"></script>
+  </head>
+
+  <body class="bg-background flex min-h-screen items-center justify-center p-4">
+    <div class="w-full max-w-lg">
+      <div class="card">
+        <div class="card-content p-8">
+          <!-- Shield Icon with Animation -->
+          <div class="relative mx-auto mb-6 size-24">
+            <div
+              class="absolute inset-0 animate-pulse rounded-full bg-emerald-500/20"
+            ></div>
+            <div
+              class="relative flex size-24 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600"
+            >
+              <span
+                class="icon-[material-symbols--verified-user] size-12 text-white"
+              ></span>
+            </div>
+          </div>
+
+          <div class="mb-8 text-center">
+            <h1 class="mb-2 text-2xl font-bold">تأیید دو مرحله‌ای</h1>
+            <p class="text-muted-foreground text-sm">
+              کد ۶ رقمی ارسال شده به
+              <span class="text-foreground font-medium">09123456789</span> را
+              وارد کنید
+            </p>
+          </div>
+
+          <form class="space-y-6">
+            <!-- OTP Input -->
+            <div class="flex justify-center gap-6" dir="ltr" id="otp-wrapper">
+              <input
+                type="number"
+                maxlength="1"
+                inputmode="numeric"
+                class="data-filled:border-border-light focus:border-border-light input size-14 rounded-lg text-center text-lg duration-200 sm:size-14"
+                data-filled="true"
+                data-otp-input-restore="5"
+              />
+              <input
+                type="number"
+                maxlength="1"
+                inputmode="numeric"
+                class="data-filled:border-border-light focus:border-border-light input size-14 rounded-lg text-center text-lg duration-200 sm:size-14"
+                data-filled="true"
+                data-otp-input-restore="4"
+              />
+              <input
+                type="number"
+                maxlength="1"
+                inputmode="numeric"
+                class="data-filled:border-border-light focus:border-border-light input size-14 rounded-lg text-center text-lg duration-200 sm:size-14"
+                data-filled="true"
+                data-otp-input-restore="3"
+              />
+              <input
+                type="number"
+                maxlength="1"
+                inputmode="numeric"
+                class="data-filled:border-border-light focus:border-border-light input size-14 rounded-lg text-center text-lg duration-200 sm:size-14"
+                data-filled="true"
+                data-otp-input-restore="2"
+              />
+              <input
+                type="number"
+                maxlength="1"
+                inputmode="numeric"
+                class="data-filled:border-border-light focus:border-border-light input size-14 rounded-lg text-center text-lg duration-200 sm:size-14"
+                data-filled="true"
+                data-otp-input-restore="1"
+              />
+              <input
+                type="number"
+                maxlength="1"
+                inputmode="numeric"
+                class="data-filled:border-border-light focus:border-border-light input size-14 rounded-lg text-center text-lg duration-200 sm:size-14"
+              />
+            </div>
+
+            <!-- Timer -->
+            <div class="text-center">
+              <p
+                class="text-muted-foreground text-sm select-none"
+                id="countdownSection"
+              >
+                زمان باقی‌مانده تا ارسال مجدد
+                <span id="countdown" class="font-bold">۱:۳۰</span>
+              </p>
+              <button
+                id="resendButton"
+                type="button"
+                disabled=""
+                class="link hidden"
+                onclick="resendOTP()"
+              >
+                ارسال مجدد کد تایید
+                <span class="icon-[lucide--chevron-left] size-4.5"></span>
+              </button>
+            </div>
+
+            <button
+              type="button"
+              class="button w-full"
+              variant="default"
+              onclick="Submit()"
+            >
+              <span class="icon-[material-symbols--check-circle] size-5"></span>
+              تأیید و ادامه
+            </button>
+          </form>
+
+          <!-- Alternative Methods -->
+          <div class="mt-8 border-t pt-6">
+            <p class="text-muted-foreground mb-4 text-center text-sm">
+              روش‌های جایگزین دریافت کد
+            </p>
+            <div class="flex gap-2">
+              <button class="button flex-1" variant="outline" size="sm">
+                <span class="icon-[material-symbols--sms] size-4"></span>
+                پیامک
+              </button>
+              <button class="button flex-1" variant="outline" size="sm">
+                <span class="icon-[material-symbols--mail] size-4"></span>
+                ایمیل
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p class="text-muted-foreground mt-6 text-center text-sm">
+        <a href="login.html" class="text-primary hover:underline"
+          >بازگشت به ورود</a
+        >
+      </p>
+    </div>
+
+    <script>
+      // Initial OTP Input Functionality
+      const OTPInput = new WebOTP("#otp-wrapper", Submit);
+
+      function Submit(value) {
+        const otpValue = value || OTPInput.getValue();
+        if (otpValue) alert(otpValue);
+      }
+
+      // Resend Section
+      const { startTimer, isPending, resetTimer } = createCountdownTimer({
+        initialSeconds: 90, // 1.5 minutes
+        countdownWrapperId: "countdownSection",
+        countdownTimerElementId: "countdown",
+        elementToShowId: "resendButton",
+      });
+      // Start the countdown when the page loads
+      startTimer();
+
+      function resendOTP() {
+        if (isPending()) return;
+        // Make request for new OTP
+
+        // After finish
+        resetTimer();
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1 @@
+﻿global using JavidHrm.Domain.Enums;

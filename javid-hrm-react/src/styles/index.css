@@ -1,0 +1,22 @@
+/* React app overrides */
+
+#root {
+  min-height: 100vh;
+}
+
+/* Dropdown — هماهنگ با data-state قالب اصلی */
+[data-dropdown][data-state='open'] [data-dropdown-content] {
+  display: block;
+}
+
+[data-dropdown] [data-dropdown-content] {
+  position: absolute;
+}
+
+.app-header {
+  z-index: 30;
+}
+
+[data-dropdown] [data-dropdown-content] {
+  z-index: 50;
+}

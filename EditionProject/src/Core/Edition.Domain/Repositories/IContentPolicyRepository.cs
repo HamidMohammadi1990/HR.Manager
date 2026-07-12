@@ -1,0 +1,27 @@
+using JavidHrm.Domain.Entities;
+using JavidHrm.Domain.Dtos.Pagination;
+using JavidHrm.Domain.Dtos.ContentPolicies;
+using JavidHrm.Domain.Enums;
+
+namespace JavidHrm.Domain.Repositories;
+
+public interface IContentPolicyRepository
+{
+    void Add(ContentPolicy policy);
+    void Remove(ContentPolicy policy);
+    ValueTask<ContentPolicy?> FindAsync(int id, CancellationToken cancellationToken = default);
+    Task<ContentPolicy?> FindWithRulesAsync(int id, CancellationToken cancellationToken = default);
+    Task<PagedResult<ContentPolicy>> GetAllAsync(GetAllContentPolicyRequestDto request, CancellationToken cancellationToken = default);
+    Task<List<UserRolePolicyDto>> GetUserRolesAsync(int userId, CancellationToken cancellationToken = default);
+    Task<List<int>> GetDepartmentIdsByOwnerUserIdAsync(int userId, CancellationToken cancellationToken = default);
+    Task<UserContentPolicyContextData?> GetUserContentPolicyContextAsync(int userId, CancellationToken cancellationToken = default);
+    Task<ContentPolicyResolutionResult> ResolveActivePoliciesAsync(
+        string entityType,
+        ContentPolicyQueryAction queryAction,
+        int userId,
+        IReadOnlyList<int> roleIds,
+        CancellationToken cancellationToken = default);
+    Task<ContentPolicyActivePolicySets> GetActivePolicySetsAsync(
+        GetContentPolicyPolicySetsRequestDto request,
+        CancellationToken cancellationToken = default);
+}

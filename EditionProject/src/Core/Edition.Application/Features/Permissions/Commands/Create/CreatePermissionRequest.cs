@@ -1,0 +1,28 @@
+using JavidHrm.Domain.Enums;
+using JavidHrm.Common.Models;
+using System.Text.Json.Serialization;
+using JavidHrm.Application.Common.Utilities.Security.Attributes;
+
+namespace JavidHrm.Application.Features.Permissions.Commands;
+
+public record CreatePermissionRequest : IRequest<OperationResult<CreatePermissionResponse>>
+{
+    [JsonConverter(typeof(PermissionEncryptor))]
+    public PermissionType Id { get; init; }
+
+    public string Title { get; init; } = default!;
+    public string Url { get; init; } = default!;
+    public string NameSpace { get; init; } = default!;
+    public PermissionLevelType LevelTypeId { get; init; }
+
+    [JsonConverter(typeof(PermissionNullableEncryptor))]
+    public PermissionType? ParentId { get; init; }
+
+    public int Priority { get; init; }
+}
+
+public record CreatePermissionResponse
+{
+    [JsonConverter(typeof(PermissionEncryptor))]
+    public PermissionType Id { get; init; }
+}
