@@ -21,9 +21,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\Cross-Cutting\Edition.Common\JavidHrm.Common.csproj" />
-		<ProjectReference Include="..\Edition.WebFramework\JavidHrm.WebFramework.csproj" />
-		<ProjectReference Include="..\..\Infrastructure\Edition.Infrastructure\JavidHrm.Infrastructure.csproj" />
-		<ProjectReference Include="..\..\Infrastructure\Edition.Infrastructure.Persistence\JavidHrm.Infrastructure.Persistence.csproj" />
+		<ProjectReference Include="..\..\Cross-Cutting\JavidHrm.Common\JavidHrm.Common.csproj" />
+		<ProjectReference Include="..\JavidHrm.WebFramework\JavidHrm.WebFramework.csproj" />
+		<ProjectReference Include="..\..\Infrastructure\JavidHrm.Infrastructure\JavidHrm.Infrastructure.csproj" />
+		<ProjectReference Include="..\..\Infrastructure\JavidHrm.Infrastructure.Persistence\JavidHrm.Infrastructure.Persistence.csproj" />
 	</ItemGroup>
 </Project>

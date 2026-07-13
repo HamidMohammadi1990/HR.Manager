@@ -6,7 +6,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\Core\Edition.Application\JavidHrm.Application.csproj" />
+		<ProjectReference Include="..\..\Core\JavidHrm.Application\JavidHrm.Application.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

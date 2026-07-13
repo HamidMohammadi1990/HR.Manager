@@ -1,0 +1,83 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11205.157
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E3F287C9-B077-4582-8DBC-D95F5A7AC81F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{86D94E35-1638-4E57-A4E4-757A8F23162B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{B9790A36-CE04-4F6E-AEDF-5FDD3CA74C5B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{F100FA11-A6AA-41AB-BA86-C1ED5E17D286}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Cross-Cutting", "Cross-Cutting", "{6A745738-D911-4F5A-948E-2FE51CCFB5FB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JavidHrm.Domain", "src\Core\JavidHrm.Domain\JavidHrm.Domain.csproj", "{017B1FE5-35DA-CED0-6F02-50B65A232219}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JavidHrm.Application", "src\Core\JavidHrm.Application\JavidHrm.Application.csproj", "{EAB034BA-CF5C-8F90-2975-0BC6F7B86E8C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JavidHrm.Common", "src\Cross-Cutting\JavidHrm.Common\JavidHrm.Common.csproj", "{57B816A7-0FC1-8123-5659-EC7354C97EEE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JavidHrm.Infrastructure.Persistence", "src\Infrastructure\JavidHrm.Infrastructure.Persistence\JavidHrm.Infrastructure.Persistence.csproj", "{80F6CA78-0A2B-BDD2-442D-0A5732A13DD7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JavidHrm.Infrastructure", "src\Infrastructure\JavidHrm.Infrastructure\JavidHrm.Infrastructure.csproj", "{E44E1FE7-7D49-8524-BD38-A4D6D6A77447}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JavidHrm.WebFramework", "src\Presentation\JavidHrm.WebFramework\JavidHrm.WebFramework.csproj", "{8E2627B9-9D8B-53EE-1723-70EB35FC4A5E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JavidHrm.Api", "src\Presentation\JavidHrm.Api\JavidHrm.Api.csproj", "{24F6595B-FFBC-0FDB-4531-1C7A089CBE6F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{017B1FE5-35DA-CED0-6F02-50B65A232219}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{017B1FE5-35DA-CED0-6F02-50B65A232219}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{017B1FE5-35DA-CED0-6F02-50B65A232219}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{017B1FE5-35DA-CED0-6F02-50B65A232219}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EAB034BA-CF5C-8F90-2975-0BC6F7B86E8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EAB034BA-CF5C-8F90-2975-0BC6F7B86E8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EAB034BA-CF5C-8F90-2975-0BC6F7B86E8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EAB034BA-CF5C-8F90-2975-0BC6F7B86E8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57B816A7-0FC1-8123-5659-EC7354C97EEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57B816A7-0FC1-8123-5659-EC7354C97EEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57B816A7-0FC1-8123-5659-EC7354C97EEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57B816A7-0FC1-8123-5659-EC7354C97EEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80F6CA78-0A2B-BDD2-442D-0A5732A13DD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80F6CA78-0A2B-BDD2-442D-0A5732A13DD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80F6CA78-0A2B-BDD2-442D-0A5732A13DD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80F6CA78-0A2B-BDD2-442D-0A5732A13DD7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E44E1FE7-7D49-8524-BD38-A4D6D6A77447}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E44E1FE7-7D49-8524-BD38-A4D6D6A77447}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E44E1FE7-7D49-8524-BD38-A4D6D6A77447}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E44E1FE7-7D49-8524-BD38-A4D6D6A77447}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E2627B9-9D8B-53EE-1723-70EB35FC4A5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E2627B9-9D8B-53EE-1723-70EB35FC4A5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E2627B9-9D8B-53EE-1723-70EB35FC4A5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E2627B9-9D8B-53EE-1723-70EB35FC4A5E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24F6595B-FFBC-0FDB-4531-1C7A089CBE6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24F6595B-FFBC-0FDB-4531-1C7A089CBE6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24F6595B-FFBC-0FDB-4531-1C7A089CBE6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24F6595B-FFBC-0FDB-4531-1C7A089CBE6F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{86D94E35-1638-4E57-A4E4-757A8F23162B} = {E3F287C9-B077-4582-8DBC-D95F5A7AC81F}
+		{B9790A36-CE04-4F6E-AEDF-5FDD3CA74C5B} = {E3F287C9-B077-4582-8DBC-D95F5A7AC81F}
+		{F100FA11-A6AA-41AB-BA86-C1ED5E17D286} = {E3F287C9-B077-4582-8DBC-D95F5A7AC81F}
+		{6A745738-D911-4F5A-948E-2FE51CCFB5FB} = {E3F287C9-B077-4582-8DBC-D95F5A7AC81F}
+		{017B1FE5-35DA-CED0-6F02-50B65A232219} = {86D94E35-1638-4E57-A4E4-757A8F23162B}
+		{EAB034BA-CF5C-8F90-2975-0BC6F7B86E8C} = {86D94E35-1638-4E57-A4E4-757A8F23162B}
+		{57B816A7-0FC1-8123-5659-EC7354C97EEE} = {6A745738-D911-4F5A-948E-2FE51CCFB5FB}
+		{80F6CA78-0A2B-BDD2-442D-0A5732A13DD7} = {F100FA11-A6AA-41AB-BA86-C1ED5E17D286}
+		{E44E1FE7-7D49-8524-BD38-A4D6D6A77447} = {F100FA11-A6AA-41AB-BA86-C1ED5E17D286}
+		{8E2627B9-9D8B-53EE-1723-70EB35FC4A5E} = {B9790A36-CE04-4F6E-AEDF-5FDD3CA74C5B}
+		{24F6595B-FFBC-0FDB-4531-1C7A089CBE6F} = {B9790A36-CE04-4F6E-AEDF-5FDD3CA74C5B}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BE3325B1-6368-4DCC-BDBF-439B4F3D2BB3}
+	EndGlobalSection
+EndGlobal

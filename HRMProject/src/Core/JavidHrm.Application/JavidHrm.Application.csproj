@@ -12,15 +12,12 @@
 		<PackageReference Include="Newtonsoft.Json" />
 		<PackageReference Include="FluentValidation" />
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" />
-		<PackageReference Include="Microsoft.Extensions.Identity.Core" />
-		<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" />
 		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Edition.Domain\JavidHrm.Domain.csproj" />
-		<ProjectReference Include="..\..\Cross-Cutting\Edition.Common\JavidHrm.Common.csproj" />
+		<ProjectReference Include="..\JavidHrm.Domain\JavidHrm.Domain.csproj" />
+		<ProjectReference Include="..\..\Cross-Cutting\JavidHrm.Common\JavidHrm.Common.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
