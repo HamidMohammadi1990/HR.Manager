@@ -26,6 +26,8 @@ const NotificationsPage = lazy(() => import('@/features/notifications/Notificati
 const AnnouncementsPage = lazy(() => import('@/features/announcements/AnnouncementsPage'));
 const TodoPage = lazy(() => import('@/features/todo/TodoPage'));
 const BackupPage = lazy(() => import('@/features/backup/BackupPage'));
+const WorkShiftsPage = lazy(() => import('@/features/work-shifts/WorkShiftsPage'));
+const LeaveBalancesPage = lazy(() => import('@/features/leave-balances/LeaveBalancesPage'));
 const LoginPage = lazy(() => import('@/features/auth/LoginPage'));
 const RegisterPage = lazy(() => import('@/features/auth/RegisterPage'));
 const ForgotPasswordPage = lazy(() => import('@/features/auth/ForgotPasswordPage'));
@@ -71,6 +73,8 @@ export const router = createBrowserRouter([
       { path: 'attendance', element: <SuspensePage><AttendancePage /></SuspensePage> },
       { path: 'leaves', element: <SuspensePage><LeavesPage /></SuspensePage> },
       { path: 'payroll', element: <SuspensePage><PayrollPage /></SuspensePage> },
+      { path: 'work-shifts', element: <SuspensePage><WorkShiftsPage /></SuspensePage> },
+      { path: 'leave-balances', element: <SuspensePage><LeaveBalancesPage /></SuspensePage> },
       { path: 'settings', element: <SuspensePage><SettingsPage /></SuspensePage> },
       { path: 'account-settings', element: <SuspensePage><AccountSettingsPage /></SuspensePage> },
       { path: 'profile', element: <SuspensePage><ProfilePage /></SuspensePage> },

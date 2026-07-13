@@ -1,4 +1,4 @@
-import { apiRequest } from './client';
+import { apiDownloadBinary, apiRequest } from './client';
 import type {
   CreatePayrollEntryRequest,
   GetAllPayrollEntriesRequest,
@@ -68,4 +68,8 @@ export async function deletePayrollEntry(id: string): Promise<void> {
     body: { Id: id },
     auth: true,
   });
+}
+
+export async function downloadPayslipPdf(id: string) {
+  return apiDownloadBinary('/api/v1/admin/payroll-entry/get-payslip-pdf', { Id: id });
 }

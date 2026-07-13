@@ -1,12 +1,18 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { Icon } from '@/components/ui/Icon';
 import { useTheme } from '@/hooks';
 import { useAuth } from '@/contexts/AuthContext';
-import { headerNotifications } from '@/data/navigation';
 import { cn } from '@/lib/utils';
+import {
+  getAllNotifications,
+  getUnreadNotificationCount,
+  markAllNotificationsRead,
+} from '@/services/api/notifications';
+import type { NotificationDto } from '@/services/api/types';
+import { formatRelativeTime, getNotificationStyle } from '@/lib/notifications';
 
 interface AppHeaderProps {
   onOpenQuickAccess: () => void;
@@ -25,6 +31,36 @@ export function AppHeader({
   const { toggleTheme } = useTheme();
   const { userName, signOut } = useAuth();
   const [openMenu, setOpenMenu] = useState<'user' | 'notifications' | null>(null);
+  const [headerItems, setHeaderItems] = useState<NotificationDto[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const loadHeaderNotifications = useCallback(async () => {
+    try {
+      const [count, list] = await Promise.all([
+        getUnreadNotificationCount(),
+        getAllNotifications({
+          Pagination: { PageNumber: 1, PageSize: 5 },
+        }),
+      ]);
+      setUnreadCount(count);
+      setHeaderItems(list.Items);
+    } catch {
+      /* silent for header */
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadHeaderNotifications();
+  }, [loadHeaderNotifications]);
+
+  const handleMarkAllRead = async () => {
+    try {
+      await markAllNotificationsRead();
+      await loadHeaderNotifications();
+    } catch {
+      /* silent */
+    }
+  };
 
   const handleLogout = async () => {
     setOpenMenu(null);
@@ -163,14 +199,19 @@ export function AppHeader({
 
           <Dropdown
             open={openMenu === 'notifications'}
-            onOpenChange={handleMenuChange('notifications')}
+            onOpenChange={(open) => {
+              handleMenuChange('notifications')(open);
+              if (open) void loadHeaderNotifications();
+            }}
             contentClassName="w-80"
             trigger={
               <Button variant="ghost" size="icon" className="relative" type="button">
                 <Icon name="material-symbols:notifications" className="size-5" />
-                <span className="bg-destructive absolute -start-0.5 -top-0.5 flex size-4.5 animate-pulse items-center justify-center rounded-full text-[10px] font-medium text-white">
-                  ۳
-                </span>
+                {unreadCount > 0 && (
+                  <span className="bg-destructive absolute -start-0.5 -top-0.5 flex size-4.5 animate-pulse items-center justify-center rounded-full text-[10px] font-medium text-white">
+                    {unreadCount > 9 ? '۹+' : unreadCount.toLocaleString('fa-IR')}
+                  </span>
+                )}
               </Button>
             }
           >
@@ -179,34 +220,41 @@ export function AppHeader({
                 <Icon name="material-symbols:notifications" className="text-primary size-4" />
                 <p className="text-sm font-semibold">اعلان‌ها</p>
               </div>
-              <button type="button" className="text-primary text-xs hover:underline">
+              <button
+                type="button"
+                className="text-primary text-xs hover:underline disabled:opacity-50"
+                disabled={unreadCount === 0}
+                onClick={() => void handleMarkAllRead()}
+              >
                 خواندن همه
               </button>
             </div>
             <div className="max-h-80 overflow-y-auto">
-              {headerNotifications.map((n) => (
-                <Link
-                  key={n.id}
-                  to="/notifications"
-                  className="hover:bg-muted/50 border-border/50 flex gap-3 border-b p-3 transition-colors"
-                  onClick={() => setOpenMenu(null)}
-                >
-                  <div
-                    className={cn(
-                      'flex size-10 shrink-0 items-center justify-center rounded-full',
-                      n.iconBg,
-                    )}
-                  >
-                    <Icon name={n.icon} className={cn('size-5', n.iconColor)} />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{n.title}</p>
-                    <p className="text-muted-foreground text-xs">{n.description}</p>
-                    <p className="text-muted-foreground mt-1 text-xs">{n.time}</p>
-                  </div>
-                  {n.unread && <div className="bg-primary mt-2 size-2 shrink-0 rounded-full" />}
-                </Link>
-              ))}
+              {headerItems.length === 0 ? (
+                <p className="text-muted-foreground px-4 py-6 text-center text-sm">اعلانی وجود ندارد</p>
+              ) : (
+                headerItems.map((n) => {
+                  const style = getNotificationStyle(n.Type, n.IconName);
+                  return (
+                    <Link
+                      key={n.Id}
+                      to={n.LinkPath ?? '/notifications'}
+                      className="hover:bg-muted/50 border-border/50 flex gap-3 border-b p-3 transition-colors"
+                      onClick={() => setOpenMenu(null)}
+                    >
+                      <div className={cn('flex size-10 shrink-0 items-center justify-center rounded-full', style.bg)}>
+                        <Icon name={style.icon} className={cn('size-5', style.iconColor)} />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium">{n.Title}</p>
+                        <p className="text-muted-foreground truncate text-xs">{n.Message}</p>
+                        <p className="text-muted-foreground mt-1 text-xs">{formatRelativeTime(n.CreatedOnUtc)}</p>
+                      </div>
+                      {!n.IsRead && <div className="bg-primary mt-2 size-2 shrink-0 rounded-full" />}
+                    </Link>
+                  );
+                })
+              )}
             </div>
             <div className="bg-muted/30 border-t px-4 py-3">
               <Link

@@ -24,7 +24,9 @@ export const hrNavItems: NavItem[] = [
   { label: 'بخش‌ها', path: '/departments' },
   { label: 'حضور و غیاب', path: '/attendance' },
   { label: 'مرخصی‌ها', path: '/leaves' },
+  { label: 'موجودی مرخصی', path: '/leave-balances' },
   { label: 'حقوق و دستمزد', path: '/payroll' },
+  { label: 'شیفت کاری', path: '/work-shifts' },
 ];
 
 export const toolsNavItems: NavItem[] = [
@@ -150,7 +152,9 @@ export function buildBreadcrumbs(path: string): BreadcrumbItem[] {
     '/departments': 'بخش‌ها',
     '/attendance': 'حضور و غیاب',
     '/leaves': 'مرخصی‌ها',
+    '/leave-balances': 'موجودی مرخصی',
     '/payroll': 'حقوق و دستمزد',
+    '/work-shifts': 'شیفت کاری',
     '/settings': 'تنظیمات',
     '/notifications': 'اعلان‌ها',
     '/announcements': 'اطلاعیه‌ها',

@@ -23,10 +23,12 @@ import {
   approvePayrollEntry,
   createPayrollEntry,
   deletePayrollEntry,
+  downloadPayslipPdf,
   getAllEmployees,
   getAllPayrollEntries,
   getApiErrorMessage,
   markPayrollEntryPaid,
+  saveBinaryDownload,
   updatePayrollEntry,
   type EmployeeDto,
   type PayrollEntryDto,
@@ -444,6 +446,19 @@ export default function PayrollPage() {
     }
   }
 
+  async function handleDownloadPdf(id: string) {
+    setActionId(id);
+    setError('');
+    try {
+      const result = await downloadPayslipPdf(id);
+      saveBinaryDownload(result);
+    } catch (err) {
+      setError(getApiErrorMessage(err));
+    } finally {
+      setActionId(null);
+    }
+  }
+
   function renderPayrollForm(
     form: PayrollFormState,
     setForm: (updater: (prev: PayrollFormState) => PayrollFormState) => void,
@@ -744,6 +759,17 @@ export default function PayrollPage() {
                                 title="پرداخت"
                               >
                                 <Icon name="material-symbols:payments" className="size-4" />
+                              </Button>
+                            )}
+                            {(isApproved || isPaid) && (
+                              <Button
+                                variant="outline"
+                                size="icon-sm"
+                                disabled={isBusy}
+                                onClick={() => void handleDownloadPdf(entry.Id)}
+                                title="دانلود فیش PDF"
+                              >
+                                <Icon name="material-symbols:picture-as-pdf" className="size-4" />
                               </Button>
                             )}
                             <Button variant="ghost" size="icon-sm" onClick={() => openDetail(entry)} title="فیش">
@@ -1188,6 +1214,17 @@ export default function PayrollPage() {
                   onClick={() => void handleMarkPaid(selectedEntry.Id).then(() => detailDialog.close())}
                 >
                   ثبت پرداخت
+                </Button>
+              )}
+              {(selectedEntry.Status === PAYROLL_STATUS.Approved ||
+                selectedEntry.Status === PAYROLL_STATUS.Paid) && (
+                <Button
+                  variant="outline"
+                  disabled={actionId === selectedEntry.Id}
+                  onClick={() => void handleDownloadPdf(selectedEntry.Id)}
+                >
+                  <Icon name="material-symbols:picture-as-pdf" className="size-4" />
+                  دانلود فیش PDF
                 </Button>
               )}
               <Button variant="outline" onClick={detailDialog.close}>بستن</Button>

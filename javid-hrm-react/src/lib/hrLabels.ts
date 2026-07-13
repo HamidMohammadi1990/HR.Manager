@@ -28,3 +28,50 @@ export const PAYROLL_STATUS_LABELS: Record<number, string> = {
   2: 'تأیید شده',
   3: 'پرداخت شده',
 };
+
+export const ANNOUNCEMENT_STATUS_LABELS: Record<number, string> = {
+  1: 'پیش‌نویس',
+  2: 'زمان‌بندی‌شده',
+  3: 'ارسال‌شده',
+  4: 'آرشیو',
+  5: 'خطا',
+};
+
+export const ANNOUNCEMENT_AUDIENCE_LABELS: Record<number, string> = {
+  1: 'همه کاربران',
+  2: 'بخش',
+  3: 'نقش',
+};
+
+export const ANNOUNCEMENT_CHANNEL_LABELS: Record<number, string> = {
+  1: 'درون‌برنامه',
+  2: 'ایمیل',
+  3: 'پوش',
+  4: 'ایمیل + پوش',
+};
+
+export const CALENDAR_EVENT_TYPE_LABELS: Record<number, string> = {
+  1: 'جلسه',
+  2: 'تعطیل',
+  3: 'مرخصی',
+  4: 'شخصی',
+  5: 'سایر',
+};
+
+export const TODO_PRIORITY_LABELS: Record<number, string> = {
+  1: 'پایین',
+  2: 'متوسط',
+  3: 'بالا',
+};
+
+export const BACKUP_STATUS_LABELS: Record<number, string> = {
+  1: 'در انتظار',
+  2: 'در حال انجام',
+  3: 'موفق',
+  4: 'ناموفق',
+};
+
+export const BACKUP_TYPE_LABELS: Record<number, string> = {
+  1: 'دستی',
+  2: 'خودکار',
+};

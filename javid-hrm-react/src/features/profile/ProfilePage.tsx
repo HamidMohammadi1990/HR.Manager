@@ -1,44 +1,120 @@
-import { useState } from 'react';
+import { FormEvent, useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
 import { Input } from '@/components/ui/Input';
-import { Textarea } from '@/components/ui/Textarea';
+import { Select } from '@/components/ui/Select';
 import { Dialog } from '@/components/layout/Dialog';
 import { useDisclosure } from '@/hooks';
-import { cn } from '@/lib/utils';
+import { formatDateTime, getUserDisplayName, getUserInitials } from '@/lib/userDisplay';
+import {
+  getApiErrorMessage,
+  getUser,
+  searchCities,
+  updateUser,
+  type CityDto,
+  type UserDto,
+} from '@/services/api';
+import { getAccessToken, getUserIdFromToken } from '@/services/api/tokenStorage';
 
-type TabId = 'p1' | 'p2' | 'p3';
-
-const tabs: { id: TabId; label: string }[] = [
-  { id: 'p1', label: 'نمای کلی' },
-  { id: 'p2', label: 'امنیت' },
-  { id: 'p3', label: 'ترجیحات' },
-];
-
-const activityLog = [
-  { icon: 'material-symbols:login', color: 'text-primary', bg: 'bg-primary/10', title: 'ورود موفق', detail: 'IP: 192.168.1.10 • امروز، ۱۰:۴۵' },
-  { icon: 'material-symbols:settings', color: 'text-emerald-700', bg: 'bg-emerald-500/10', title: 'بهروزرسانی تنظیمات', detail: 'تغییرات در اعلانها • دیروز' },
-  { icon: 'material-symbols:warning', color: 'text-amber-700', bg: 'bg-amber-500/10', title: 'تلاش ورود ناموفق', detail: '۳ بار • ۳ روز پیش' },
-];
-
-function Switch({ checked, onChange }: { checked: boolean; onChange: () => void }) {
-  return (
-    <button type="button" className="switch" data-state={checked ? 'checked' : 'unchecked'} onClick={onChange}>
-      <span className="switch-thumb" />
-    </button>
-  );
-}
+const GENDER_MALE = 2;
+const GENDER_FEMALE = 1;
 
 export default function ProfilePage() {
-  const [activeTab, setActiveTab] = useState<TabId>('p1');
   const editDialog = useDisclosure();
-  const [twoFa, setTwoFa] = useState(true);
-  const [emailNotif, setEmailNotif] = useState(true);
-  const [pushNotif, setPushNotif] = useState(false);
-  const [compactMode, setCompactMode] = useState(false);
-  const [showHelp, setShowHelp] = useState(true);
+  const [user, setUser] = useState<UserDto | null>(null);
+  const [cities, setCities] = useState<CityDto[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [formError, setFormError] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [userName, setUserName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [cityId, setCityId] = useState('');
+  const [gender, setGender] = useState(String(GENDER_MALE));
+
+  const loadUser = useCallback(async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const token = getAccessToken();
+      const userId = token ? getUserIdFromToken(token) : undefined;
+      if (!userId) throw new Error('کاربر وارد نشده است');
+
+      const [userData, cityData] = await Promise.all([
+        getUser({ Id: userId }),
+        searchCities({ Pagination: { PageNumber: 1, PageSize: 100 } }),
+      ]);
+      setUser(userData);
+      setCities(cityData.Items ?? []);
+      setFirstName(userData.FirstName ?? '');
+      setLastName(userData.LastName ?? '');
+      setUserName(userData.UserName);
+      setEmail(userData.Email ?? '');
+      setPhoneNumber(userData.PhoneNumber ?? '');
+      setCityId(userData.CityId ?? '');
+      setGender(String(userData.Gender ?? GENDER_MALE));
+    } catch (err) {
+      setError(getApiErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadUser();
+  }, [loadUser]);
+
+  async function handleSave(event: FormEvent) {
+    event.preventDefault();
+    if (!user) return;
+    setFormError('');
+    setIsSaving(true);
+    try {
+      await updateUser({
+        Id: user.Id,
+        CityId: cityId,
+        UserName: userName.trim(),
+        FirstName: firstName.trim(),
+        LastName: lastName.trim(),
+        Email: email.trim() || null,
+        PhoneNumber: phoneNumber.trim(),
+        Gender: Number(gender),
+        IsActive: user.IsActive,
+        LoginPermission: user.LoginPermission,
+      });
+      editDialog.close();
+      await loadUser();
+    } catch (err) {
+      setFormError(getApiErrorMessage(err));
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex flex-1 items-center justify-center p-12" dir="rtl">
+        <p className="text-muted-foreground text-sm">در حال بارگذاری پروفایل...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex flex-1 items-center justify-center p-12" dir="rtl">
+        <p className="text-destructive text-sm">{error || 'پروفایل یافت نشد'}</p>
+      </div>
+    );
+  }
+
+  const displayName = getUserDisplayName(user);
+  const initials = getUserInitials(user);
 
   return (
     <div className="flex-1 p-4 lg:p-6" dir="rtl">
@@ -46,55 +122,43 @@ export default function ProfilePage() {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold">پروفایل</h1>
-            <p className="text-muted-foreground">مرکز کنترل هویت، امنیت و تنظیمات شخصی</p>
+            <p className="text-muted-foreground">مرکز کنترل هویت و اطلاعات شخصی</p>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline">
-              <Icon name="material-symbols:arrow-back" className="size-4" />
-              بازگشت
-            </Button>
+            <Link to="/account-settings" className="button" data-variant="outline">
+              <Icon name="material-symbols:settings" className="size-4" />
+              تنظیمات حساب
+            </Link>
             <Button variant="secondary" onClick={editDialog.open}>
               <Icon name="material-symbols:edit" className="size-4" />
               ویرایش
             </Button>
-            <Button variant="default">
-              <Icon name="material-symbols:save" className="size-4" />
-              ذخیره
-            </Button>
           </div>
         </div>
+
+        {error && (
+          <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</div>
+        )}
 
         <section className="bg-card overflow-hidden rounded-2xl border">
           <div className="relative">
             <div className="from-primary/15 via-background h-28 bg-linear-to-br to-emerald-500/15 sm:h-32" />
-            <div className="pointer-events-none absolute inset-0">
-              <div className="bg-primary/10 absolute -end-8 -top-8 size-40 rounded-full blur-2xl" />
-              <div className="absolute -start-10 -bottom-10 size-40 rounded-full bg-emerald-500/10 blur-2xl" />
-            </div>
             <div className="-mt-10 p-4 sm:-mt-12 sm:p-5">
               <div className="flex flex-wrap items-end justify-between gap-4">
                 <div className="flex items-end gap-4">
                   <div className="bg-card ring-background flex size-20 items-center justify-center rounded-2xl border shadow-xs ring-4 sm:size-24">
-                    <Icon name="material-symbols:person" className="text-primary size-10" />
+                    <span className="text-primary text-2xl font-bold">{initials}</span>
                   </div>
                   <div className="pb-1">
-                    <p className="text-xl font-bold">مدیر سیستم</p>
-                    <p className="text-muted-foreground text-sm">admin@example.com</p>
+                    <p className="text-xl font-bold">{displayName}</p>
+                    <p className="text-muted-foreground text-sm">{user.Email || user.UserName}</p>
                     <div className="mt-2 flex items-center gap-2">
-                      <Badge variant="success">فعال</Badge>
-                      <Badge variant="secondary">سطح: ادمین</Badge>
+                      <Badge variant={user.IsActive ? 'success' : 'secondary'}>
+                        {user.IsActive ? 'فعال' : 'غیرفعال'}
+                      </Badge>
+                      {user.CityName && <Badge variant="secondary">{user.CityName}</Badge>}
                     </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-2 pb-2">
-                  <Button variant="outline" size="sm">
-                    <Icon name="material-symbols:public" className="size-4" />
-                    نمایش عمومی
-                  </Button>
-                  <Button variant="default" size="sm" onClick={editDialog.open}>
-                    <Icon name="material-symbols:tune" className="size-4" />
-                    تنظیمات سریع
-                  </Button>
                 </div>
               </div>
             </div>
@@ -102,205 +166,38 @@ export default function ProfilePage() {
         </section>
 
         <section className="bg-card rounded-2xl border p-4 sm:p-5">
-          <div className="tabs-list mb-5">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                className="tab-trigger"
-                data-state={activeTab === tab.id ? 'active' : 'inactive'}
-                onClick={() => setActiveTab(tab.id)}
-              >
-                {tab.label}
-              </button>
-            ))}
+          <p className="mb-4 font-semibold">اطلاعات حساب</p>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="bg-muted/20 rounded-xl border p-4">
+              <p className="text-muted-foreground text-xs">نام کاربری</p>
+              <p className="mt-1 font-medium">{user.UserName}</p>
+            </div>
+            <div className="bg-muted/20 rounded-xl border p-4">
+              <p className="text-muted-foreground text-xs">شماره تماس</p>
+              <p className="mt-1 font-medium">{user.PhoneNumber || '—'}</p>
+            </div>
+            <div className="bg-muted/20 rounded-xl border p-4">
+              <p className="text-muted-foreground text-xs">ایمیل</p>
+              <p className="mt-1 font-medium">{user.Email || '—'}</p>
+            </div>
+            <div className="bg-muted/20 rounded-xl border p-4">
+              <p className="text-muted-foreground text-xs">آخرین ورود</p>
+              <p className="mt-1 font-medium">{formatDateTime(user.LastLoginDateOnUtc)}</p>
+            </div>
+            <div className="bg-muted/20 rounded-xl border p-4">
+              <p className="text-muted-foreground text-xs">تأیید ایمیل</p>
+              <p className="mt-1 font-medium">{user.EmailConfirmed ? 'بله' : 'خیر'}</p>
+            </div>
+            <div className="bg-muted/20 rounded-xl border p-4">
+              <p className="text-muted-foreground text-xs">تأیید موبایل</p>
+              <p className="mt-1 font-medium">{user.PhoneNumberConfirmed ? 'بله' : 'خیر'}</p>
+            </div>
           </div>
-
-          {activeTab === 'p1' && (
-            <div className="tab-content">
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-                <div className="space-y-4 lg:col-span-5">
-                  <div className="bg-muted/20 rounded-2xl border p-4">
-                    <p className="font-semibold">اطلاعات سریع</p>
-                    <div className="mt-4 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground text-sm">شماره تماس</span>
-                        <span className="text-sm font-medium">۰۹۱۲۰۰۰۰۰۰۰</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground text-sm">واحد</span>
-                        <span className="text-sm font-medium">مدیریت</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground text-sm">آخرین ورود</span>
-                        <span className="text-sm font-medium">امروز، ۱۰:۴۵</span>
-                      </div>
-                    </div>
-                    <div className="mt-4 flex items-center gap-2">
-                      <Button variant="secondary" size="sm" onClick={editDialog.open}>ویرایش اطلاعات</Button>
-                      <Button variant="outline" size="sm">گزارش فعالیت</Button>
-                    </div>
-                  </div>
-                  <div className="bg-card rounded-2xl border p-4">
-                    <div className="flex items-center justify-between">
-                      <p className="font-semibold">نوار وضعیت</p>
-                      <Badge variant="destructive">۲ هشدار</Badge>
-                    </div>
-                    <div className="mt-4 space-y-3">
-                      <div className="flex items-center gap-3">
-                        <Icon name="material-symbols:vpn-key" className="text-primary size-5" />
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">کلیدهای API</p>
-                          <p className="text-muted-foreground text-xs">آخرین استفاده: ۲ روز پیش</p>
-                        </div>
-                        <Button variant="outline" size="sm">مشاهده</Button>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <Icon name="material-symbols:lock" className="size-5 text-emerald-600" />
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">ورود دومرحلهای</p>
-                          <p className="text-muted-foreground text-xs">فعال</p>
-                        </div>
-                        <Link to="/two-factor" className="button" data-variant="outline" data-size="sm">مدیریت</Link>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="lg:col-span-7">
-                  <div className="bg-card rounded-2xl border p-4">
-                    <div className="flex items-center justify-between">
-                      <p className="font-semibold">رد فعالیت</p>
-                      <span className="text-muted-foreground text-xs">آخرین ۷ روز</span>
-                    </div>
-                    <div className="mt-4 space-y-3">
-                      {activityLog.map((item) => (
-                        <div key={item.title} className="flex items-start gap-3">
-                          <div className={cn('flex size-9 items-center justify-center rounded-xl', item.bg)}>
-                            <Icon name={item.icon} className={cn('size-5', item.color)} />
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-medium">{item.title}</p>
-                            <p className="text-muted-foreground mt-1 text-xs">{item.detail}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'p2' && (
-            <div className="tab-content">
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-                <div className="space-y-4 lg:col-span-7">
-                  <div className="bg-card rounded-2xl border p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-semibold">رمز عبور</p>
-                        <p className="text-muted-foreground text-xs">بهتر است هر چند وقت یکبار تغییر کند</p>
-                      </div>
-                      <Link to="/reset-password" className="button" data-variant="outline" data-size="sm">تغییر</Link>
-                    </div>
-                    <div className="bg-muted/20 mt-4 rounded-xl border p-3">
-                      <p className="text-sm">آخرین تغییر: ۲ ماه پیش</p>
-                    </div>
-                  </div>
-                  <div className="bg-card rounded-2xl border p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-semibold">ورود دومرحلهای</p>
-                        <p className="text-muted-foreground text-xs">پیشنهاد میشود فعال بماند</p>
-                      </div>
-                      <Switch checked={twoFa} onChange={() => setTwoFa(!twoFa)} />
-                    </div>
-                    <div className="mt-4 flex items-center gap-2">
-                      <Link to="/two-factor" className="button" data-variant="secondary" data-size="sm">مدیریت ۲FA</Link>
-                      <Button variant="outline" size="sm">پشتیبانگیری کدها</Button>
-                    </div>
-                  </div>
-                </div>
-                <div className="lg:col-span-5">
-                  <div className="bg-muted/20 rounded-2xl border p-4">
-                    <div className="flex items-center gap-2">
-                      <Icon name="material-symbols:shield" className="size-5 text-emerald-700" />
-                      <p className="font-semibold">وضعیت امنیت</p>
-                    </div>
-                    <div className="mt-4 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground text-sm">۲FA</span>
-                        <span className="text-sm font-medium text-emerald-700">فعال</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground text-sm">جلسات فعال</span>
-                        <span className="text-sm font-medium">۲</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground text-sm">ریسک</span>
-                        <span className="text-sm font-medium text-amber-700">متوسط</span>
-                      </div>
-                    </div>
-                    <div className="mt-4">
-                      <Button variant="destructive" className="w-full">خروج از همه دستگاهها</Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'p3' && (
-            <div className="tab-content">
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-                <div className="space-y-4 lg:col-span-6">
-                  <div className="bg-card rounded-2xl border p-4">
-                    <p className="font-semibold">اعلانها</p>
-                    <div className="mt-4 space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">اعلان ایمیل</p>
-                          <p className="text-muted-foreground text-xs">دریافت گزارشها</p>
-                        </div>
-                        <Switch checked={emailNotif} onChange={() => setEmailNotif(!emailNotif)} />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">اعلان پوش</p>
-                          <p className="text-muted-foreground text-xs">هشدارهای فوری</p>
-                        </div>
-                        <Switch checked={pushNotif} onChange={() => setPushNotif(!pushNotif)} />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="lg:col-span-6">
-                  <div className="bg-muted/20 rounded-2xl border p-4">
-                    <div className="flex items-center gap-2">
-                      <Icon name="material-symbols:palette" className="text-primary size-5" />
-                      <p className="font-semibold">نمایش</p>
-                    </div>
-                    <div className="mt-4 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground text-sm">حالت فشرده</span>
-                        <Switch checked={compactMode} onChange={() => setCompactMode(!compactMode)} />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground text-sm">نمایش راهنما</span>
-                        <Switch checked={showHelp} onChange={() => setShowHelp(!showHelp)} />
-                      </div>
-                    </div>
-                    <div className="mt-4">
-                      <Link to="/settings" className="button w-full" data-variant="outline">تنظیمات کامل</Link>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </section>
+      </div>
 
-        <Dialog open={editDialog.isOpen} onClose={editDialog.close}>
+      <Dialog open={editDialog.isOpen} onClose={editDialog.close}>
+        <form onSubmit={(e) => void handleSave(e)}>
           <button type="button" className="dialog-close" onClick={editDialog.close}>
             <Icon name="material-symbols:close" className="size-4" />
           </button>
@@ -309,27 +206,56 @@ export default function ProfilePage() {
             <p className="dialog-description">فقط فیلدهای ضروری را تغییر دهید.</p>
           </div>
           <div className="space-y-4 py-4">
+            {formError && <p className="text-destructive text-sm">{formError}</p>}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <label className="label">نام نمایشی</label>
-                <Input defaultValue="مدیر سیستم" />
+                <label className="label">نام</label>
+                <Input value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
+              </div>
+              <div className="space-y-2">
+                <label className="label">نام خانوادگی</label>
+                <Input value={lastName} onChange={(e) => setLastName(e.target.value)} required />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <label className="label">نام کاربری</label>
+                <Input value={userName} onChange={(e) => setUserName(e.target.value)} required />
               </div>
               <div className="space-y-2">
                 <label className="label">ایمیل</label>
-                <Input defaultValue="admin@example.com" />
+                <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <label className="label">شماره تماس</label>
+                <Input value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} required />
+              </div>
+              <div className="space-y-2">
+                <label className="label">شهر</label>
+                <Select value={cityId} onChange={(e) => setCityId(e.target.value)} required>
+                  <option value="">انتخاب شهر</option>
+                  {cities.map((city) => (
+                    <option key={city.Id} value={city.Id}>{city.Name}</option>
+                  ))}
+                </Select>
               </div>
             </div>
             <div className="space-y-2">
-              <label className="label">بیو</label>
-              <Textarea placeholder="یک توضیح کوتاه..." />
+              <label className="label">جنسیت</label>
+              <Select value={gender} onChange={(e) => setGender(e.target.value)}>
+                <option value={String(GENDER_FEMALE)}>زن</option>
+                <option value={String(GENDER_MALE)}>مرد</option>
+              </Select>
             </div>
           </div>
           <div className="dialog-footer">
-            <Button variant="outline" onClick={editDialog.close}>انصراف</Button>
-            <Button>ذخیره تغییرات</Button>
+            <Button type="button" variant="outline" onClick={editDialog.close}>انصراف</Button>
+            <Button type="submit" disabled={isSaving}>{isSaving ? 'در حال ذخیره...' : 'ذخیره تغییرات'}</Button>
           </div>
-        </Dialog>
-      </div>
+        </form>
+      </Dialog>
     </div>
   );
 }

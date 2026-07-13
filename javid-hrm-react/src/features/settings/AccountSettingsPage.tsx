@@ -1,15 +1,103 @@
+import { FormEvent, useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Icon } from '@/components/ui/Icon';
 import { Input } from '@/components/ui/Input';
-import { Textarea } from '@/components/ui/Textarea';
+import { Select } from '@/components/ui/Select';
+import { formatDateTime, getUserDisplayName } from '@/lib/userDisplay';
+import {
+  getApiErrorMessage,
+  getUser,
+  searchCities,
+  updateUser,
+  type CityDto,
+  type UserDto,
+} from '@/services/api';
+import { getAccessToken, getUserIdFromToken } from '@/services/api/tokenStorage';
 
-const historyRows = [
-  { user: 'مدیر سیستم', change: 'ویرایش مقدار', time: '۲ ساعت پیش' },
-  { user: 'مدیر سیستم', change: 'فعال‌سازی', time: 'دیروز' },
-];
+const GENDER_MALE = 2;
+const GENDER_FEMALE = 1;
 
 export default function AccountSettingsPage() {
+  const [user, setUser] = useState<UserDto | null>(null);
+  const [cities, setCities] = useState<CityDto[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [userName, setUserName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [cityId, setCityId] = useState('');
+  const [gender, setGender] = useState(String(GENDER_MALE));
+  const [password, setPassword] = useState('');
+
+  const loadUser = useCallback(async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const token = getAccessToken();
+      const userId = token ? getUserIdFromToken(token) : undefined;
+      if (!userId) throw new Error('کاربر وارد نشده است');
+
+      const [userData, cityData] = await Promise.all([
+        getUser({ Id: userId }),
+        searchCities({ Pagination: { PageNumber: 1, PageSize: 100 } }),
+      ]);
+      setUser(userData);
+      setCities(cityData.Items ?? []);
+      setFirstName(userData.FirstName ?? '');
+      setLastName(userData.LastName ?? '');
+      setUserName(userData.UserName);
+      setEmail(userData.Email ?? '');
+      setPhoneNumber(userData.PhoneNumber ?? '');
+      setCityId(userData.CityId ?? '');
+      setGender(String(userData.Gender ?? GENDER_MALE));
+    } catch (err) {
+      setError(getApiErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadUser();
+  }, [loadUser]);
+
+  async function handleSave(event: FormEvent) {
+    event.preventDefault();
+    if (!user) return;
+    setError('');
+    setSuccess('');
+    setIsSaving(true);
+    try {
+      await updateUser({
+        Id: user.Id,
+        CityId: cityId,
+        UserName: userName.trim(),
+        FirstName: firstName.trim(),
+        LastName: lastName.trim(),
+        Email: email.trim() || null,
+        PhoneNumber: phoneNumber.trim(),
+        Gender: Number(gender),
+        IsActive: user.IsActive,
+        LoginPermission: user.LoginPermission,
+        Password: password.trim() || null,
+      });
+      setPassword('');
+      setSuccess('تغییرات با موفقیت ذخیره شد');
+      await loadUser();
+    } catch (err) {
+      setError(getApiErrorMessage(err));
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
   return (
     <div className="flex-1 p-4 lg:p-6" dir="rtl">
       <div className="mx-auto mb-6 max-w-6xl">
@@ -18,92 +106,105 @@ export default function AccountSettingsPage() {
             <h1 className="text-2xl font-bold">تنظیمات حساب</h1>
             <p className="text-muted-foreground">مدیریت امنیت و تنظیمات حساب کاربری</p>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline">بازگشت</Button>
-            <Button variant="default">ذخیره</Button>
-          </div>
+          <Link to="/profile" className="button" data-variant="outline">مشاهده پروفایل</Link>
         </div>
       </div>
 
       <div className="mx-auto max-w-6xl">
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>اطلاعات اصلی</CardTitle>
-              <CardDescription>تنظیمات عمومی را به‌روزرسانی کنید</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                <div className="space-y-2">
-                  <label htmlFor="f-name" className="text-sm font-medium">عنوان</label>
-                  <Input id="f-name" placeholder="عنوان تنظیمات" />
-                </div>
-                <div className="space-y-2">
-                  <label htmlFor="f-value" className="text-sm font-medium">مقدار</label>
-                  <Input id="f-value" placeholder="مقدار" />
-                </div>
-                <div className="space-y-2">
-                  <label htmlFor="f-desc" className="text-sm font-medium">توضیحات</label>
-                  <Textarea id="f-desc" className="min-h-28" placeholder="توضیح کوتاه" />
-                </div>
-                <div className="space-y-2">
-                  <label htmlFor="f-status" className="text-sm font-medium">وضعیت</label>
-                  <Input id="f-status" placeholder="فعال" />
-                </div>
-              </div>
-              <div className="mt-6 flex items-center justify-end gap-2">
-                <Button variant="outline" type="button">انصراف</Button>
-                <Button variant="default" type="button">ذخیره</Button>
-              </div>
-            </CardContent>
-          </Card>
+        {loading ? (
+          <p className="text-muted-foreground py-12 text-center text-sm">در حال بارگذاری...</p>
+        ) : (
+          <form className="space-y-6" onSubmit={(e) => void handleSave(e)}>
+            {error && (
+              <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</div>
+            )}
+            {success && (
+              <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700">{success}</div>
+            )}
 
-          <Card>
-            <CardHeader>
-              <CardTitle>تاریخچه تغییرات</CardTitle>
-              <CardDescription>آخرین تغییرات انجام‌شده روی تنظیمات</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                <div className="relative">
-                  <Icon
-                    name="material-symbols:search"
-                    className="text-muted-foreground absolute start-3 top-1/2 size-5 -translate-y-1/2"
+            <Card>
+              <CardHeader>
+                <CardTitle>اطلاعات اصلی</CardTitle>
+                <CardDescription>تنظیمات عمومی حساب کاربری</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {user && (
+                  <div className="mb-4 flex flex-wrap items-center gap-2">
+                    <Badge variant={user.IsActive ? 'success' : 'secondary'}>
+                      {user.IsActive ? 'فعال' : 'غیرفعال'}
+                    </Badge>
+                    <span className="text-muted-foreground text-sm">{getUserDisplayName(user)}</span>
+                    <span className="text-muted-foreground text-sm">• آخرین ورود: {formatDateTime(user.LastLoginDateOnUtc)}</span>
+                  </div>
+                )}
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                  <div className="space-y-2">
+                    <label htmlFor="f-first" className="text-sm font-medium">نام</label>
+                    <Input id="f-first" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
+                  </div>
+                  <div className="space-y-2">
+                    <label htmlFor="f-last" className="text-sm font-medium">نام خانوادگی</label>
+                    <Input id="f-last" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
+                  </div>
+                  <div className="space-y-2">
+                    <label htmlFor="f-username" className="text-sm font-medium">نام کاربری</label>
+                    <Input id="f-username" value={userName} onChange={(e) => setUserName(e.target.value)} required />
+                  </div>
+                  <div className="space-y-2">
+                    <label htmlFor="f-email" className="text-sm font-medium">ایمیل</label>
+                    <Input id="f-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <label htmlFor="f-phone" className="text-sm font-medium">شماره تماس</label>
+                    <Input id="f-phone" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} required />
+                  </div>
+                  <div className="space-y-2">
+                    <label htmlFor="f-city" className="text-sm font-medium">شهر</label>
+                    <Select id="f-city" value={cityId} onChange={(e) => setCityId(e.target.value)} required>
+                      <option value="">انتخاب شهر</option>
+                      {cities.map((city) => (
+                        <option key={city.Id} value={city.Id}>{city.Name}</option>
+                      ))}
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <label htmlFor="f-gender" className="text-sm font-medium">جنسیت</label>
+                    <Select id="f-gender" value={gender} onChange={(e) => setGender(e.target.value)}>
+                      <option value={String(GENDER_FEMALE)}>زن</option>
+                      <option value={String(GENDER_MALE)}>مرد</option>
+                    </Select>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>امنیت</CardTitle>
+                <CardDescription>تغییر رمز عبور (اختیاری)</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <label htmlFor="f-password" className="text-sm font-medium">رمز عبور جدید</label>
+                  <Input
+                    id="f-password"
+                    type="password"
+                    placeholder="در صورت عدم تغییر خالی بگذارید"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                   />
-                  <Input className="w-72 ps-10" placeholder="جستجو..." />
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="outline">فیلتر</Button>
-                  <Button variant="default">افزودن</Button>
-                </div>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-muted-foreground p-3 text-start text-xs font-medium">کاربر</th>
-                      <th className="text-muted-foreground p-3 text-start text-xs font-medium">تغییر</th>
-                      <th className="text-muted-foreground p-3 text-start text-xs font-medium">زمان</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {historyRows.map((row) => (
-                      <tr key={row.time} className="hover:bg-muted/30 border-b transition-colors last:border-b-0">
-                        <td className="p-3 text-sm">{row.user}</td>
-                        <td className="p-3 text-sm">
-                          <span className="text-muted-foreground">{row.change}</span>
-                        </td>
-                        <td className="p-3 text-sm">
-                          <span className="text-muted-foreground">{row.time}</span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              </CardContent>
+            </Card>
+
+            <div className="flex items-center justify-end gap-2">
+              <Link to="/reset-password" className="button" data-variant="outline">بازیابی رمز عبور</Link>
+              <Button variant="default" type="submit" disabled={isSaving}>
+                {isSaving ? 'در حال ذخیره...' : 'ذخیره'}
+              </Button>
+            </div>
+          </form>
+        )}
       </div>
     </div>
   );
