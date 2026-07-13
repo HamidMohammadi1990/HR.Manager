@@ -47,7 +47,7 @@ public class AnnouncementRepository(JavidHrmDbContext context)
                 DepartmentId = x.announcement.DepartmentId,
                 DepartmentName = x.department != null ? x.department.Name : null,
                 RoleId = x.announcement.RoleId,
-                RoleName = x.role != null ? x.role.Name : null,
+                RoleName = x.role != null ? x.role.Title : null,
                 ScheduledAtUtc = x.announcement.ScheduledAtUtc,
                 PublishedAtUtc = x.announcement.PublishedAtUtc,
                 CreatedByUserId = x.announcement.CreatedByUserId,
