@@ -214,6 +214,8 @@ Generated_Code/
 # Do NOT use Backup*/ — it excludes HR module folders like Dtos/BackupJobs and Features/BackupJobs
 _UpgradeReport_Files/
 Backup[0-9]*/
+!**/Dtos/BackupJobs/**
+!**/Features/BackupJobs/**
 UpgradeLog*.XML
 UpgradeLog*.htm
 

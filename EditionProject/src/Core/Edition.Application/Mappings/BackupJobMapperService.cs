@@ -1,5 +1,5 @@
 using JavidHrm.Application.Features.BackupJobs.Queries;
-using JavidHrm.Domain.Dtos.BackupJobs;
+using JavidHrm.Domain.Dtos.HrBackupJobs;
 using JavidHrm.Domain.Dtos.Pagination;
 using JavidHrm.Domain.Entities;
 using JavidHrm.Application.Contracts.Mapping;

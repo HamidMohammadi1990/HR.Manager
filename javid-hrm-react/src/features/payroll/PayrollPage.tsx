@@ -767,7 +767,7 @@ export default function PayrollPage() {
                                 size="icon-sm"
                                 disabled={isBusy}
                                 onClick={() => void handleDownloadPdf(entry.Id)}
-                                title="دانلود فیش PDF"
+                                title="دانلود فیش حقوقی"
                               >
                                 <Icon name="material-symbols:picture-as-pdf" className="size-4" />
                               </Button>
@@ -1224,7 +1224,7 @@ export default function PayrollPage() {
                   onClick={() => void handleDownloadPdf(selectedEntry.Id)}
                 >
                   <Icon name="material-symbols:picture-as-pdf" className="size-4" />
-                  دانلود فیش PDF
+                  دانلود فیش حقوقی
                 </Button>
               )}
               <Button variant="outline" onClick={detailDialog.close}>بستن</Button>
