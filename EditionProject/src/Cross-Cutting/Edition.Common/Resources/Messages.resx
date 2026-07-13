@@ -160,6 +160,16 @@
   <data name="InvalidStoreId" xml:space="preserve"><value>Invalid store identifier</value></data>
   <data name="IpRequired" xml:space="preserve"><value>IP address is required</value></data>
   <data name="StartDateMustBeBeforeEndDate" xml:space="preserve"><value>Start date must be before end date</value></data>
+  <data name="OverlappingLeavePeriod" xml:space="preserve"><value>Leave period overlaps with an existing request</value></data>
+  <data name="LeaveRequestNotPending" xml:space="preserve"><value>Only pending leave requests can be approved or rejected</value></data>
+  <data name="CheckOutMustBeAfterCheckIn" xml:space="preserve"><value>Check-out time must be after check-in time</value></data>
+  <data name="AttendanceAlreadyCheckedIn" xml:space="preserve"><value>Employee has already checked in for this day</value></data>
+  <data name="AttendanceNotCheckedIn" xml:space="preserve"><value>Employee has not checked in for this day</value></data>
+  <data name="AttendanceAlreadyCheckedOut" xml:space="preserve"><value>Employee has already checked out for this day</value></data>
+  <data name="InvalidPayrollNetAmount" xml:space="preserve"><value>Net amount must equal gross amount minus deductions</value></data>
+  <data name="PayrollEntryNotDraft" xml:space="preserve"><value>Only draft payroll entries can be approved</value></data>
+  <data name="PayrollEntryNotApproved" xml:space="preserve"><value>Only approved payroll entries can be marked as paid</value></data>
+  <data name="PayrollEntryAlreadyPaid" xml:space="preserve"><value>Paid payroll entries cannot be modified</value></data>
   <data name="ImageMaxSizeExceeded" xml:space="preserve"><value>Image cannot exceed 5 MB</value></data>
   <data name="ImageRequired" xml:space="preserve"><value>Image is required</value></data>
   <data name="ProductCodeRequired" xml:space="preserve"><value>Product code is required</value></data>

@@ -42,4 +42,12 @@ public class AttendanceRecord : BaseEntity
         CheckOutUtc = checkOutUtc;
         Status = status;
     }
+
+    public void RegisterCheckIn(DateTime checkInUtc, AttendanceStatus status)
+    {
+        CheckInUtc = checkInUtc;
+        Status = status;
+    }
+
+    public void RegisterCheckOut(DateTime checkOutUtc) => CheckOutUtc = checkOutUtc;
 }

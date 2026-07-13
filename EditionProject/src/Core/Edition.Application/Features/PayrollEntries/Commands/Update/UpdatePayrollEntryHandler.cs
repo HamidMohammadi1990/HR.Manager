@@ -1,4 +1,6 @@
+using JavidHrm.Common.Localization;
 using JavidHrm.Common.Models;
+using JavidHrm.Domain.Enums;
 using JavidHrm.Domain.Repositories;
 using JavidHrm.Application.Contracts.Persistence;
 
@@ -12,7 +14,10 @@ public class UpdatePayrollEntryHandler
     {
         var payrollEntry = await payrollEntryRepository.FindAsync(request.Id, cancellationToken);
         if (payrollEntry is null)
-            return ErrorModel.Create("InvalidId");
+            return ErrorModel.Create(MessageKeys.InvalidId);
+
+        if (payrollEntry.Status == PayrollEntryStatus.Paid)
+            return ErrorModel.Create(MessageKeys.PayrollEntryAlreadyPaid);
 
         payrollEntry.Update(
             request.EmployeeId,

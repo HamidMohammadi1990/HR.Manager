@@ -18,6 +18,12 @@ public record GetAllAttendanceRecordRequestDto
     [QueryFilter(MemberPath = "record.WorkDate")]
     public DateTime? WorkDate { get; init; }
 
+    [QueryFilter(MemberPath = "record.WorkDate", Operator = FilterOperator.GreaterThanOrEqual)]
+    public DateTime? WorkDateFrom { get; init; }
+
+    [QueryFilter(MemberPath = "record.WorkDate", Operator = FilterOperator.LessThanOrEqual)]
+    public DateTime? WorkDateTo { get; init; }
+
     [QueryFilter(MemberPath = "record.Status")]
     public AttendanceStatus? Status { get; init; }
 

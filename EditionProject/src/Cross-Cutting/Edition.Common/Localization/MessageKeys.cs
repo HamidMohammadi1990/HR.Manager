@@ -44,6 +44,16 @@ public static class MessageKeys
     public const string InvalidIpAddress = nameof(InvalidIpAddress);
     public const string IpRequired = nameof(IpRequired);
     public const string StartDateMustBeBeforeEndDate = nameof(StartDateMustBeBeforeEndDate);
+    public const string OverlappingLeavePeriod = nameof(OverlappingLeavePeriod);
+    public const string LeaveRequestNotPending = nameof(LeaveRequestNotPending);
+    public const string CheckOutMustBeAfterCheckIn = nameof(CheckOutMustBeAfterCheckIn);
+    public const string AttendanceAlreadyCheckedIn = nameof(AttendanceAlreadyCheckedIn);
+    public const string AttendanceNotCheckedIn = nameof(AttendanceNotCheckedIn);
+    public const string AttendanceAlreadyCheckedOut = nameof(AttendanceAlreadyCheckedOut);
+    public const string InvalidPayrollNetAmount = nameof(InvalidPayrollNetAmount);
+    public const string PayrollEntryNotDraft = nameof(PayrollEntryNotDraft);
+    public const string PayrollEntryNotApproved = nameof(PayrollEntryNotApproved);
+    public const string PayrollEntryAlreadyPaid = nameof(PayrollEntryAlreadyPaid);
     public const string ImageMaxSizeExceeded = nameof(ImageMaxSizeExceeded);
     public const string ImageRequired = nameof(ImageRequired);
     public const string ProductCodeRequired = nameof(ProductCodeRequired);

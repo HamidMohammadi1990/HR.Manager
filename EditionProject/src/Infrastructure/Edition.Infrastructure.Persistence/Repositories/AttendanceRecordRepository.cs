@@ -46,4 +46,13 @@ public class AttendanceRecordRepository(JavidHrmDbContext context)
             .AsNoTracking()
             .ToPagedAsync(request.Pagination);
     }
+
+    public Task<AttendanceRecord?> FindByEmployeeAndWorkDateAsync(
+        int employeeId,
+        DateTime workDate,
+        CancellationToken cancellationToken = default)
+        => Context.AttendanceRecord
+            .FirstOrDefaultAsync(
+                record => record.EmployeeId == employeeId && record.WorkDate == workDate.Date,
+                cancellationToken);
 }

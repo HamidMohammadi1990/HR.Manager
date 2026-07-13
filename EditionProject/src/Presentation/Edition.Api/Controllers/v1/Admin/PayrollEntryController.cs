@@ -43,6 +43,16 @@ public class PayrollEntryController
     public async Task<ApiResult<OperationResult>> Update(UpdatePayrollEntryRequest request)
         => await mediator.Send(request);
 
+    [ActionInfo(PermissionType.UpdatePayroll)]
+    [HttpPut("approve")]
+    public async Task<ApiResult<OperationResult>> Approve(ApprovePayrollEntryRequest request)
+        => await mediator.Send(request);
+
+    [ActionInfo(PermissionType.UpdatePayroll)]
+    [HttpPut("mark-paid")]
+    public async Task<ApiResult<OperationResult>> MarkPaid(MarkPayrollEntryPaidRequest request)
+        => await mediator.Send(request);
+
     [ActionInfo(PermissionType.DeletePayroll)]
     [HttpDelete("delete")]
     public async Task<ApiResult<OperationResult>> Delete(DeletePayrollEntryRequest request)

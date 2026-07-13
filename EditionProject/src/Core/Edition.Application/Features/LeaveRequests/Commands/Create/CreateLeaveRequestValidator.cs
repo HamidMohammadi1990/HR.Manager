@@ -7,7 +7,9 @@ namespace JavidHrm.Application.Features.LeaveRequests.Commands;
 
 public class CreateLeaveRequestValidator : AbstractValidator<CreateLeaveRequestRequest>
 {
-    public CreateLeaveRequestValidator(IEmployeeRepository employeeRepository)
+    public CreateLeaveRequestValidator(
+        IEmployeeRepository employeeRepository,
+        ILeaveRequestRepository leaveRequestRepository)
     {
         RuleFor(x => x.EmployeeId).MustBeValidEntityId();
 
@@ -37,5 +39,15 @@ public class CreateLeaveRequestValidator : AbstractValidator<CreateLeaveRequestR
             .MustAsync(async (employeeId, cancellationToken)
                 => await employeeRepository.AnyAsync(x => x.Id == employeeId, cancellationToken))
             .WithMessage(MessageKeys.InvalidId);
+
+        RuleFor(x => x)
+            .MustAsync(async (request, cancellationToken) =>
+                !await leaveRequestRepository.HasOverlappingAsync(
+                    request.EmployeeId,
+                    request.StartDate,
+                    request.EndDate,
+                    excludeLeaveRequestId: null,
+                    cancellationToken))
+            .WithMessage(MessageKeys.OverlappingLeavePeriod);
     }
 }

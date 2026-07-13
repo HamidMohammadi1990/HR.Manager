@@ -15,6 +15,8 @@ public class AttendanceRecordMapperService : IAttendanceRecordMapperService
             DepartmentId = model.DepartmentId,
             UserId = model.UserId,
             WorkDate = model.WorkDate,
+            WorkDateFrom = model.WorkDateFrom,
+            WorkDateTo = model.WorkDateTo,
             Status = model.Status,
             FirstName = model.FirstName,
             LastName = model.LastName,

@@ -33,5 +33,12 @@ public class UpdateAttendanceRecordValidator : AbstractValidator<UpdateAttendanc
                          && x.Id != request.Id,
                     cancellationToken))
             .WithMessage(MessageKeys.DuplicateRecord);
+
+        RuleFor(x => x)
+            .Must(request =>
+                !request.CheckInUtc.HasValue
+                || !request.CheckOutUtc.HasValue
+                || request.CheckOutUtc > request.CheckInUtc)
+            .WithMessage(MessageKeys.CheckOutMustBeAfterCheckIn);
     }
 }

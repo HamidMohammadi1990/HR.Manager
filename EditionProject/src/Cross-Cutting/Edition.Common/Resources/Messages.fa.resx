@@ -160,6 +160,16 @@
   <data name="InvalidStoreId" xml:space="preserve"><value>شناسه فروشگاه نامتعبر</value></data>
   <data name="IpRequired" xml:space="preserve"><value>ای پی الزامی است</value></data>
   <data name="StartDateMustBeBeforeEndDate" xml:space="preserve"><value>تاریخ شروع باید قبل از تاریخ پایان باشد</value></data>
+  <data name="OverlappingLeavePeriod" xml:space="preserve"><value>بازه مرخصی با درخواست دیگری تداخل دارد</value></data>
+  <data name="LeaveRequestNotPending" xml:space="preserve"><value>فقط درخواست‌های در انتظار قابل تأیید یا رد هستند</value></data>
+  <data name="CheckOutMustBeAfterCheckIn" xml:space="preserve"><value>زمان خروج باید بعد از زمان ورود باشد</value></data>
+  <data name="AttendanceAlreadyCheckedIn" xml:space="preserve"><value>ورود این کارمند برای این روز قبلاً ثبت شده است</value></data>
+  <data name="AttendanceNotCheckedIn" xml:space="preserve"><value>ورود این کارمند برای این روز ثبت نشده است</value></data>
+  <data name="AttendanceAlreadyCheckedOut" xml:space="preserve"><value>خروج این کارمند برای این روز قبلاً ثبت شده است</value></data>
+  <data name="InvalidPayrollNetAmount" xml:space="preserve"><value>مبلغ خالص باید برابر ناخالص منهای کسورات باشد</value></data>
+  <data name="PayrollEntryNotDraft" xml:space="preserve"><value>فقط فیش‌های پیش‌نویس قابل تأیید هستند</value></data>
+  <data name="PayrollEntryNotApproved" xml:space="preserve"><value>فقط فیش‌های تأییدشده قابل پرداخت هستند</value></data>
+  <data name="PayrollEntryAlreadyPaid" xml:space="preserve"><value>فیش‌های پرداخت‌شده قابل ویرایش نیستند</value></data>
   <data name="ImageMaxSizeExceeded" xml:space="preserve"><value>عکس نمیتواند بیشتر از 5 مگابایت باشد</value></data>
   <data name="ImageRequired" xml:space="preserve"><value>عکس الزامی میباشد</value></data>
   <data name="ProductCodeRequired" xml:space="preserve"><value>کد محصول الزامی است</value></data>

@@ -62,4 +62,8 @@ public class PayrollEntry : BaseEntity
         Status = status;
         Notes = notes;
     }
+
+    public void Approve() => Status = PayrollEntryStatus.Approved;
+
+    public void MarkAsPaid() => Status = PayrollEntryStatus.Paid;
 }

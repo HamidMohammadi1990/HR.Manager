@@ -38,6 +38,16 @@ public class AttendanceRecordController
     public async Task<ApiResult<CreateAttendanceRecordResponse>> Create(CreateAttendanceRecordRequest request)
         => await mediator.Send(request);
 
+    [ActionInfo(PermissionType.CreateAttendance)]
+    [HttpPut("check-in")]
+    public async Task<ApiResult<CheckInAttendanceRecordResponse>> CheckIn(CheckInAttendanceRecordRequest request)
+        => await mediator.Send(request);
+
+    [ActionInfo(PermissionType.UpdateAttendance)]
+    [HttpPut("check-out")]
+    public async Task<ApiResult<CheckOutAttendanceRecordResponse>> CheckOut(CheckOutAttendanceRecordRequest request)
+        => await mediator.Send(request);
+
     [ActionInfo(PermissionType.UpdateAttendance)]
     [HttpPut("update")]
     public async Task<ApiResult<OperationResult>> Update(UpdateAttendanceRecordRequest request)

@@ -32,5 +32,12 @@ public class CreateAttendanceRecordValidator : AbstractValidator<CreateAttendanc
                     x => x.EmployeeId == request.EmployeeId && x.WorkDate == request.WorkDate.Date,
                     cancellationToken))
             .WithMessage(MessageKeys.DuplicateRecord);
+
+        RuleFor(x => x)
+            .Must(request =>
+                !request.CheckInUtc.HasValue
+                || !request.CheckOutUtc.HasValue
+                || request.CheckOutUtc > request.CheckInUtc)
+            .WithMessage(MessageKeys.CheckOutMustBeAfterCheckIn);
     }
 }

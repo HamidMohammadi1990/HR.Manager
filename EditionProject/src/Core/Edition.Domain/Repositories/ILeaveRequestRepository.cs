@@ -12,6 +12,12 @@ public interface ILeaveRequestRepository
     ValueTask<LeaveRequest?> FindAsync(int id, CancellationToken cancellationToken = default);
     Task<LeaveRequest?> GetAsNoTrackingAsync(int id, CancellationToken cancellationToken = default);
     Task<bool> AnyAsync(Expression<Func<LeaveRequest, bool>> expression, CancellationToken cancellationToken = default);
+    Task<bool> HasOverlappingAsync(
+        int employeeId,
+        DateTime startDate,
+        DateTime endDate,
+        int? excludeLeaveRequestId = null,
+        CancellationToken cancellationToken = default);
     Task<PagedResult<GetAllLeaveRequestResponseDto>> GetAllAsync(
         GetAllLeaveRequestRequestDto request,
         Expression<Func<LeaveRequest, bool>>? contentFilter = null);

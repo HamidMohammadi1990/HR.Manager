@@ -14,6 +14,14 @@ public class CreatePayrollEntryValidator : AbstractValidator<CreatePayrollEntryR
         RuleFor(x => x.EmployeeId).MustBeValidEntityId();
         RuleFor(x => x.Year).GreaterThan(0);
         RuleFor(x => x.Month).InclusiveBetween(1, 12);
+        RuleFor(x => x.BaseSalary).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.GrossAmount).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.Deductions).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.NetAmount).GreaterThanOrEqualTo(0);
+
+        RuleFor(x => x)
+            .Must(request => request.NetAmount == request.GrossAmount - request.Deductions)
+            .WithMessage(MessageKeys.InvalidPayrollNetAmount);
 
         RuleFor(x => x.Status)
             .IsInEnum()

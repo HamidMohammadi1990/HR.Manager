@@ -47,4 +47,8 @@ public class LeaveRequest : BaseEntity
         Status = status;
         Reason = reason;
     }
+
+    public void Approve() => Status = LeaveRequestStatus.Approved;
+
+    public void Reject() => Status = LeaveRequestStatus.Rejected;
 }

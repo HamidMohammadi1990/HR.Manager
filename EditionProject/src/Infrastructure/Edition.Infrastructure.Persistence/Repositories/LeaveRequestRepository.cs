@@ -2,6 +2,7 @@ using System.Linq.Expressions;
 using JavidHrm.Domain.Dtos.LeaveRequests;
 using JavidHrm.Domain.Dtos.Pagination;
 using JavidHrm.Domain.Entities;
+using JavidHrm.Domain.Enums;
 using JavidHrm.Domain.Repositories;
 using JavidHrm.Infrastructure.Persistence.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -46,5 +47,26 @@ public class LeaveRequestRepository(JavidHrmDbContext context)
             })
             .AsNoTracking()
             .ToPagedAsync(request.Pagination);
+    }
+
+    public Task<bool> HasOverlappingAsync(
+        int employeeId,
+        DateTime startDate,
+        DateTime endDate,
+        int? excludeLeaveRequestId = null,
+        CancellationToken cancellationToken = default)
+    {
+        var start = startDate.Date;
+        var end = endDate.Date;
+
+        return Context.LeaveRequest.AnyAsync(
+            leaveRequest =>
+                leaveRequest.EmployeeId == employeeId &&
+                (excludeLeaveRequestId == null || leaveRequest.Id != excludeLeaveRequestId) &&
+                (leaveRequest.Status == LeaveRequestStatus.Pending ||
+                 leaveRequest.Status == LeaveRequestStatus.Approved) &&
+                leaveRequest.StartDate <= end &&
+                leaveRequest.EndDate >= start,
+            cancellationToken);
     }
 }

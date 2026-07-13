@@ -6,20 +6,20 @@ using JavidHrm.Application.Contracts.Persistence;
 
 namespace JavidHrm.Application.Features.PayrollEntries.Commands;
 
-public class DeletePayrollEntryHandler
+public class MarkPayrollEntryPaidHandler
     (IPayrollEntryRepository payrollEntryRepository, IUnitOfWork uow)
-    : IRequestHandler<DeletePayrollEntryRequest, OperationResult>
+    : IRequestHandler<MarkPayrollEntryPaidRequest, OperationResult>
 {
-    public async Task<OperationResult> Handle(DeletePayrollEntryRequest request, CancellationToken cancellationToken)
+    public async Task<OperationResult> Handle(MarkPayrollEntryPaidRequest request, CancellationToken cancellationToken)
     {
         var payrollEntry = await payrollEntryRepository.FindAsync(request.Id, cancellationToken);
         if (payrollEntry is null)
             return ErrorModel.Create(MessageKeys.InvalidId);
 
-        if (payrollEntry.Status == PayrollEntryStatus.Paid)
-            return ErrorModel.Create(MessageKeys.PayrollEntryAlreadyPaid);
+        if (payrollEntry.Status != PayrollEntryStatus.Approved)
+            return ErrorModel.Create(MessageKeys.PayrollEntryNotApproved);
 
-        payrollEntryRepository.Remove(payrollEntry);
+        payrollEntry.MarkAsPaid();
 
         var saveChangesResult = await uow.SaveChangesAsync(cancellationToken);
         return saveChangesResult.IsSuccess ? OperationResult.Success() : saveChangesResult;
