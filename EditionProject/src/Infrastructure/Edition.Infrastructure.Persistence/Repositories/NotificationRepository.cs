@@ -11,6 +11,9 @@ namespace JavidHrm.Infrastructure.Persistence.Repositories;
 public class NotificationRepository(JavidHrmDbContext context)
     : Repository<Notification>(context), INotificationRepository
 {
+    public void RemoveRange(IEnumerable<Notification> notifications)
+        => Context.Notification.RemoveRange(notifications);
+
     public async Task<PagedResult<GetAllNotificationResponseDto>> GetAllAsync(
         GetAllNotificationRequestDto request,
         Expression<Func<Notification, bool>>? contentFilter = null)
