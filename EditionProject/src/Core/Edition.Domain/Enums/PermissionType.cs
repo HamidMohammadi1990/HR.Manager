@@ -460,4 +460,161 @@ public enum PermissionType : int
 
     [Display(Name = "PermissionType_DeletePayroll", ResourceType = typeof(EnumResources))]
     DeletePayroll = 1006,
+
+    [Display(Name = "PermissionType_DownloadPayslip", ResourceType = typeof(EnumResources))]
+    DownloadPayslip = 1007,
+
+    // Notifications
+    [Display(Name = "PermissionType_ManageNotificationGroup", ResourceType = typeof(EnumResources))]
+    ManageNotificationGroup = 1100,
+
+    [Display(Name = "PermissionType_ManageNotification", ResourceType = typeof(EnumResources))]
+    ManageNotification = 1101,
+
+    [Display(Name = "PermissionType_ListNotification", ResourceType = typeof(EnumResources))]
+    ListNotification = 1102,
+
+    [Display(Name = "PermissionType_GetNotificationById", ResourceType = typeof(EnumResources))]
+    GetNotificationById = 1103,
+
+    [Display(Name = "PermissionType_CreateNotification", ResourceType = typeof(EnumResources))]
+    CreateNotification = 1104,
+
+    [Display(Name = "PermissionType_UpdateNotification", ResourceType = typeof(EnumResources))]
+    UpdateNotification = 1105,
+
+    [Display(Name = "PermissionType_DeleteNotification", ResourceType = typeof(EnumResources))]
+    DeleteNotification = 1106,
+
+    // Announcements
+    [Display(Name = "PermissionType_ManageAnnouncementGroup", ResourceType = typeof(EnumResources))]
+    ManageAnnouncementGroup = 1200,
+
+    [Display(Name = "PermissionType_ManageAnnouncement", ResourceType = typeof(EnumResources))]
+    ManageAnnouncement = 1201,
+
+    [Display(Name = "PermissionType_ListAnnouncement", ResourceType = typeof(EnumResources))]
+    ListAnnouncement = 1202,
+
+    [Display(Name = "PermissionType_GetAnnouncementById", ResourceType = typeof(EnumResources))]
+    GetAnnouncementById = 1203,
+
+    [Display(Name = "PermissionType_CreateAnnouncement", ResourceType = typeof(EnumResources))]
+    CreateAnnouncement = 1204,
+
+    [Display(Name = "PermissionType_UpdateAnnouncement", ResourceType = typeof(EnumResources))]
+    UpdateAnnouncement = 1205,
+
+    [Display(Name = "PermissionType_DeleteAnnouncement", ResourceType = typeof(EnumResources))]
+    DeleteAnnouncement = 1206,
+
+    // Calendar events
+    [Display(Name = "PermissionType_ManageCalendarEventGroup", ResourceType = typeof(EnumResources))]
+    ManageCalendarEventGroup = 1300,
+
+    [Display(Name = "PermissionType_ManageCalendarEvent", ResourceType = typeof(EnumResources))]
+    ManageCalendarEvent = 1301,
+
+    [Display(Name = "PermissionType_ListCalendarEvent", ResourceType = typeof(EnumResources))]
+    ListCalendarEvent = 1302,
+
+    [Display(Name = "PermissionType_GetCalendarEventById", ResourceType = typeof(EnumResources))]
+    GetCalendarEventById = 1303,
+
+    [Display(Name = "PermissionType_CreateCalendarEvent", ResourceType = typeof(EnumResources))]
+    CreateCalendarEvent = 1304,
+
+    [Display(Name = "PermissionType_UpdateCalendarEvent", ResourceType = typeof(EnumResources))]
+    UpdateCalendarEvent = 1305,
+
+    [Display(Name = "PermissionType_DeleteCalendarEvent", ResourceType = typeof(EnumResources))]
+    DeleteCalendarEvent = 1306,
+
+    // Todo items
+    [Display(Name = "PermissionType_ManageTodoItemGroup", ResourceType = typeof(EnumResources))]
+    ManageTodoItemGroup = 1400,
+
+    [Display(Name = "PermissionType_ManageTodoItem", ResourceType = typeof(EnumResources))]
+    ManageTodoItem = 1401,
+
+    [Display(Name = "PermissionType_ListTodoItem", ResourceType = typeof(EnumResources))]
+    ListTodoItem = 1402,
+
+    [Display(Name = "PermissionType_GetTodoItemById", ResourceType = typeof(EnumResources))]
+    GetTodoItemById = 1403,
+
+    [Display(Name = "PermissionType_CreateTodoItem", ResourceType = typeof(EnumResources))]
+    CreateTodoItem = 1404,
+
+    [Display(Name = "PermissionType_UpdateTodoItem", ResourceType = typeof(EnumResources))]
+    UpdateTodoItem = 1405,
+
+    [Display(Name = "PermissionType_DeleteTodoItem", ResourceType = typeof(EnumResources))]
+    DeleteTodoItem = 1406,
+
+    // Work shifts
+    [Display(Name = "PermissionType_ManageWorkShiftGroup", ResourceType = typeof(EnumResources))]
+    ManageWorkShiftGroup = 1500,
+
+    [Display(Name = "PermissionType_ManageWorkShift", ResourceType = typeof(EnumResources))]
+    ManageWorkShift = 1501,
+
+    [Display(Name = "PermissionType_ListWorkShift", ResourceType = typeof(EnumResources))]
+    ListWorkShift = 1502,
+
+    [Display(Name = "PermissionType_GetWorkShiftById", ResourceType = typeof(EnumResources))]
+    GetWorkShiftById = 1503,
+
+    [Display(Name = "PermissionType_CreateWorkShift", ResourceType = typeof(EnumResources))]
+    CreateWorkShift = 1504,
+
+    [Display(Name = "PermissionType_UpdateWorkShift", ResourceType = typeof(EnumResources))]
+    UpdateWorkShift = 1505,
+
+    [Display(Name = "PermissionType_DeleteWorkShift", ResourceType = typeof(EnumResources))]
+    DeleteWorkShift = 1506,
+
+    // Leave balances
+    [Display(Name = "PermissionType_ManageLeaveBalanceGroup", ResourceType = typeof(EnumResources))]
+    ManageLeaveBalanceGroup = 1600,
+
+    [Display(Name = "PermissionType_ManageLeaveBalance", ResourceType = typeof(EnumResources))]
+    ManageLeaveBalance = 1601,
+
+    [Display(Name = "PermissionType_ListLeaveBalance", ResourceType = typeof(EnumResources))]
+    ListLeaveBalance = 1602,
+
+    [Display(Name = "PermissionType_GetLeaveBalanceById", ResourceType = typeof(EnumResources))]
+    GetLeaveBalanceById = 1603,
+
+    [Display(Name = "PermissionType_CreateLeaveBalance", ResourceType = typeof(EnumResources))]
+    CreateLeaveBalance = 1604,
+
+    [Display(Name = "PermissionType_UpdateLeaveBalance", ResourceType = typeof(EnumResources))]
+    UpdateLeaveBalance = 1605,
+
+    [Display(Name = "PermissionType_DeleteLeaveBalance", ResourceType = typeof(EnumResources))]
+    DeleteLeaveBalance = 1606,
+
+    // Backup jobs
+    [Display(Name = "PermissionType_ManageBackupJobGroup", ResourceType = typeof(EnumResources))]
+    ManageBackupJobGroup = 1700,
+
+    [Display(Name = "PermissionType_ManageBackupJob", ResourceType = typeof(EnumResources))]
+    ManageBackupJob = 1701,
+
+    [Display(Name = "PermissionType_ListBackupJob", ResourceType = typeof(EnumResources))]
+    ListBackupJob = 1702,
+
+    [Display(Name = "PermissionType_GetBackupJobById", ResourceType = typeof(EnumResources))]
+    GetBackupJobById = 1703,
+
+    [Display(Name = "PermissionType_CreateBackupJob", ResourceType = typeof(EnumResources))]
+    CreateBackupJob = 1704,
+
+    [Display(Name = "PermissionType_UpdateBackupJob", ResourceType = typeof(EnumResources))]
+    UpdateBackupJob = 1705,
+
+    [Display(Name = "PermissionType_DeleteBackupJob", ResourceType = typeof(EnumResources))]
+    DeleteBackupJob = 1706,
 }

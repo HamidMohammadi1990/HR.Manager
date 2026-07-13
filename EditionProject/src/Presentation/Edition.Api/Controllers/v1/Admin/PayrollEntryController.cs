@@ -57,4 +57,9 @@ public class PayrollEntryController
     [HttpDelete("delete")]
     public async Task<ApiResult<OperationResult>> Delete(DeletePayrollEntryRequest request)
         => await mediator.Send(request);
+
+    [ActionInfo(PermissionType.DownloadPayslip)]
+    [HttpPost("get-payslip-pdf")]
+    public async Task<ApiResult<GetPayrollPayslipPdfResponse>> GetPayslipPdf(GetPayrollPayslipPdfRequest request)
+        => await mediator.Send(request);
 }

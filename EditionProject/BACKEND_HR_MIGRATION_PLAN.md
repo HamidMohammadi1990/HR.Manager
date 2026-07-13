@@ -3,7 +3,7 @@
 > سند برنامه‌ریزی تبدیل بک‌اند Edition (چاپ/فروشگاه) به پلتفرم منابع انسانی  
 > مرتبط با فرانت‌اند: `../javid-hrm-react/PROJECT_PLAN.md`  
 > تاریخ بررسی اولیه: ۱۴۰۴/۰۴/۲۰  
-> **آخرین به‌روزرسانی:** ۱۴۰۴/۰۴/۲۱ — فازهای ۱–۴ HR (Employee, Department, UserRole, Attendance, Leave, Payroll)
+> **آخرین به‌روزرسانی:** ۱۴۰۴/۰۴/۲۲ — ماژول‌های HR کامل (Employee, Department, Attendance, Leave, Payroll) + اعتبارسنجی و workflow
 
 ---
 
@@ -65,12 +65,16 @@ Controller → MediatR (ISender) → Handler → Repository → EditionDbContext
 |--------|--------|
 | Employee / پرسنل | ✅ CRUD کامل — `api/v1/admin/employee/*` |
 | Department | ✅ CRUD کامل — `Company` → `Department` |
-| Attendance | ✅ CRUD پایه — `AttendanceRecord` |
-| Leave | ✅ CRUD پایه — `LeaveRequest` |
-| Payroll | ✅ CRUD پایه — `PayrollEntry` |
+| Attendance | ✅ CRUD + `check-in` / `check-out` + فیلتر بازه تاریخ + اعتبارسنجی |
+| Leave | ✅ CRUD + `approve` / `reject` + اعتبارسنجی تداخل تاریخ |
+| Payroll | ✅ CRUD + `approve` / `mark-paid` + اعتبارسنجی مبالغ + محافظت فیش پرداخت‌شده |
+| UserRole | ✅ تخصیص نقش در API + فرانت |
+| Dashboard آمار | ✅ (فرانت از APIهای موجود aggregate می‌کند) |
 | Notification inbox | ❌ (فقط SMS/Email برای OTP) |
-| Workflow تأیید چندمرحله‌ای | ❌ |
+| Announcement / Todo / Calendar API | ❌ |
+| Workflow تأیید چندمرحله‌ای | ❌ (تأیید تک‌مرحله‌ای در Leave/Payroll موجود است) |
 | WorkShift / LeaveBalance / Payslip PDF | ❌ فاز بعد |
+| EF Migration روی DB محلی | ⚠️ باید توسط توسعه‌دهنده اجرا شود |
 
 ---
 
@@ -320,21 +324,24 @@ Infrastructure.Persistence/SeedData/Data/*.json (محصولات)     → حذف
 
 ## ۶. ➕ ماژول‌های HR
 
-### ۶.۰ پیاده‌سازی‌شده (۱۴۰۴/۰۴/۲۱)
+### ۶.۰ پیاده‌سازی‌شده (۱۴۰۴/۰۴/۲۲)
 
 | Entity | API Admin | وضعیت |
 |--------|-----------|--------|
 | `Employee` | `employee/*` | ✅ Create, Update, Delete, Get, GetAll |
-| `AttendanceRecord` | `attendance-record/*` | ✅ CRUD + join Employee/User/Department |
-| `LeaveRequest` | `leave-request/*` | ✅ CRUD + enum نوع/وضعیت |
-| `PayrollEntry` | `payroll-entry/*` | ✅ CRUD + unique (EmployeeId, Year, Month) |
+| `Department` | `department/*` | ✅ CRUD کامل |
+| `AttendanceRecord` | `attendance-record/*` | ✅ CRUD + `PUT check-in` / `PUT check-out` + `WorkDateFrom`/`WorkDateTo` + یک رکورد/روز + خروج بعد از ورود |
+| `LeaveRequest` | `leave-request/*` | ✅ CRUD + `PUT approve` / `PUT reject` + تداخل بازه + فقط Pending قابل تأیید/رد |
+| `PayrollEntry` | `payroll-entry/*` | ✅ CRUD + `PUT approve` / `PUT mark-paid` + Net=Gross-Deductions + فیش Paid غیرقابل ویرایش/حذف |
 
-**Namespace:** `JavidHrm.*` (پوشه‌ها هنوز `Edition.*`) — `JavidHrmDbContext` با ۱۹+ entity HR
+**پیام‌های خطای فارسی اضافه‌شده:** `OverlappingLeavePeriod`, `LeaveRequestNotPending`, `CheckOutMustBeAfterCheckIn`, `AttendanceAlreadyCheckedIn`, `InvalidPayrollNetAmount`, `PayrollEntryNotDraft`, ...
+
+**Namespace:** `JavidHrm.*` (پوشه‌ها هنوز `Edition.*`) — `JavidHrmDbContext`
 
 **Migration:** کاربر باید locally اجرا کند:
 ```bat
 dotnet ef migrations add HrModulesSchema -p src\Infrastructure\Edition.Infrastructure.Persistence -s src\Presentation\Edition.Api
-dotnet ef database update ...
+dotnet ef database update -p src\Infrastructure\Edition.Infrastructure.Persistence -s src\Presentation\Edition.Api
 ```
 
 ### ۶.۱ ماژول‌های پیشنهادی (فاز بعد — Greenfield)
@@ -388,14 +395,18 @@ TodoItem              — وظایف (اختیاری)
 | `/roles` | `admin/role/*` | ✅ آماده |
 | `/permissions` | `admin/permission/*` | ✅ آماده (enum باید HR شود) |
 | `/settings` | `website-setting/*` | 🔄 تطبیق |
-| `/employees` | `admin/employee/*` | ✅ API + فرانت لیست/ایجاد/ویرایش |
-| `/departments` | `admin/department/*` | ✅ API + فرم create/edit |
+| `/employees` | `admin/employee/*` | ✅ API + فرانت CRUD |
+| `/departments` | `admin/department/*` | ✅ API + فرانت CRUD + آمار از API |
 | `/users/:id` (نقش) | `admin/user-role/*` | ✅ تخصیص/حذف نقش در UI |
-| `/attendance` | `admin/attendance-record/*` | ✅ جدول API (ویجت‌های mock باقی) |
-| `/leaves` | `admin/leave-request/*` | ✅ جدول API |
-| `/payroll` | `admin/payroll-entry/*` | ✅ جدول API |
+| `/attendance` | `admin/attendance-record/*` | ✅ فرانت کامل + check-in/out |
+| `/leaves` | `admin/leave-request/*` | ✅ فرانت کامل + approve/reject |
+| `/payroll` | `admin/payroll-entry/*` | ✅ فرانت کامل + approve/mark-paid |
+| `/` (داشبورد) | aggregate از APIهای HR | ✅ نمودار و آمار واقعی |
 | `/notifications` | — | ❌ باید ساخته شود |
+| `/announcements` | — | ❌ باید ساخته شود |
 | `/calendar` | — | ❌ باید ساخته شود |
+| `/todo` | — | ❌ باید ساخته شود |
+| `/backup` | — | ❌ باید ساخته شود |
 
 ---
 
@@ -452,30 +463,43 @@ TodoItem              — وظایف (اختیاری)
 - [x] فرانت: `/departments/new`, `/departments/:id`
 - [x] UI تخصیص نقش در `UserDetailPage`
 
-### فاز ۵ — Attendance — پایه انجام شده
+### فاز ۵ — Attendance — ✅ انجام شده
 
 - [x] `AttendanceRecord` + CRUD admin
-- [x] جدول API در `/attendance`
-- [ ] `WorkShift`, `AttendancePolicy`, check-in/out real-time
-- [ ] فرم ثبت/ویرایش در فرانت
+- [x] `PUT check-in` / `PUT check-out` (تشخیص تأخیر بعد از ۹:۰۰ ایران)
+- [x] اعتبارسنجی: یک رکورد/روز، خروج بعد از ورود
+- [x] فیلتر `WorkDateFrom` / `WorkDateTo` در get-all
+- [x] فرانت کامل: CRUD، ثبت سریع، آمار، نمودار هفتگی
+- [ ] `WorkShift`, `AttendancePolicy` (فاز بعد)
 
-### فاز ۶ — Leave — پایه انجام شده
+### فاز ۶ — Leave — ✅ انجام شده
 
 - [x] `LeaveRequest` + enum نوع/وضعیت + CRUD
-- [x] جدول API در `/leaves`
-- [ ] `LeaveBalance`, `LeaveApproval`, فرم درخواست متصل به API
+- [x] `PUT approve` / `PUT reject`
+- [x] اعتبارسنجی تداخل بازه مرخصی
+- [x] فرانت کامل: CRUD، فیلتر، pending/upcoming/history
+- [ ] `LeaveBalance`, `LeaveApproval` چندمرحله‌ای (فاز بعد)
 
-### فاز ۷ — Payroll — پایه انجام شده
+### فاز ۷ — Payroll — ✅ انجام شده
 
 - [x] `PayrollEntry` + CRUD
-- [x] جدول API در `/payroll`
-- [ ] محاسبه خودکار، فیش PDF، `ChartOfAccount`
+- [x] `PUT approve` / `PUT mark-paid`
+- [x] اعتبارسنجی Net = Gross − Deductions؛ محافظت فیش Paid
+- [x] فرانت کامل: CRUD، ماشین‌حساب، workflow تأیید/پرداخت
+- [ ] محاسبه خودکار از حضور، فیش PDF، `ChartOfAccount` (فاز بعد)
 
-### فاز ۸ — تکمیلی (۱ هفته)
+### فاز ۸ — Dashboard + تکمیل فرانت — ✅ انجام شده
 
-- [ ] Notification, Announcement, Calendar, Todo
-- [ ] Backup API
-- [ ] گزارش‌گیری و Export
+- [x] داشبورد از APIهای employees, attendance, leaves, payroll, departments
+- [x] حذف mock از صفحات HR اصلی (dashboard, departments, attendance, leaves, payroll)
+- [ ] Notification, Announcement, Calendar, Todo, Backup API + فرانت
+
+### فاز ۹ — تکمیلی (باقی‌مانده)
+
+- [ ] Notification, Announcement, Calendar, Todo, Backup (بک‌اند + فرانت)
+- [ ] گزارش‌گیری و Export Excel/PDF
+- [ ] React Query در فرانت (اختیاری)
+- [ ] تست E2E
 
 ---
 
@@ -563,11 +587,31 @@ SeedData/Data/Extract Code Files/  (کل پوشه)
 
 ## ۱۲. قدم بعدی فوری
 
-1. اجرای **EF migration** برای جداول `Employee`, `AttendanceRecord`, `LeaveRequest`, `PayrollEntry`
-2. تست end-to-end: login → employees → departments → user roles → attendance/leaves/payroll
-3. فرم‌های CRUD فرانت برای attendance/leaves/payroll (فعلاً فقط جدول خواندنی)
-4. حذف mock analytics در صفحات HR یا جایگزینی با API آمار (اختیاری)
-5. بازنویسی کامل `PermissionType` برای منوی HR (فعلاً مقادیر کافی برای build)
+1. ⚠️ اجرای **EF migration** روی دیتابیس محلی (اگر هنوز انجام نشده)
+2. تست end-to-end کامل:
+   - login (`09120000000` / `Admin@123`)
+   - employee → department → user role
+   - attendance check-in/out → leave create/approve → payroll create/approve/mark-paid
+   - dashboard آمار
+3. ساخت API برای: Notification, Announcement, Calendar, Todo, Backup
+4. بازنویسی کامل `PermissionType` برای منوی HR (فعلاً مقادیر کافی برای build)
+5. حذف نهایی دامنه commerce (فاز ۱) در صورت نیاز production
+
+---
+
+## ۱۳. خلاصه وضعیت فعلی (۱۴۰۴/۰۴/۲۲)
+
+| حوزه | انجام شده | باقی‌مانده |
+|------|-----------|------------|
+| Auth + RBAC | ✅ | بازنویسی enum منو |
+| Employee | ✅ | — |
+| Department | ✅ | — |
+| Attendance | ✅ CRUD + check-in/out | WorkShift, Policy |
+| Leave | ✅ CRUD + approve/reject | LeaveBalance, workflow چندمرحله |
+| Payroll | ✅ CRUD + approve/paid | PDF, محاسبه خودکار |
+| Dashboard (فرانت) | ✅ aggregate API | — |
+| Commerce حذف | ~۹۵٪ | تست نهایی + migration |
+| Notification/Todo/... | ❌ | کل ماژول |
 
 ---
 

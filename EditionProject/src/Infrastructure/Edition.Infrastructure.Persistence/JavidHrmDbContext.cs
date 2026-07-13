@@ -12,6 +12,13 @@ public sealed class JavidHrmDbContext(DbContextOptions<JavidHrmDbContext> option
     public DbSet<AttendanceRecord> AttendanceRecord { get; set; }
     public DbSet<LeaveRequest> LeaveRequest { get; set; }
     public DbSet<PayrollEntry> PayrollEntry { get; set; }
+    public DbSet<Notification> Notification { get; set; }
+    public DbSet<Announcement> Announcement { get; set; }
+    public DbSet<CalendarEvent> CalendarEvent { get; set; }
+    public DbSet<TodoItem> TodoItem { get; set; }
+    public DbSet<BackupJob> BackupJob { get; set; }
+    public DbSet<WorkShift> WorkShift { get; set; }
+    public DbSet<LeaveBalance> LeaveBalance { get; set; }
     public DbSet<Permission> Permission { get; set; }
     public DbSet<RefreshToken> RefreshToken { get; set; }
     public DbSet<UserSession> UserSession { get; set; }
