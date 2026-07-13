@@ -34,7 +34,7 @@ public class AnnouncementMapperService : IAnnouncementMapperService
             DepartmentId = model.DepartmentId,
             DepartmentName = department?.Name,
             RoleId = model.RoleId,
-            RoleName = role?.Name,
+            RoleName = role?.Title,
             ScheduledAtUtc = model.ScheduledAtUtc,
             PublishedAtUtc = model.PublishedAtUtc,
             CreatedByUserId = model.CreatedByUserId,
