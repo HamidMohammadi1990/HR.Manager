@@ -22,7 +22,7 @@ public class UpdateLeaveRequestValidator : AbstractValidator<UpdateLeaveRequestR
 
         RuleFor(x => x)
             .Must(request => request.EndDate.Date >= request.StartDate.Date)
-            .WithMessage(MessageKeys.InvalidOperation);
+            .WithMessage(MessageKeys.StartDateMustBeBeforeEndDate);
 
         RuleFor(x => x.Status)
             .IsInEnum()
