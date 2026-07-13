@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Net;
 using System.Text;
 using JavidHrm.Domain.Entities;
 
@@ -5,19 +7,30 @@ namespace JavidHrm.Application.Services.Payroll;
 
 public static class PayslipHtmlGenerator
 {
+    private static readonly CultureInfo FaCulture = CultureInfo.GetCultureInfo("fa-IR");
+
     public static byte[] Generate(
         PayrollEntry payrollEntry,
         string employeeName,
         string employeeCode,
         string departmentName)
     {
-        var issuedAt = DateTime.UtcNow.ToString("yyyy/MM/dd HH:mm");
+        var issuedAt = DateTime.UtcNow.ToString("yyyy/MM/dd HH:mm", CultureInfo.InvariantCulture);
+        var period = $"{payrollEntry.Year}/{payrollEntry.Month:00}";
+        var baseSalary = payrollEntry.BaseSalary.ToString("N0", FaCulture);
+        var grossAmount = payrollEntry.GrossAmount.ToString("N0", FaCulture);
+        var deductions = payrollEntry.Deductions.ToString("N0", FaCulture);
+        var netAmount = payrollEntry.NetAmount.ToString("N0", FaCulture);
+        var notesRow = string.IsNullOrWhiteSpace(payrollEntry.Notes)
+            ? string.Empty
+            : $"<tr><th>یادداشت</th><td>{Encode(payrollEntry.Notes)}</td></tr>";
+
         var html = $"""
             <!DOCTYPE html>
             <html lang="fa" dir="rtl">
             <head>
               <meta charset="utf-8" />
-              <title>فیش حقوقی {employeeCode} - {payrollEntry.Year}/{payrollEntry.Month:D2}</title>
+              <title>فیش حقوقی {Encode(employeeCode)} - {period}</title>
               <style>
                 body {{
                   font-family: Tahoma, 'Segoe UI', sans-serif;
@@ -65,18 +78,16 @@ public static class PayslipHtmlGenerator
             </head>
             <body>
               <h1>فیش حقوقی</h1>
-              <p class="subtitle">دوره: {payrollEntry.Year}/{payrollEntry.Month:D2}</p>
+              <p class="subtitle">دوره: {period}</p>
               <table>
                 <tr><th>نام کارمند</th><td>{Encode(employeeName)}</td></tr>
                 <tr><th>کد پرسنلی</th><td>{Encode(employeeCode)}</td></tr>
                 <tr><th>دپارتمان</th><td>{Encode(departmentName)}</td></tr>
-                <tr><th>حقوق پایه</th><td>{payrollEntry.BaseSalary:N0} ریال</td></tr>
-                <tr><th>ناخالص</th><td>{payrollEntry.GrossAmount:N0} ریال</td></tr>
-                <tr><th>کسورات</th><td>{payrollEntry.Deductions:N0} ریال</td></tr>
-                <tr><th>خالص پرداختی</th><td class="net">{payrollEntry.NetAmount:N0} ریال</td></tr>
-                {(string.IsNullOrWhiteSpace(payrollEntry.Notes)
-                    ? string.Empty
-                    : $"<tr><th>یادداشت</th><td>{Encode(payrollEntry.Notes)}</td></tr>")}
+                <tr><th>حقوق پایه</th><td>{baseSalary} ریال</td></tr>
+                <tr><th>ناخالص</th><td>{grossAmount} ریال</td></tr>
+                <tr><th>کسورات</th><td>{deductions} ریال</td></tr>
+                <tr><th>خالص پرداختی</th><td class="net">{netAmount} ریال</td></tr>
+                {notesRow}
               </table>
               <p class="footer">تاریخ صدور: {issuedAt} — برای ذخیره PDF از Ctrl+P استفاده کنید.</p>
             </body>
@@ -87,5 +98,5 @@ public static class PayslipHtmlGenerator
     }
 
     private static string Encode(string value)
-        => System.Net.WebUtility.HtmlEncode(value);
+        => WebUtility.HtmlEncode(value);
 }
