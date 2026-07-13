@@ -210,11 +210,10 @@ orleans.codegen.cs
 # RIA/Silverlight projects
 Generated_Code/
 
-# Backup & report files from converting an old project file
-# to a newer Visual Studio version. Backup files are not needed,
-# because we have git ;-)
+# Backup folders from converting an old project file (Backup1, Backup2, ...)
+# Do NOT use Backup*/ — it excludes HR module folders like Dtos/BackupJobs and Features/BackupJobs
 _UpgradeReport_Files/
-Backup*/
+Backup[0-9]*/
 UpgradeLog*.XML
 UpgradeLog*.htm
 
