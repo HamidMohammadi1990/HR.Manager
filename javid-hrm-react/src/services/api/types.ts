@@ -325,6 +325,7 @@ export interface CreateAttendanceRecordRequest {
 
 export interface UpdateAttendanceRecordRequest {
   Id: string;
+  EmployeeId: string;
   WorkDate: string;
   CheckInUtc?: string | null;
   CheckOutUtc?: string | null;
@@ -366,6 +367,7 @@ export interface CreateLeaveRequestRequest {
 
 export interface UpdateLeaveRequestRequest {
   Id: string;
+  EmployeeId: string;
   LeaveType: number;
   StartDate: string;
   EndDate: string;
@@ -416,6 +418,9 @@ export interface CreatePayrollEntryRequest {
 
 export interface UpdatePayrollEntryRequest {
   Id: string;
+  EmployeeId: string;
+  Year: number;
+  Month: number;
   BaseSalary: number;
   GrossAmount: number;
   Deductions: number;

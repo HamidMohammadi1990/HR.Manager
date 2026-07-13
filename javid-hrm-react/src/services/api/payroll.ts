@@ -18,6 +18,16 @@ export async function getAllPayrollEntries(
   return result.Data;
 }
 
+export async function getPayrollEntry(id: string): Promise<PayrollEntryDto> {
+  const result = await apiRequest<PayrollEntryDto>('/api/v1/admin/payroll-entry/get', {
+    method: 'POST',
+    body: { Id: id },
+    auth: true,
+  });
+  if (!result.Data) throw new Error('فیش حقوقی یافت نشد');
+  return result.Data;
+}
+
 export async function createPayrollEntry(request: CreatePayrollEntryRequest): Promise<{ Id: string }> {
   const result = await apiRequest<{ Id: string }>('/api/v1/admin/payroll-entry/create', {
     method: 'POST',
@@ -32,6 +42,22 @@ export async function updatePayrollEntry(request: UpdatePayrollEntryRequest): Pr
   await apiRequest('/api/v1/admin/payroll-entry/update', {
     method: 'PUT',
     body: request,
+    auth: true,
+  });
+}
+
+export async function approvePayrollEntry(id: string): Promise<void> {
+  await apiRequest('/api/v1/admin/payroll-entry/approve', {
+    method: 'PUT',
+    body: { Id: id },
+    auth: true,
+  });
+}
+
+export async function markPayrollEntryPaid(id: string): Promise<void> {
+  await apiRequest('/api/v1/admin/payroll-entry/mark-paid', {
+    method: 'PUT',
+    body: { Id: id },
     auth: true,
   });
 }
