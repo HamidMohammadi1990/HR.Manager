@@ -562,4 +562,19 @@
   <data name="PermissionType_ContentPolicy_ValidateRules" xml:space="preserve"><value>Validate Content Policy Rules</value></data>
   <data name="PermissionType_ContentPolicy_Preview" xml:space="preserve"><value>Preview Content Policy</value></data>
   <data name="PermissionType_ContentPolicy_CompareMerge" xml:space="preserve"><value>Compare Content Policy Merge</value></data>
+  <data name="PermissionType_CheckInAttendance" xml:space="preserve"><value>Check In Attendance</value></data>
+  <data name="PermissionType_CheckOutAttendance" xml:space="preserve"><value>Check Out Attendance</value></data>
+  <data name="PermissionType_ApproveLeave" xml:space="preserve"><value>Approve Leave</value></data>
+  <data name="PermissionType_RejectLeave" xml:space="preserve"><value>Reject Leave</value></data>
+  <data name="PermissionType_ApprovePayroll" xml:space="preserve"><value>Approve Payroll</value></data>
+  <data name="PermissionType_MarkPayrollPaid" xml:space="preserve"><value>Mark Payroll Paid</value></data>
+  <data name="PermissionType_GetUnreadNotificationCount" xml:space="preserve"><value>Get Unread Notification Count</value></data>
+  <data name="PermissionType_MarkNotificationRead" xml:space="preserve"><value>Mark Notification Read</value></data>
+  <data name="PermissionType_MarkAllNotificationsRead" xml:space="preserve"><value>Mark All Notifications Read</value></data>
+  <data name="PermissionType_DeleteReadNotifications" xml:space="preserve"><value>Delete Read Notifications</value></data>
+  <data name="PermissionType_PublishAnnouncement" xml:space="preserve"><value>Publish Announcement</value></data>
+  <data name="PermissionType_ArchiveAnnouncement" xml:space="preserve"><value>Archive Announcement</value></data>
+  <data name="PermissionType_ToggleCompleteTodoItem" xml:space="preserve"><value>Toggle Complete Todo Item</value></data>
+  <data name="PermissionType_RunBackupJob" xml:space="preserve"><value>Run Backup Job</value></data>
+  <data name="PermissionType_DownloadBackupJob" xml:space="preserve"><value>Download Backup Job</value></data>
 </root>

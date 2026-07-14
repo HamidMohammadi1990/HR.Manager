@@ -43,12 +43,12 @@ public class LeaveRequestController
     public async Task<ApiResult<OperationResult>> Update(UpdateLeaveRequestRequest request)
         => await mediator.Send(request);
 
-    [ActionInfo(PermissionType.UpdateLeave)]
+    [ActionInfo(PermissionType.ApproveLeave)]
     [HttpPut("approve")]
     public async Task<ApiResult<OperationResult>> Approve(ApproveLeaveRequestRequest request)
         => await mediator.Send(request);
 
-    [ActionInfo(PermissionType.UpdateLeave)]
+    [ActionInfo(PermissionType.RejectLeave)]
     [HttpPut("reject")]
     public async Task<ApiResult<OperationResult>> Reject(RejectLeaveRequestRequest request)
         => await mediator.Send(request);

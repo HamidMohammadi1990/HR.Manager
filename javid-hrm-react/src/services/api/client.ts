@@ -1,4 +1,5 @@
 import type { ApiResult } from './types';
+import { normalizeApiJson, parseApiResult } from './normalizeApiJson';
 import {
   clearTokens,
   getAccessToken,
@@ -43,10 +44,10 @@ async function refreshAccessToken(): Promise<boolean> {
     return false;
   }
 
-  const result = (await response.json()) as ApiResult<{
+  const result = await parseApiResult<{
     AccessToken: string;
     RefreshToken: string;
-  }>;
+  }>(response);
 
   if (!result.IsSuccess || !result.Data) {
     clearTokens();
@@ -95,7 +96,7 @@ export async function apiRequest<T>(
     }
   }
 
-  const result = (await response.json()) as ApiResult<T>;
+  const result = await parseApiResult<T>(response);
 
   if (!result.IsSuccess) {
     const message = result.Messages?.[0]?.Message ?? 'درخواست با خطا مواجه شد';
@@ -175,12 +176,12 @@ export async function apiDownloadBinary(
   const contentType = response.headers.get('Content-Type') ?? '';
 
   if (contentType.includes('application/json')) {
-    const result = (await response.json()) as ApiResult<{
+    const result = normalizeApiJson<ApiResult<{
       PdfBytes?: string;
       FileBytes?: string;
       FileName: string;
       ContentType: string;
-    }>;
+    }>>(await response.json());
     if (!result.IsSuccess || !result.Data) {
       const message = result.Messages?.[0]?.Message ?? 'درخواست با خطا مواجه شد';
       throw new ApiError(message, result.StatusCode, result.Messages ?? []);
@@ -197,7 +198,7 @@ export async function apiDownloadBinary(
 
   if (!response.ok) {
     try {
-      const err = (await response.json()) as ApiResult;
+      const err = normalizeApiJson<ApiResult>(await response.json());
       const message = err.Messages?.[0]?.Message ?? 'درخواست با خطا مواجه شد';
       throw new ApiError(message, response.status, err.Messages ?? []);
     } catch (e) {

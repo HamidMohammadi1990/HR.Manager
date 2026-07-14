@@ -2,6 +2,7 @@
 using JavidHrm.Api.Filters;
 using Newtonsoft.Json.Converters;
 using Microsoft.AspNetCore.Identity;
+using JavidHrm.WebFramework.Routing;
 using JavidHrm.Application.Configurations.SMS;
 using JavidHrm.Application.Configurations.Email;
 using JavidHrm.Application.Configurations.ContentPolicies;
@@ -16,6 +17,7 @@ public static class ServiceCollectionExtensions
         {
             options.Filters.Add<PermissionAuthorizeAttribute>();
             options.Filters.Add<LocalizationResultFilter>();
+            options.Conventions.Add(new ControllerNameRouteConvention());
         }).AddNewtonsoftJson(option =>
         {
             option.SerializerSettings.Converters.Add(new StringEnumConverter());

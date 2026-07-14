@@ -36,12 +36,12 @@ public class BackupJobController(ISender mediator) : BaseApiAdminController
     public async Task<ApiResult<CreateBackupJobResponse>> Create(CreateBackupJobRequest request)
         => await mediator.Send(request);
 
-    [ActionInfo(PermissionType.CreateBackupJob)]
+    [ActionInfo(PermissionType.RunBackupJob)]
     [HttpPost("create-backup")]
     public async Task<ApiResult<CreateBackupResponse>> CreateBackup(CreateBackupRequest request)
         => await mediator.Send(request);
 
-    [ActionInfo(PermissionType.GetBackupJobById)]
+    [ActionInfo(PermissionType.DownloadBackupJob)]
     [HttpPost("download")]
     public async Task<IActionResult> Download(DownloadBackupJobRequest request)
     {

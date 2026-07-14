@@ -43,12 +43,12 @@ public class PayrollEntryController
     public async Task<ApiResult<OperationResult>> Update(UpdatePayrollEntryRequest request)
         => await mediator.Send(request);
 
-    [ActionInfo(PermissionType.UpdatePayroll)]
+    [ActionInfo(PermissionType.ApprovePayroll)]
     [HttpPut("approve")]
     public async Task<ApiResult<OperationResult>> Approve(ApprovePayrollEntryRequest request)
         => await mediator.Send(request);
 
-    [ActionInfo(PermissionType.UpdatePayroll)]
+    [ActionInfo(PermissionType.MarkPayrollPaid)]
     [HttpPut("mark-paid")]
     public async Task<ApiResult<OperationResult>> MarkPaid(MarkPayrollEntryPaidRequest request)
         => await mediator.Send(request);

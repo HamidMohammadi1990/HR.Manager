@@ -417,6 +417,12 @@ public enum PermissionType : int
     [Display(Name = "PermissionType_DeleteAttendance", ResourceType = typeof(EnumResources))]
     DeleteAttendance = 806,
 
+    [Display(Name = "PermissionType_CheckInAttendance", ResourceType = typeof(EnumResources))]
+    CheckInAttendance = 807,
+
+    [Display(Name = "PermissionType_CheckOutAttendance", ResourceType = typeof(EnumResources))]
+    CheckOutAttendance = 808,
+
     // Leaves
     [Display(Name = "PermissionType_ManageLeaveGroup", ResourceType = typeof(EnumResources))]
     ManageLeaveGroup = 900,
@@ -438,6 +444,12 @@ public enum PermissionType : int
 
     [Display(Name = "PermissionType_DeleteLeave", ResourceType = typeof(EnumResources))]
     DeleteLeave = 906,
+
+    [Display(Name = "PermissionType_ApproveLeave", ResourceType = typeof(EnumResources))]
+    ApproveLeave = 907,
+
+    [Display(Name = "PermissionType_RejectLeave", ResourceType = typeof(EnumResources))]
+    RejectLeave = 908,
 
     // Payroll
     [Display(Name = "PermissionType_ManagePayrollGroup", ResourceType = typeof(EnumResources))]
@@ -464,6 +476,12 @@ public enum PermissionType : int
     [Display(Name = "PermissionType_DownloadPayslip", ResourceType = typeof(EnumResources))]
     DownloadPayslip = 1007,
 
+    [Display(Name = "PermissionType_ApprovePayroll", ResourceType = typeof(EnumResources))]
+    ApprovePayroll = 1008,
+
+    [Display(Name = "PermissionType_MarkPayrollPaid", ResourceType = typeof(EnumResources))]
+    MarkPayrollPaid = 1009,
+
     // Notifications
     [Display(Name = "PermissionType_ManageNotificationGroup", ResourceType = typeof(EnumResources))]
     ManageNotificationGroup = 1100,
@@ -486,6 +504,18 @@ public enum PermissionType : int
     [Display(Name = "PermissionType_DeleteNotification", ResourceType = typeof(EnumResources))]
     DeleteNotification = 1106,
 
+    [Display(Name = "PermissionType_GetUnreadNotificationCount", ResourceType = typeof(EnumResources))]
+    GetUnreadNotificationCount = 1107,
+
+    [Display(Name = "PermissionType_MarkNotificationRead", ResourceType = typeof(EnumResources))]
+    MarkNotificationRead = 1108,
+
+    [Display(Name = "PermissionType_MarkAllNotificationsRead", ResourceType = typeof(EnumResources))]
+    MarkAllNotificationsRead = 1109,
+
+    [Display(Name = "PermissionType_DeleteReadNotifications", ResourceType = typeof(EnumResources))]
+    DeleteReadNotifications = 1110,
+
     // Announcements
     [Display(Name = "PermissionType_ManageAnnouncementGroup", ResourceType = typeof(EnumResources))]
     ManageAnnouncementGroup = 1200,
@@ -507,6 +537,12 @@ public enum PermissionType : int
 
     [Display(Name = "PermissionType_DeleteAnnouncement", ResourceType = typeof(EnumResources))]
     DeleteAnnouncement = 1206,
+
+    [Display(Name = "PermissionType_PublishAnnouncement", ResourceType = typeof(EnumResources))]
+    PublishAnnouncement = 1207,
+
+    [Display(Name = "PermissionType_ArchiveAnnouncement", ResourceType = typeof(EnumResources))]
+    ArchiveAnnouncement = 1208,
 
     // Calendar events
     [Display(Name = "PermissionType_ManageCalendarEventGroup", ResourceType = typeof(EnumResources))]
@@ -551,6 +587,9 @@ public enum PermissionType : int
 
     [Display(Name = "PermissionType_DeleteTodoItem", ResourceType = typeof(EnumResources))]
     DeleteTodoItem = 1406,
+
+    [Display(Name = "PermissionType_ToggleCompleteTodoItem", ResourceType = typeof(EnumResources))]
+    ToggleCompleteTodoItem = 1407,
 
     // Work shifts
     [Display(Name = "PermissionType_ManageWorkShiftGroup", ResourceType = typeof(EnumResources))]
@@ -617,4 +656,10 @@ public enum PermissionType : int
 
     [Display(Name = "PermissionType_DeleteBackupJob", ResourceType = typeof(EnumResources))]
     DeleteBackupJob = 1706,
+
+    [Display(Name = "PermissionType_RunBackupJob", ResourceType = typeof(EnumResources))]
+    RunBackupJob = 1707,
+
+    [Display(Name = "PermissionType_DownloadBackupJob", ResourceType = typeof(EnumResources))]
+    DownloadBackupJob = 1708,
 }

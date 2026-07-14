@@ -31,7 +31,7 @@ public class NotificationController(ISender mediator) : BaseApiAdminController
     public async Task<ApiResult<GetNotificationResponse?>> Get(GetNotificationRequest request)
         => await mediator.Send(request);
 
-    [ActionInfo(PermissionType.ListNotification)]
+    [ActionInfo(PermissionType.GetUnreadNotificationCount)]
     [HttpPost("get-unread-count")]
     public async Task<ApiResult<GetUnreadNotificationCountResponse>> GetUnreadCount(GetUnreadNotificationCountRequest request)
         => await mediator.Send(request);
@@ -46,12 +46,12 @@ public class NotificationController(ISender mediator) : BaseApiAdminController
     public async Task<ApiResult<OperationResult>> Update(UpdateNotificationRequest request)
         => await mediator.Send(request);
 
-    [ActionInfo(PermissionType.UpdateNotification)]
+    [ActionInfo(PermissionType.MarkNotificationRead)]
     [HttpPut("mark-read")]
     public async Task<ApiResult<OperationResult>> MarkRead(MarkNotificationReadRequest request)
         => await mediator.Send(request);
 
-    [ActionInfo(PermissionType.UpdateNotification)]
+    [ActionInfo(PermissionType.MarkAllNotificationsRead)]
     [HttpPut("mark-all-read")]
     public async Task<ApiResult<OperationResult>> MarkAllRead(MarkAllNotificationsReadRequest request)
         => await mediator.Send(request);
@@ -61,7 +61,7 @@ public class NotificationController(ISender mediator) : BaseApiAdminController
     public async Task<ApiResult<OperationResult>> Delete(DeleteNotificationRequest request)
         => await mediator.Send(request);
 
-    [ActionInfo(PermissionType.DeleteNotification)]
+    [ActionInfo(PermissionType.DeleteReadNotifications)]
     [HttpDelete("delete-read")]
     public async Task<ApiResult<OperationResult>> DeleteRead(DeleteReadNotificationsRequest request)
         => await mediator.Send(request);

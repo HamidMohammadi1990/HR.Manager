@@ -1040,6 +1040,21 @@
   <data name="PermissionType_ContentPolicy_ValidateRules" xml:space="preserve"><value>اعتبارسنجی قوانین Content Policy</value></data>
   <data name="PermissionType_ContentPolicy_Preview" xml:space="preserve"><value>پیش‌نمایش Content Policy</value></data>
   <data name="PermissionType_ContentPolicy_CompareMerge" xml:space="preserve"><value>مقایسه و ادغام Content Policy</value></data>
+  <data name="PermissionType_CheckInAttendance" xml:space="preserve"><value>ثبت ورود حضور و غیاب</value></data>
+  <data name="PermissionType_CheckOutAttendance" xml:space="preserve"><value>ثبت خروج حضور و غیاب</value></data>
+  <data name="PermissionType_ApproveLeave" xml:space="preserve"><value>تأیید مرخصی</value></data>
+  <data name="PermissionType_RejectLeave" xml:space="preserve"><value>رد مرخصی</value></data>
+  <data name="PermissionType_ApprovePayroll" xml:space="preserve"><value>تأیید حقوق</value></data>
+  <data name="PermissionType_MarkPayrollPaid" xml:space="preserve"><value>علامت‌گذاری حقوق به‌عنوان پرداخت‌شده</value></data>
+  <data name="PermissionType_GetUnreadNotificationCount" xml:space="preserve"><value>دریافت تعداد اعلان‌های خوانده‌نشده</value></data>
+  <data name="PermissionType_MarkNotificationRead" xml:space="preserve"><value>علامت‌گذاری اعلان به‌عنوان خوانده‌شده</value></data>
+  <data name="PermissionType_MarkAllNotificationsRead" xml:space="preserve"><value>علامت‌گذاری همه اعلان‌ها به‌عنوان خوانده‌شده</value></data>
+  <data name="PermissionType_DeleteReadNotifications" xml:space="preserve"><value>حذف اعلان‌های خوانده‌شده</value></data>
+  <data name="PermissionType_PublishAnnouncement" xml:space="preserve"><value>انتشار اعلان</value></data>
+  <data name="PermissionType_ArchiveAnnouncement" xml:space="preserve"><value>بایگانی اعلان</value></data>
+  <data name="PermissionType_ToggleCompleteTodoItem" xml:space="preserve"><value>تغییر وضعیت انجام کار</value></data>
+  <data name="PermissionType_RunBackupJob" xml:space="preserve"><value>اجرای پشتیبان‌گیری</value></data>
+  <data name="PermissionType_DownloadBackupJob" xml:space="preserve"><value>دانلود پشتیبان</value></data>
 
 </root>
 

@@ -41,12 +41,12 @@ public class AnnouncementController(ISender mediator) : BaseApiAdminController
     public async Task<ApiResult<OperationResult>> Update(UpdateAnnouncementRequest request)
         => await mediator.Send(request);
 
-    [ActionInfo(PermissionType.UpdateAnnouncement)]
+    [ActionInfo(PermissionType.PublishAnnouncement)]
     [HttpPut("publish")]
     public async Task<ApiResult<OperationResult>> Publish(PublishAnnouncementRequest request)
         => await mediator.Send(request);
 
-    [ActionInfo(PermissionType.UpdateAnnouncement)]
+    [ActionInfo(PermissionType.ArchiveAnnouncement)]
     [HttpPut("archive")]
     public async Task<ApiResult<OperationResult>> Archive(ArchiveAnnouncementRequest request)
         => await mediator.Send(request);

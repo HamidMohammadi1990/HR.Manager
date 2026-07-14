@@ -41,7 +41,7 @@ public class TodoItemController(ISender mediator) : BaseApiAdminController
     public async Task<ApiResult<OperationResult>> Update(UpdateTodoItemRequest request)
         => await mediator.Send(request);
 
-    [ActionInfo(PermissionType.UpdateTodoItem)]
+    [ActionInfo(PermissionType.ToggleCompleteTodoItem)]
     [HttpPut("toggle-complete")]
     public async Task<ApiResult<OperationResult>> ToggleComplete(ToggleCompleteTodoItemRequest request)
         => await mediator.Send(request);

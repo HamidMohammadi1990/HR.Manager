@@ -178,20 +178,32 @@ public class SeedService(
         var priority = 1;
         foreach (var dynamicPermission in dynamicPermissions)
         {
-            var existsTabPermission = await context.Permission
-                .FirstOrDefaultAsync(x => x.Title == dynamicPermission.Name && x.ParentId == PermissionType.ManageUsersGroup);
+            var groupType = dynamicPermission.Controllers[0].GroupType;
 
-            var tabPermission = existsTabPermission ??
-                Permission.Create(
-                    dynamicPermission.Controllers[0].GroupType,
+            var tabPermission = await context.Permission
+                .Include(x => x.Children)
+                .FirstOrDefaultAsync(x => x.Id == groupType);
+
+            var isNewTab = tabPermission is null;
+
+            if (isNewTab)
+            {
+                var tabParentId = groupType == PermissionType.ManageUsersGroup
+                    ? (PermissionType?)null
+                    : PermissionType.ManageUsersGroup;
+
+                tabPermission = Permission.Create(
+                    groupType,
                     "",
                     dynamicPermission.Name,
                     "",
                     priority,
                     PermissionLevelType.Tab,
-                    PermissionType.ManageUsersGroup);
+                    tabParentId);
+            }
 
-            tabPermission.SetParents([]);
+            if (isNewTab)
+                tabPermission!.SetParents([]);
 
             var versionOfControllers = dynamicPermission.Controllers.GroupBy(x => GetControllerName(x.FullName)).ToList();
             foreach (var controller in versionOfControllers)
@@ -199,7 +211,10 @@ public class SeedService(
                 var actions = controller.ToList().SelectMany(x => x.Actions).DistinctBy(x => new { x.Name, x.Type }).ToList();
                 var firstController = controller.First();
                 var existsPagePermission = await context.Permission
-                    .SingleOrDefaultAsync(x => x.Title == firstController.Name && x.NameSpace == firstController.FullName);
+                    .Include(x => x.Children)
+                    .SingleOrDefaultAsync(x => x.Id == firstController.Type);
+
+                var isNewPage = existsPagePermission is null;
 
                 var pagePermission = existsPagePermission ??
                     Permission.Create(
@@ -211,15 +226,15 @@ public class SeedService(
                         PermissionLevelType.Page,
                         tabPermission.Id);
 
-                pagePermission.SetParents([]);
+                if (isNewPage)
+                    pagePermission.SetParents([]);
 
                 foreach (var action in actions)
                 {
                     if (action.Type == pagePermission.Id)
                         continue;
 
-                    var isExistsAction = await context.Permission.AnyAsync(x =>
-                        x.Title == action.Name && x.NameSpace == action.FullNames.FirstOrDefault());
+                    var isExistsAction = await context.Permission.AnyAsync(x => x.Id == action.Type);
 
                     if (isExistsAction)
                         continue;
@@ -243,13 +258,13 @@ public class SeedService(
                     tabPermission.Children.Add(pagePermission);
             }
 
-            if (existsTabPermission is null)
+            if (isNewTab)
                 context.Permission.Add(tabPermission);
             else
                 context.Permission.Update(tabPermission);
 
             priority++;
-        }
+        }        
 
         await context.SaveChangesAsync();
     }
