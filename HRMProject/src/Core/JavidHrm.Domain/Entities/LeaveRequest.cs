@@ -22,15 +22,18 @@ public class LeaveRequest : BaseEntity
         DateTime endDate,
         LeaveRequestStatus status,
         string reason)
-        => new()
+    {
+        var (normalizedStart, normalizedEnd) = NormalizeDates(leaveType, startDate, endDate);
+        return new()
         {
             EmployeeId = employeeId,
             LeaveType = leaveType,
-            StartDate = startDate.Date,
-            EndDate = endDate.Date,
+            StartDate = normalizedStart,
+            EndDate = normalizedEnd,
             Status = status,
             Reason = reason
         };
+    }
 
     public void Update(
         int employeeId,
@@ -40,13 +43,22 @@ public class LeaveRequest : BaseEntity
         LeaveRequestStatus status,
         string reason)
     {
+        var (normalizedStart, normalizedEnd) = NormalizeDates(leaveType, startDate, endDate);
         EmployeeId = employeeId;
         LeaveType = leaveType;
-        StartDate = startDate.Date;
-        EndDate = endDate.Date;
+        StartDate = normalizedStart;
+        EndDate = normalizedEnd;
         Status = status;
         Reason = reason;
     }
+
+    private static (DateTime Start, DateTime End) NormalizeDates(
+        LeaveType leaveType,
+        DateTime startDate,
+        DateTime endDate)
+        => leaveType == LeaveType.Hourly
+            ? (startDate, endDate)
+            : (startDate.Date, endDate.Date);
 
     public void Approve() => Status = LeaveRequestStatus.Approved;
 

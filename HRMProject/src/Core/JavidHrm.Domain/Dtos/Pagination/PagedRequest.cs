@@ -1,6 +1,6 @@
 ﻿namespace JavidHrm.Domain.Dtos.Pagination;
 
-public abstract record PagedRequest
+public record PagedRequest
 {
     private const int MaxPageSize = 100;
     

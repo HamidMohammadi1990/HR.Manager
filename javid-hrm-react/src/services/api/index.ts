@@ -8,6 +8,7 @@ export * from './permissions';
 export * from './cities';
 export * from './employees';
 export * from './userRoles';
+export * from './rolePermissions';
 export * from './attendance';
 export * from './leaves';
 export * from './payroll';

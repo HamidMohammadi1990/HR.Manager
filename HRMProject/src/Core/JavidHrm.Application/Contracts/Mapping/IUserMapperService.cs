@@ -8,7 +8,7 @@ namespace JavidHrm.Application.Contracts.Mapping;
 
 public interface IUserMapperService : IMapper
 {
-    GetUserResponse Map(User model);
+    GetUserResponse Map(User model, string? cityName = null);
     PagedResult<GetAllUserResponse> Map(PagedResult<GetAllUserDto> model);
     GetAllUserRequestDto Map(GetAllUserRequest model);
     GetForgetPasswordOptionResponse Map(string userName, List<ForgetPasswordOptionDto> options);

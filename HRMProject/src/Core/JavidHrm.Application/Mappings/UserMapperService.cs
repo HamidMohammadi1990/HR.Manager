@@ -24,11 +24,12 @@ public class UserMapperService : IUserMapperService
             PhoneNumber = model.PhoneNumber,
             LoginPermission = model.LoginPermission,
             EmailConfirmed = model.EmailConfirmed,
-            PhoneNumberConfirmed = model.PhoneNumberConfirmed
+            PhoneNumberConfirmed = model.PhoneNumberConfirmed,
+            Search = model.Search
         };
     }
 
-    public GetUserResponse Map(User model)
+    public GetUserResponse Map(User model, string? cityName = null)
     {
         return new GetUserResponse
         {
@@ -40,9 +41,12 @@ public class UserMapperService : IUserMapperService
             LastName = model.LastName,
             PhoneNumber = model.PhoneNumber,
             CityId = model.CityId,
+            CityName = cityName,
             IsActive = model.IsActive,
             LoginPermission = model.LoginPermission,
-            LastLoginDateOnUtc = model.LastLoginDateOnUtc
+            LastLoginDateOnUtc = model.LastLoginDateOnUtc,
+            EmailConfirmed = model.EmailConfirmed,
+            PhoneNumberConfirmed = model.PhoneNumberConfirmed,
         };
     }
 

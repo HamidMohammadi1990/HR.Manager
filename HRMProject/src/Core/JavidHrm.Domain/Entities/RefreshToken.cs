@@ -1,7 +1,9 @@
 ﻿using JavidHrm.Domain.Common;
+using JavidHrm.Domain.ContentPolicies;
 
 namespace JavidHrm.Domain.Entities;
 
+[ExcludeFromContentPolicy]
 public class RefreshToken : BaseEntity<long>
 {
     public string JwtId { get; private set; } = default!;

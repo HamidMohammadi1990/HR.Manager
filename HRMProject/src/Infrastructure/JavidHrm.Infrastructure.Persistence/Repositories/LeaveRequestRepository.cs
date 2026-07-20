@@ -56,17 +56,14 @@ public class LeaveRequestRepository(JavidHrmDbContext context)
         int? excludeLeaveRequestId = null,
         CancellationToken cancellationToken = default)
     {
-        var start = startDate.Date;
-        var end = endDate.Date;
-
         return Context.LeaveRequest.AnyAsync(
             leaveRequest =>
                 leaveRequest.EmployeeId == employeeId &&
                 (excludeLeaveRequestId == null || leaveRequest.Id != excludeLeaveRequestId) &&
                 (leaveRequest.Status == LeaveRequestStatus.Pending ||
                  leaveRequest.Status == LeaveRequestStatus.Approved) &&
-                leaveRequest.StartDate <= end &&
-                leaveRequest.EndDate >= start,
+                leaveRequest.StartDate <= endDate &&
+                leaveRequest.EndDate >= startDate,
             cancellationToken);
     }
 }

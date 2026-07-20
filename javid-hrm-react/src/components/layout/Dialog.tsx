@@ -1,4 +1,11 @@
-import { ReactNode, useEffect, useMemo, useState } from 'react';
+import {
+  cloneElement,
+  isValidElement,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
@@ -14,15 +21,60 @@ interface DialogProps {
   children: ReactNode;
   className?: string;
   id?: string;
+  /** center: content inside overlay (modals). top: quick-access style sibling layout */
+  placement?: 'center' | 'top';
 }
 
-export function Dialog({ open, onClose, children, className, id }: DialogProps) {
+export function Dialog({
+  open,
+  onClose,
+  children,
+  className,
+  id,
+  placement = 'center',
+}: DialogProps) {
+  useEffect(() => {
+    if (!open) return;
+
+    document.body.style.overflow = 'hidden';
+    const handler = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handler);
+
+    return () => {
+      document.removeEventListener('keydown', handler);
+      document.body.style.overflow = '';
+    };
+  }, [open, onClose]);
+
   if (!open) return null;
+
+  const content = (
+    <div
+      className={cn('dialog-content', placement === 'top' && 'relative z-[81]', className)}
+      onClick={(event) => event.stopPropagation()}
+      role="dialog"
+      aria-modal="true"
+    >
+      {children}
+    </div>
+  );
+
+  if (placement === 'top') {
+    return (
+      <div id={id} data-dialog data-state="open" className={cn('dialog', styles.dialogOpen)}>
+        <div data-dialog-overlay className="dialog-overlay" onClick={onClose} role="presentation" />
+        {content}
+      </div>
+    );
+  }
 
   return (
     <div id={id} data-dialog data-state="open" className={cn('dialog', styles.dialogOpen)}>
-      <div data-dialog-overlay className="dialog-overlay" onClick={onClose} role="presentation" />
-      <div className={cn('dialog-content', className)}>{children}</div>
+      <div data-dialog-overlay className="dialog-overlay" onClick={onClose} role="presentation">
+        {content}
+      </div>
     </div>
   );
 }
@@ -58,6 +110,7 @@ export function QuickAccessDialog({ open, onClose }: QuickAccessDialogProps) {
       id="quick-access-dialog"
       open={open}
       onClose={onClose}
+      placement="top"
       className="top-[20%]! max-w-xl translate-y-0! overflow-hidden p-0"
     >
       <div className="flex items-center gap-3 border-b px-4 py-3">
@@ -182,27 +235,70 @@ interface DrawerProps {
   onClose: () => void;
   children: ReactNode;
   id: string;
+  /** panel: side form drawer. sidebar: mobile navigation sidebar */
+  variant?: 'panel' | 'sidebar';
 }
 
-export function Drawer({ open, onClose, children, id }: DrawerProps) {
+export function Drawer({
+  open,
+  onClose,
+  children,
+  id,
+  variant = 'panel',
+}: DrawerProps) {
   useEffect(() => {
     if (!open) return;
+
     document.body.style.overflow = 'hidden';
+    const handler = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handler);
+
     return () => {
+      document.removeEventListener('keydown', handler);
       document.body.style.overflow = '';
     };
-  }, [open]);
+  }, [open, onClose]);
 
   if (!open) return null;
 
+  const backdrop = (
+    <div
+      className={cn(
+        'drawer-backdrop fixed inset-0 bg-black/50 transition-opacity duration-300 opacity-100',
+        variant === 'panel' ? 'z-[79]' : 'z-[59]',
+      )}
+      onClick={onClose}
+      role="presentation"
+    />
+  );
+
+  if (variant === 'sidebar') {
+    if (!isValidElement(children)) {
+      return (
+        <>
+          {backdrop}
+          {children}
+        </>
+      );
+    }
+
+    return (
+      <>
+        {backdrop}
+        {cloneElement(children, {
+          id,
+          'data-state': 'open',
+        } as Record<string, unknown>)}
+      </>
+    );
+  }
+
   return (
     <>
-      <div
-        className="drawer-backdrop fixed inset-0 z-40 bg-black/50 opacity-100"
-        onClick={onClose}
-        role="presentation"
-      />
-      <aside id={id} data-state="open" className="sidebar drawer-right z-50 translate-x-0">
+      {backdrop}
+      <aside id={id} data-state="open" className="drawer drawer-right z-80 flex h-full flex-col">
         {children}
       </aside>
     </>

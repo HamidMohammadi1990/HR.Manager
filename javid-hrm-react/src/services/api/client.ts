@@ -6,6 +6,7 @@ import {
   getRefreshToken,
   setTokens,
 } from './tokenStorage';
+import { handleUnauthorized } from './sessionManager';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '';
 
@@ -89,11 +90,16 @@ export async function apiRequest<T>(
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
 
-  if (response.status === 401 && auth && !skipRefresh) {
-    const refreshed = await ensureRefreshed();
-    if (refreshed) {
-      return apiRequest<T>(path, { ...options, skipRefresh: true });
+  if (response.status === 401 && auth) {
+    if (!skipRefresh) {
+      const refreshed = await ensureRefreshed();
+      if (refreshed) {
+        return apiRequest<T>(path, { ...options, skipRefresh: true });
+      }
     }
+
+    handleUnauthorized();
+    throw new ApiError('نشست شما منقضی شده است. لطفاً دوباره وارد شوید.', 401);
   }
 
   const result = await parseApiResult<T>(response);
@@ -170,7 +176,17 @@ export async function apiDownloadBinary(
   let response = await makeRequest();
   if (response.status === 401) {
     const refreshed = await ensureRefreshed();
-    if (refreshed) response = await makeRequest();
+    if (refreshed) {
+      response = await makeRequest();
+    } else {
+      handleUnauthorized();
+      throw new ApiError('نشست شما منقضی شده است. لطفاً دوباره وارد شوید.', 401);
+    }
+  }
+
+  if (response.status === 401) {
+    handleUnauthorized();
+    throw new ApiError('نشست شما منقضی شده است. لطفاً دوباره وارد شوید.', 401);
   }
 
   const contentType = response.headers.get('Content-Type') ?? '';

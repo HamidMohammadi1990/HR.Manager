@@ -1,8 +1,10 @@
 using JavidHrm.Domain.Common;
+using JavidHrm.Domain.ContentPolicies;
 using JavidHrm.Domain.Enums;
 
 namespace JavidHrm.Domain.Entities;
 
+[ExcludeFromContentPolicy]
 public class UserSession : BaseEntity<Guid>
 {
     public int UserId { get; private set; }

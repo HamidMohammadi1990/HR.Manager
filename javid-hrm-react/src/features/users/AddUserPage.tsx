@@ -4,13 +4,13 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
+import { useToast } from '@/contexts/ToastContext';
+import { GENDER_FEMALE, GENDER_MALE, normalizeGender } from '@/lib/userDisplay';
 import { createUser, getApiErrorMessage, searchCities, type CityDto } from '@/services/api';
-
-const GENDER_MALE = 2;
-const GENDER_FEMALE = 1;
 
 export default function AddUserPage() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [cities, setCities] = useState<CityDto[]>([]);
   const [cityId, setCityId] = useState('');
   const [userName, setUserName] = useState('');
@@ -54,11 +54,14 @@ export default function AddUserPage() {
         Email: email.trim() || null,
         PhoneNumber: phoneNumber.trim(),
         Password: password,
-        Gender: Number(gender),
+        Gender: normalizeGender(gender),
       });
+      toast.success('کاربر جدید با موفقیت ایجاد شد');
       navigate(`/users/${encodeURIComponent(created.Id)}`, { replace: true });
     } catch (err) {
-      setError(getApiErrorMessage(err));
+      const message = getApiErrorMessage(err);
+      setError(message);
+      toast.error(message);
     } finally {
       setIsSaving(false);
     }

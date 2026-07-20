@@ -25,6 +25,17 @@ public class UserRepository
 
         users = users.ApplyQueryFilters(request);
 
+        if (!string.IsNullOrWhiteSpace(request.Search))
+        {
+            var term = request.Search.Trim();
+            users = users.Where(x =>
+                x.user.FirstName.Contains(term)
+                || x.user.LastName.Contains(term)
+                || x.user.UserName.Contains(term)
+                || (x.user.Email != null && x.user.Email.Contains(term))
+                || (x.user.PhoneNumber != null && x.user.PhoneNumber.Contains(term)));
+        }
+
         var result =
             await users
                 .Select(x => new GetAllUserDto

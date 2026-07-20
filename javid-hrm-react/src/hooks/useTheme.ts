@@ -95,5 +95,13 @@ export function useSidebar() {
     setState('expanded');
   };
 
-  return { state, hideSidebar, expandSidebar, isHidden: state === 'hidden' };
+  const toggleSidebar = () => {
+    setState((prev) => {
+      const next = prev === 'hidden' ? 'expanded' : 'hidden';
+      localStorage.setItem(SIDEBAR_KEY, next);
+      return next;
+    });
+  };
+
+  return { state, hideSidebar, expandSidebar, toggleSidebar, isHidden: state === 'hidden' };
 }

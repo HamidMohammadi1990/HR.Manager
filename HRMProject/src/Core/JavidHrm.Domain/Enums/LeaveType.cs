@@ -15,5 +15,8 @@ public enum LeaveType
     Unpaid = 3,
 
     [Display(Name = "LeaveType_Other", ResourceType = typeof(EnumResources))]
-    Other = 4
+    Other = 4,
+
+    [Display(Name = "LeaveType_Hourly", ResourceType = typeof(EnumResources))]
+    Hourly = 5
 }

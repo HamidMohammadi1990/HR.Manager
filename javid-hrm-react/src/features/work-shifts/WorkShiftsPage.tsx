@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Icon } from '@/components/ui/Icon';
+import { TimeRangeField } from '@/components/ui/TimeInput';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Dialog } from '@/components/layout/Dialog';
@@ -271,10 +272,15 @@ export default function WorkShiftsPage() {
           <div className="dialog-body space-y-4">
             {formError && <p className="text-destructive text-sm">{formError}</p>}
             <Input placeholder="نام شیفت" value={createForm.name} onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })} required />
-            <div className="grid grid-cols-2 gap-4">
-              <Input type="time" value={createForm.startTime} onChange={(e) => setCreateForm({ ...createForm, startTime: e.target.value })} required />
-              <Input type="time" value={createForm.endTime} onChange={(e) => setCreateForm({ ...createForm, endTime: e.target.value })} required />
-            </div>
+            <TimeRangeField
+              startValue={createForm.startTime}
+              endValue={createForm.endTime}
+              onStartChange={(value) => setCreateForm({ ...createForm, startTime: value })}
+              onEndChange={(value) => setCreateForm({ ...createForm, endTime: value })}
+              startLabel="شروع شیفت"
+              endLabel="پایان شیفت"
+              required
+            />
             <Input type="number" placeholder="دقیقه استراحت" value={createForm.breakMinutes} onChange={(e) => setCreateForm({ ...createForm, breakMinutes: e.target.value })} />
             <Textarea placeholder="توضیحات" value={createForm.description} onChange={(e) => setCreateForm({ ...createForm, description: e.target.value })} />
           </div>
@@ -293,10 +299,15 @@ export default function WorkShiftsPage() {
           <div className="dialog-body space-y-4">
             {formError && <p className="text-destructive text-sm">{formError}</p>}
             <Input value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} required />
-            <div className="grid grid-cols-2 gap-4">
-              <Input type="time" value={editForm.startTime} onChange={(e) => setEditForm({ ...editForm, startTime: e.target.value })} required />
-              <Input type="time" value={editForm.endTime} onChange={(e) => setEditForm({ ...editForm, endTime: e.target.value })} required />
-            </div>
+            <TimeRangeField
+              startValue={editForm.startTime}
+              endValue={editForm.endTime}
+              onStartChange={(value) => setEditForm({ ...editForm, startTime: value })}
+              onEndChange={(value) => setEditForm({ ...editForm, endTime: value })}
+              startLabel="شروع شیفت"
+              endLabel="پایان شیفت"
+              required
+            />
             <Input type="number" value={editForm.breakMinutes} onChange={(e) => setEditForm({ ...editForm, breakMinutes: e.target.value })} />
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={editForm.isActive} onChange={(e) => setEditForm({ ...editForm, isActive: e.target.checked })} />

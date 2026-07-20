@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
+import { PersianDateInput } from '@/components/ui/PersianDateInput';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import {
@@ -14,6 +15,7 @@ import {
   type EmployeeDto,
   type UserDto,
 } from '@/services/api';
+import { todayGregorianDateString } from '@/lib/persianDateTime';
 
 export default function AddEmployeePage() {
   const navigate = useNavigate();
@@ -25,7 +27,7 @@ export default function AddEmployeePage() {
   const [managerId, setManagerId] = useState('');
   const [employeeCode, setEmployeeCode] = useState('');
   const [jobTitle, setJobTitle] = useState('');
-  const [hireDate, setHireDate] = useState(new Date().toISOString().slice(0, 10));
+  const [hireDate, setHireDate] = useState(todayGregorianDateString());
   const [error, setError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
@@ -130,7 +132,7 @@ export default function AddEmployeePage() {
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">تاریخ استخدام</label>
-                  <Input type="date" dir="ltr" value={hireDate} onChange={(e) => setHireDate(e.target.value)} required />
+                  <PersianDateInput value={hireDate} onChange={setHireDate} required />
                 </div>
               </div>
               <div className="mt-6 flex justify-end">

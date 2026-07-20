@@ -1,5 +1,6 @@
 using FluentValidation;
 using JavidHrm.Common.Localization;
+using JavidHrm.Domain.Enums;
 using JavidHrm.Domain.Repositories;
 using JavidHrm.Application.Common.Validation;
 
@@ -23,7 +24,10 @@ public class UpdateLeaveRequestValidator : AbstractValidator<UpdateLeaveRequestR
         RuleFor(x => x.EndDate).NotEmpty();
 
         RuleFor(x => x)
-            .Must(request => request.EndDate.Date >= request.StartDate.Date)
+            .Must(request =>
+                request.LeaveType == LeaveType.Hourly
+                    ? request.EndDate > request.StartDate
+                    : request.EndDate.Date >= request.StartDate.Date)
             .WithMessage(MessageKeys.StartDateMustBeBeforeEndDate);
 
         RuleFor(x => x.Status)

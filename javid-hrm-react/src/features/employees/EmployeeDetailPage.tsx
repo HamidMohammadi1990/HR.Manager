@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Icon } from '@/components/ui/Icon';
+import { PersianDateInput } from '@/components/ui/PersianDateInput';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Dialog } from '@/components/layout/Dialog';
@@ -18,6 +19,7 @@ import {
   type DepartmentDto,
   type EmployeeDto,
 } from '@/services/api';
+import { isoToGregorianDateString } from '@/lib/persianDateTime';
 
 function getName(emp: EmployeeDto) {
   return [emp.UserFirstName, emp.UserLastName].filter(Boolean).join(' ') || emp.UserName || emp.EmployeeCode;
@@ -62,7 +64,7 @@ export default function EmployeeDetailPage() {
         setManagerId(emp.ManagerId ?? '');
         setEmployeeCode(emp.EmployeeCode);
         setJobTitle(emp.JobTitle);
-        setHireDate(emp.HireDate.slice(0, 10));
+        setHireDate(isoToGregorianDateString(emp.HireDate));
         setIsActive(emp.IsActive);
       } catch (err) {
         if (!cancelled) setError(getApiErrorMessage(err));
@@ -183,7 +185,7 @@ export default function EmployeeDetailPage() {
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">تاریخ استخدام</label>
-                <Input type="date" dir="ltr" value={hireDate} onChange={(e) => setHireDate(e.target.value)} required />
+                <PersianDateInput value={hireDate} onChange={setHireDate} required />
               </div>
               <div className="flex items-center gap-2">
                 <label className="flex items-center gap-2 text-sm">

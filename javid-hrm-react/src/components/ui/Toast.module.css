@@ -1,0 +1,125 @@
+.container {
+  position: fixed;
+  inset-block-start: 1.25rem;
+  inset-inline-start: 50%;
+  z-index: 100;
+  display: flex;
+  width: min(24rem, calc(100vw - 2rem));
+  flex-direction: column;
+  gap: 0.75rem;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  border-radius: 0.875rem;
+  border: 1px solid color-mix(in oklch, var(--border) 80%, transparent);
+  background: color-mix(in oklch, var(--card) 92%, transparent);
+  box-shadow:
+    0 10px 30px color-mix(in oklch, var(--foreground) 12%, transparent),
+    0 2px 8px color-mix(in oklch, var(--foreground) 8%, transparent);
+  backdrop-filter: blur(12px);
+  animation: toast-in 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.toastLeaving {
+  animation: toast-out 0.25s ease forwards;
+}
+
+.iconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+
+.content {
+  min-width: 0;
+  flex: 1;
+  padding-block: 0.125rem;
+}
+
+.title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.message {
+  margin-top: 0.125rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+}
+
+.close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 0;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.close:hover {
+  background: color-mix(in oklch, var(--foreground) 8%, transparent);
+  color: var(--foreground);
+}
+
+.success .iconWrap {
+  background: color-mix(in oklch, var(--color-emerald-500) 16%, transparent);
+  color: var(--color-emerald-600);
+}
+
+.error .iconWrap {
+  background: color-mix(in oklch, var(--destructive) 16%, transparent);
+  color: var(--destructive);
+}
+
+.warning .iconWrap {
+  background: color-mix(in oklch, var(--color-amber-500) 16%, transparent);
+  color: var(--color-amber-600);
+}
+
+.info .iconWrap {
+  background: color-mix(in oklch, var(--primary) 16%, transparent);
+  color: var(--primary);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-0.75rem) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toast-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-0.5rem) scale(0.96);
+  }
+}

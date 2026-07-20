@@ -21,6 +21,8 @@ public record GetAllUserRequest : IRequest<OperationResult<PagedResult<GetAllUse
     public GenderType? Gender { get; init; }
     public bool? IsActive { get; init; }
 
+    public string? Search { get; init; }
+
     [JsonConverter(typeof(CityNullableEncryptor))]
     public int? CityId { get; init; }
 

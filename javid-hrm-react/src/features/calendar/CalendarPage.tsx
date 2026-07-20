@@ -2,6 +2,7 @@ import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
+import { PersianDateTimeField } from '@/components/ui/PersianDateTimeField';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
@@ -9,6 +10,22 @@ import { Drawer } from '@/components/layout/Dialog';
 import { useDrawer } from '@/hooks';
 import { cn } from '@/lib/utils';
 import { CALENDAR_EVENT_TYPE_LABELS } from '@/lib/hrLabels';
+import {
+  addPersianMonths,
+  buildPersianMonthGrid,
+  endOfPersianMonth,
+  formatPersianMonthLabel,
+  getPersianParts,
+  persianToDate,
+  startOfPersianMonth,
+  todayPersian,
+} from '@/lib/persianCalendar';
+import {
+  combineGregorianDateAndTimeToIso,
+  isoToGregorianDateString,
+  isoToTimeString,
+  persianToGregorianDateString,
+} from '@/lib/persianDateTime';
 import {
   createCalendarEvent,
   deleteCalendarEvent,
@@ -21,28 +38,31 @@ import {
 
 const weekDays = ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج'];
 
-function startOfMonth(date: Date) {
-  return new Date(date.getFullYear(), date.getMonth(), 1);
-}
-
-function endOfMonth(date: Date) {
-  return new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59, 999);
-}
-
-function buildMonthGrid(year: number, month: number): (number | null)[] {
-  const firstDay = new Date(year, month, 1);
-  const lastDate = new Date(year, month + 1, 0).getDate();
-  const startWeekday = (firstDay.getDay() + 1) % 7;
-  const cells: (number | null)[] = [];
-  for (let i = 0; i < startWeekday; i += 1) cells.push(null);
-  for (let d = 1; d <= lastDate; d += 1) cells.push(d);
-  while (cells.length % 7 !== 0) cells.push(null);
-  return cells;
-}
-
 function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
 }
+
+interface FormState {
+  title: string;
+  description: string;
+  startDate: string;
+  startTime: string;
+  endDate: string;
+  endTime: string;
+  isAllDay: boolean;
+  eventType: number;
+}
+
+const emptyForm = (): FormState => ({
+  title: '',
+  description: '',
+  startDate: '',
+  startTime: '09:00',
+  endDate: '',
+  endTime: '10:00',
+  isAllDay: false,
+  eventType: CalendarEventType.Meeting,
+});
 
 function eventTypeColor(type: number) {
   if (type === CalendarEventType.Meeting) return 'bg-sky-500';
@@ -59,29 +79,12 @@ function eventTypeBadge(type: number) {
   return 'default' as const;
 }
 
-interface FormState {
-  title: string;
-  description: string;
-  startAt: string;
-  endAt: string;
-  isAllDay: boolean;
-  eventType: number;
-}
-
-const emptyForm = (): FormState => ({
-  title: '',
-  description: '',
-  startAt: '',
-  endAt: '',
-  isAllDay: false,
-  eventType: CalendarEventType.Meeting,
-});
-
 export default function CalendarPage() {
   const eventDrawer = useDrawer();
-  const today = new Date();
-  const [viewDate, setViewDate] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1));
-  const [selectedDay, setSelectedDay] = useState(today.getDate());
+  const initialToday = todayPersian();
+  const [viewYear, setViewYear] = useState(initialToday.year);
+  const [viewMonth, setViewMonth] = useState(initialToday.month);
+  const [selectedDay, setSelectedDay] = useState(initialToday.day);
   const [events, setEvents] = useState<CalendarEventDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -90,18 +93,23 @@ export default function CalendarPage() {
   const [editing, setEditing] = useState<CalendarEventDto | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
 
-  const year = viewDate.getFullYear();
-  const month = viewDate.getMonth();
-  const monthLabel = viewDate.toLocaleDateString('fa-IR', { year: 'numeric', month: 'long' });
-  const calendarDays = useMemo(() => buildMonthGrid(year, month), [year, month]);
+  const monthLabel = useMemo(
+    () => formatPersianMonthLabel(viewYear, viewMonth),
+    [viewYear, viewMonth],
+  );
+  const calendarDays = useMemo(
+    () => buildPersianMonthGrid(viewYear, viewMonth),
+    [viewYear, viewMonth],
+  );
+  const today = todayPersian();
 
   const loadEvents = useCallback(async () => {
     setLoading(true);
     setError('');
     try {
       const result = await getAllCalendarEvents({
-        StartFromUtc: startOfMonth(viewDate).toISOString(),
-        EndToUtc: endOfMonth(viewDate).toISOString(),
+        StartFromUtc: startOfPersianMonth(viewYear, viewMonth).toISOString(),
+        EndToUtc: endOfPersianMonth(viewYear, viewMonth).toISOString(),
         Pagination: { PageNumber: 1, PageSize: 500 },
       });
       setEvents(result.Items ?? []);
@@ -110,7 +118,7 @@ export default function CalendarPage() {
     } finally {
       setLoading(false);
     }
-  }, [viewDate]);
+  }, [viewMonth, viewYear]);
 
   useEffect(() => {
     void loadEvents();
@@ -119,55 +127,60 @@ export default function CalendarPage() {
   const eventsByDay = useMemo(() => {
     const map = new Map<number, CalendarEventDto[]>();
     for (const event of events) {
-      const day = new Date(event.StartAtUtc).getDate();
-      if (new Date(event.StartAtUtc).getMonth() !== month || new Date(event.StartAtUtc).getFullYear() !== year) continue;
-      const list = map.get(day) ?? [];
+      const parts = getPersianParts(new Date(event.StartAtUtc));
+      if (parts.year !== viewYear || parts.month !== viewMonth) continue;
+      const list = map.get(parts.day) ?? [];
       list.push(event);
-      map.set(day, list);
+      map.set(parts.day, list);
     }
     return map;
-  }, [events, month, year]);
+  }, [events, viewMonth, viewYear]);
 
   const selectedDateEvents = useMemo(() => {
-    const selected = new Date(year, month, selectedDay);
     return events
-      .filter((e) => {
-        const d = new Date(e.StartAtUtc);
-        return d.getFullYear() === selected.getFullYear() && d.getMonth() === selected.getMonth() && d.getDate() === selected.getDate();
+      .filter((event) => {
+        const parts = getPersianParts(new Date(event.StartAtUtc));
+        return parts.year === viewYear && parts.month === viewMonth && parts.day === selectedDay;
       })
       .sort((a, b) => new Date(a.StartAtUtc).getTime() - new Date(b.StartAtUtc).getTime());
-  }, [events, month, selectedDay, year]);
+  }, [events, selectedDay, viewMonth, viewYear]);
 
   const todayEvents = useMemo(() => {
-    const now = new Date();
-    if (now.getMonth() !== month || now.getFullYear() !== year) return [];
-    return eventsByDay.get(now.getDate()) ?? [];
-  }, [eventsByDay, month, year]);
+    const now = todayPersian();
+    if (now.year !== viewYear || now.month !== viewMonth) return [];
+    return eventsByDay.get(now.day) ?? [];
+  }, [eventsByDay, viewMonth, viewYear]);
 
   function goPrevMonth() {
-    setViewDate(new Date(year, month - 1, 1));
+    const next = addPersianMonths(viewYear, viewMonth, -1);
+    setViewYear(next.year);
+    setViewMonth(next.month);
     setSelectedDay(1);
   }
 
   function goNextMonth() {
-    setViewDate(new Date(year, month + 1, 1));
+    const next = addPersianMonths(viewYear, viewMonth, 1);
+    setViewYear(next.year);
+    setViewMonth(next.month);
     setSelectedDay(1);
   }
 
   function goToday() {
-    const now = new Date();
-    setViewDate(new Date(now.getFullYear(), now.getMonth(), 1));
-    setSelectedDay(now.getDate());
+    const now = todayPersian();
+    setViewYear(now.year);
+    setViewMonth(now.month);
+    setSelectedDay(now.day);
   }
 
   function openCreate() {
     setEditing(null);
-    const base = new Date(year, month, selectedDay, 9, 0);
-    const end = new Date(year, month, selectedDay, 10, 0);
+    const dateValue = persianToGregorianDateString({ year: viewYear, month: viewMonth, day: selectedDay });
     setForm({
       ...emptyForm(),
-      startAt: base.toISOString().slice(0, 16),
-      endAt: end.toISOString().slice(0, 16),
+      startDate: dateValue,
+      endDate: dateValue,
+      startTime: '09:00',
+      endTime: '10:00',
     });
     setFormError('');
     eventDrawer.open();
@@ -178,8 +191,10 @@ export default function CalendarPage() {
     setForm({
       title: event.Title,
       description: event.Description ?? '',
-      startAt: event.StartAtUtc.slice(0, 16),
-      endAt: event.EndAtUtc.slice(0, 16),
+      startDate: isoToGregorianDateString(event.StartAtUtc),
+      startTime: isoToTimeString(event.StartAtUtc) || '09:00',
+      endDate: isoToGregorianDateString(event.EndAtUtc),
+      endTime: isoToTimeString(event.EndAtUtc) || '10:00',
       isAllDay: event.IsAllDay,
       eventType: event.EventType,
     });
@@ -193,12 +208,18 @@ export default function CalendarPage() {
     setIsSubmitting(true);
     try {
       if (!form.title.trim()) throw new Error('عنوان الزامی است');
-      if (!form.startAt || !form.endAt) throw new Error('زمان شروع و پایان الزامی است');
+      if (!form.startDate || !form.endDate) throw new Error('تاریخ شروع و پایان الزامی است');
       const payload = {
         Title: form.title.trim(),
         Description: form.description.trim() || null,
-        StartAtUtc: new Date(form.startAt).toISOString(),
-        EndAtUtc: new Date(form.endAt).toISOString(),
+        StartAtUtc: combineGregorianDateAndTimeToIso(
+          form.startDate,
+          form.isAllDay ? '00:00' : form.startTime,
+        ),
+        EndAtUtc: combineGregorianDateAndTimeToIso(
+          form.endDate,
+          form.isAllDay ? '23:59' : form.endTime,
+        ),
         IsAllDay: form.isAllDay,
         EventType: form.eventType,
       };
@@ -286,12 +307,15 @@ export default function CalendarPage() {
                       <button key={`empty-${i}`} type="button" className="bg-muted/20 text-muted-foreground aspect-square rounded-xl border text-sm" disabled />
                     ) : (
                       <button
-                        key={`${month}-${day}`}
+                        key={`${viewYear}-${viewMonth}-${day}`}
                         type="button"
                         onClick={() => setSelectedDay(day)}
                         className={cn(
                           'relative aspect-square rounded-xl border text-sm',
                           day === selectedDay ? 'bg-primary/10 border-primary/30 font-semibold' : 'bg-card hover:bg-muted/30',
+                          day === today.day && viewYear === today.year && viewMonth === today.month
+                            ? 'ring-primary/40 ring-2'
+                            : '',
                         )}
                       >
                         {day.toLocaleString('fa-IR')}
@@ -401,15 +425,27 @@ export default function CalendarPage() {
               <label className="label">عنوان</label>
               <Input placeholder="مثلاً: جلسه تیم" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
             </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <label className="label">شروع</label>
-                <Input type="datetime-local" value={form.startAt} onChange={(e) => setForm({ ...form, startAt: e.target.value })} required />
-              </div>
-              <div className="space-y-2">
-                <label className="label">پایان</label>
-                <Input type="datetime-local" value={form.endAt} onChange={(e) => setForm({ ...form, endAt: e.target.value })} required />
-              </div>
+            <div className="grid grid-cols-1 gap-4">
+              <PersianDateTimeField
+                dateLabel="تاریخ شروع"
+                timeLabel="ساعت شروع"
+                dateValue={form.startDate}
+                timeValue={form.startTime}
+                onDateChange={(value) => setForm({ ...form, startDate: value })}
+                onTimeChange={(value) => setForm({ ...form, startTime: value })}
+                showTime={!form.isAllDay}
+                required
+              />
+              <PersianDateTimeField
+                dateLabel="تاریخ پایان"
+                timeLabel="ساعت پایان"
+                dateValue={form.endDate}
+                timeValue={form.endTime}
+                onDateChange={(value) => setForm({ ...form, endDate: value })}
+                onTimeChange={(value) => setForm({ ...form, endTime: value })}
+                showTime={!form.isAllDay}
+                required
+              />
             </div>
             <div className="space-y-2">
               <label className="label">نوع رویداد</label>

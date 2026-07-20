@@ -39,7 +39,7 @@ public sealed class DbContextContentEntityTypeRegistry : IContentEntityTypeRegis
             if (ShouldExclude(clrType))
                 continue;
 
-            if (!typeof(Domain.Common.IEntity<int>).IsAssignableFrom(clrType))
+            if (!ImplementsIContentEntity(clrType))
                 continue;
 
             result[clrType.Name] = clrType;
@@ -47,6 +47,10 @@ public sealed class DbContextContentEntityTypeRegistry : IContentEntityTypeRegis
 
         return result;
     }
+
+    private static bool ImplementsIContentEntity(Type clrType)
+        => clrType.GetInterfaces().Any(i =>
+            i.IsGenericType && i.GetGenericTypeDefinition() == typeof(Domain.Common.IEntity<>));
 
     private static bool ShouldExclude(Type clrType)
     {

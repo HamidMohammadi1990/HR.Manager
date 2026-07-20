@@ -51,7 +51,7 @@ export interface UserDto {
   PhoneNumber?: string | null;
   PhoneNumberConfirmed: boolean;
   LoginPermission: boolean;
-  Gender?: number | null;
+  Gender?: number | string | null;
   IsActive: boolean;
   LastLoginDateOnUtc?: string | null;
   AccessFailedCount: number;
@@ -64,7 +64,12 @@ export interface GetAllUsersRequest {
   FirstName?: string;
   LastName?: string;
   Email?: string;
+  EmailConfirmed?: boolean;
   PhoneNumber?: string;
+  PhoneNumberConfirmed?: boolean;
+  LoginPermission?: boolean;
+  Gender?: number;
+  Search?: string;
   IsActive?: boolean;
   Pagination: PagedRequest;
 }
@@ -166,6 +171,19 @@ export interface UpdateUserRequest {
   IsActive: boolean;
   LoginPermission: boolean;
   Password?: string | null;
+}
+
+export interface UpdateCurrentUserProfileRequest {
+  FirstName: string;
+  LastName: string;
+  PhoneNumber: string;
+  CityId: string;
+  Gender: number;
+}
+
+export interface ChangePasswordRequest {
+  OldPassword: string;
+  NewPassword: string;
 }
 
 export interface GetUserRequest {
@@ -287,6 +305,29 @@ export interface CreateUserRoleRequest {
 }
 
 export interface CreateUserRoleResponse {
+  Id: string;
+}
+
+export interface RolePermissionDto {
+  Id: string;
+  RoleId: string;
+  RoleTitle: string;
+  PermissionId: number | string;
+  PermissionTitle: string;
+}
+
+export interface GetAllRolePermissionsRequest {
+  RoleId?: string;
+  PermissionId?: number | string;
+  Pagination: PagedRequest;
+}
+
+export interface CreateRolePermissionRequest {
+  RoleId: string;
+  PermissionId: number | string;
+}
+
+export interface CreateRolePermissionResponse {
   Id: string;
 }
 

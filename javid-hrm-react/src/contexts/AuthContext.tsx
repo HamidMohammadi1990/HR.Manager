@@ -2,49 +2,79 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from 'react';
 import {
-  getAccessToken,
-  getUserNameFromToken,
+  getCurrentUser,
   hasStoredSession,
   signIn as apiSignIn,
   signOut as apiSignOut,
   type SignInRequest,
+  type UserDto,
 } from '@/services/api';
+import { clearTokens } from '@/services/api/tokenStorage';
+import { getUserDisplayName } from '@/lib/userDisplay';
 
 interface AuthContextValue {
   isAuthenticated: boolean;
+  currentUser: UserDto | null;
   userName?: string;
+  displayName: string;
   isLoading: boolean;
+  isUserLoading: boolean;
   signIn: (request: SignInRequest) => Promise<void>;
   signOut: () => Promise<void>;
+  clearSession: () => void;
+  refreshCurrentUser: () => Promise<UserDto | null>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-function readUserName(): string | undefined {
-  const token = getAccessToken();
-  return token ? getUserNameFromToken(token) : undefined;
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(hasStoredSession);
-  const [userName, setUserName] = useState<string | undefined>(readUserName);
+  const [currentUser, setCurrentUser] = useState<UserDto | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isUserLoading, setIsUserLoading] = useState(hasStoredSession);
+
+  const refreshCurrentUser = useCallback(async (): Promise<UserDto | null> => {
+    if (!hasStoredSession()) {
+      setCurrentUser(null);
+      return null;
+    }
+
+    setIsUserLoading(true);
+    try {
+      const user = await getCurrentUser();
+      setCurrentUser(user);
+      setIsAuthenticated(true);
+      return user;
+    } catch {
+      setCurrentUser(null);
+      return null;
+    } finally {
+      setIsUserLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (hasStoredSession()) {
+      void refreshCurrentUser();
+    }
+  }, [refreshCurrentUser]);
 
   const signIn = useCallback(async (request: SignInRequest) => {
     setIsLoading(true);
     try {
-      const response = await apiSignIn(request);
+      await apiSignIn(request);
       setIsAuthenticated(true);
-      setUserName(getUserNameFromToken(response.AccessToken));
+      await refreshCurrentUser();
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [refreshCurrentUser]);
 
   const signOut = useCallback(async () => {
     setIsLoading(true);
@@ -52,14 +82,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await apiSignOut();
     } finally {
       setIsAuthenticated(false);
-      setUserName(undefined);
+      setCurrentUser(null);
       setIsLoading(false);
     }
   }, []);
 
+  const clearSession = useCallback(() => {
+    clearTokens();
+    setIsAuthenticated(false);
+    setCurrentUser(null);
+    setIsLoading(false);
+    setIsUserLoading(false);
+  }, []);
+
+  const displayName = currentUser ? getUserDisplayName(currentUser) : 'کاربر';
+  const userName = currentUser?.UserName;
+
   const value = useMemo(
-    () => ({ isAuthenticated, userName, isLoading, signIn, signOut }),
-    [isAuthenticated, userName, isLoading, signIn, signOut],
+    () => ({
+      isAuthenticated,
+      currentUser,
+      userName,
+      displayName,
+      isLoading,
+      isUserLoading,
+      signIn,
+      signOut,
+      clearSession,
+      refreshCurrentUser,
+    }),
+    [
+      isAuthenticated,
+      currentUser,
+      userName,
+      displayName,
+      isLoading,
+      isUserLoading,
+      signIn,
+      signOut,
+      clearSession,
+      refreshCurrentUser,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

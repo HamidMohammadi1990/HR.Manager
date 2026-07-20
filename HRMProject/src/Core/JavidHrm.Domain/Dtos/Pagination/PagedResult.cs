@@ -19,6 +19,7 @@ public record PagedResult<T> : PagedResult
             Items = items,
             PageNumber = pagedRequest.PageNumber,
             PageSize = pagedRequest.PageSize,
+            TotalCount = totalCount,
             TotalPages = (int)Math.Ceiling(totalCount / (double)pagedRequest.PageSize)
         };
 
@@ -26,6 +27,7 @@ public record PagedResult<T> : PagedResult
         => new()
         {
             Items = items,
+            TotalCount = pagedResult.TotalCount,
             PageNumber = pagedResult.PageNumber,
             PageSize = pagedResult.PageSize,
             TotalPages = (int)Math.Ceiling(pagedResult.TotalCount / (double)pagedResult.PageSize)

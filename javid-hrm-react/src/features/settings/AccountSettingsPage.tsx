@@ -5,26 +5,32 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
-import { formatDateTime, getUserDisplayName } from '@/lib/userDisplay';
+import {
+  formatDateTime,
+  GENDER_FEMALE,
+  GENDER_MALE,
+  genderSelectValue,
+  getUserDisplayName,
+  normalizeGender,
+} from '@/lib/userDisplay';
+import { useToast } from '@/contexts/ToastContext';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   getApiErrorMessage,
-  getUser,
+  getCurrentUser,
   searchCities,
   updateUser,
   type CityDto,
   type UserDto,
 } from '@/services/api';
-import { getAccessToken, getUserIdFromToken } from '@/services/api/tokenStorage';
-
-const GENDER_MALE = 2;
-const GENDER_FEMALE = 1;
 
 export default function AccountSettingsPage() {
+  const { toast } = useToast();
+  const { refreshCurrentUser } = useAuth();
   const [user, setUser] = useState<UserDto | null>(null);
   const [cities, setCities] = useState<CityDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
   const [firstName, setFirstName] = useState('');
@@ -40,12 +46,8 @@ export default function AccountSettingsPage() {
     setLoading(true);
     setError('');
     try {
-      const token = getAccessToken();
-      const userId = token ? getUserIdFromToken(token) : undefined;
-      if (!userId) throw new Error('کاربر وارد نشده است');
-
       const [userData, cityData] = await Promise.all([
-        getUser({ Id: userId }),
+        getCurrentUser(),
         searchCities({ Pagination: { PageNumber: 1, PageSize: 100 } }),
       ]);
       setUser(userData);
@@ -56,7 +58,7 @@ export default function AccountSettingsPage() {
       setEmail(userData.Email ?? '');
       setPhoneNumber(userData.PhoneNumber ?? '');
       setCityId(userData.CityId ?? '');
-      setGender(String(userData.Gender ?? GENDER_MALE));
+      setGender(genderSelectValue(userData.Gender));
     } catch (err) {
       setError(getApiErrorMessage(err));
     } finally {
@@ -72,7 +74,6 @@ export default function AccountSettingsPage() {
     event.preventDefault();
     if (!user) return;
     setError('');
-    setSuccess('');
     setIsSaving(true);
     try {
       await updateUser({
@@ -83,16 +84,19 @@ export default function AccountSettingsPage() {
         LastName: lastName.trim(),
         Email: email.trim() || null,
         PhoneNumber: phoneNumber.trim(),
-        Gender: Number(gender),
+        Gender: normalizeGender(gender),
         IsActive: user.IsActive,
         LoginPermission: user.LoginPermission,
         Password: password.trim() || null,
       });
       setPassword('');
-      setSuccess('تغییرات با موفقیت ذخیره شد');
+      toast.success('تغییرات با موفقیت ذخیره شد');
       await loadUser();
+      await refreshCurrentUser();
     } catch (err) {
-      setError(getApiErrorMessage(err));
+      const message = getApiErrorMessage(err);
+      setError(message);
+      toast.error(message);
     } finally {
       setIsSaving(false);
     }
@@ -117,9 +121,6 @@ export default function AccountSettingsPage() {
           <form className="space-y-6" onSubmit={(e) => void handleSave(e)}>
             {error && (
               <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</div>
-            )}
-            {success && (
-              <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700">{success}</div>
             )}
 
             <Card>

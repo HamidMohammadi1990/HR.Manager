@@ -5,21 +5,38 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardContent, MetricCard } from '@/components/ui/Card';
 import { Icon } from '@/components/ui/Icon';
 import { Input } from '@/components/ui/Input';
-import { Select } from '@/components/ui/Select';
 import { Dialog } from '@/components/layout/Dialog';
 import { useDisclosure } from '@/hooks';
 import { getAllUsers, getApiErrorMessage, type UserDto } from '@/services/api';
 import { formatDateTime, getUserDisplayName, getUserInitials } from '@/lib/userDisplay';
+import { UserListFiltersCard } from '@/features/users/UserListFiltersCard';
+import {
+  buildGetAllUsersRequest,
+  EMPTY_USER_FILTERS,
+  type UserListFilters,
+} from '@/features/users/userFilters';
 
 export default function UsersPage() {
   const addUserDialog = useDisclosure();
   const deleteDialog = useDisclosure();
+  const advancedFilters = useDisclosure();
   const [users, setUsers] = useState<UserDto[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [pageNumber, setPageNumber] = useState(1);
+  const [filters, setFilters] = useState<UserListFilters>(EMPTY_USER_FILTERS);
+  const [appliedFilters, setAppliedFilters] = useState<UserListFilters>(EMPTY_USER_FILTERS);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const pageSize = 10;
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setAppliedFilters(filters);
+      setPageNumber(1);
+    }, 350);
+
+    return () => window.clearTimeout(timer);
+  }, [filters]);
 
   useEffect(() => {
     let cancelled = false;
@@ -28,9 +45,7 @@ export default function UsersPage() {
       setIsLoading(true);
       setError('');
       try {
-        const result = await getAllUsers({
-          Pagination: { PageNumber: pageNumber, PageSize: pageSize },
-        });
+        const result = await getAllUsers(buildGetAllUsersRequest(appliedFilters, pageNumber, pageSize));
         if (!cancelled) {
           setUsers(result.Items ?? []);
           setTotalCount(result.TotalCount ?? result.Items?.length ?? 0);
@@ -50,7 +65,7 @@ export default function UsersPage() {
     return () => {
       cancelled = true;
     };
-  }, [pageNumber]);
+  }, [pageNumber, appliedFilters]);
 
   const activeCount = users.filter((u) => u.IsActive).length;
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
@@ -107,24 +122,16 @@ export default function UsersPage() {
         </div>
       )}
 
-      <Card className="mb-6">
-        <CardContent>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="relative lg:col-span-2">
-              <Icon
-                name="material-symbols:search"
-                className="text-muted-foreground absolute end-3 top-1/2 size-4 -translate-y-1/2"
-              />
-              <Input type="text" placeholder="جستجوی نام، ایمیل یا شماره تماس..." className="w-full pe-10" />
-            </div>
-            <Select className="w-full" defaultValue="">
-              <option value="">همه وضعیت‌ها</option>
-              <option value="active">فعال</option>
-              <option value="inactive">غیرفعال</option>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
+      <UserListFiltersCard
+        filters={filters}
+        expanded={advancedFilters.isOpen}
+        onToggleExpanded={advancedFilters.toggle}
+        onChange={setFilters}
+        onReset={() => {
+          setFilters(EMPTY_USER_FILTERS);
+          setPageNumber(1);
+        }}
+      />
 
       <Card>
         <CardContent className="p-0">

@@ -13,6 +13,8 @@ import {
   StatCard,
 } from '@/components/ui/Card';
 import { Icon } from '@/components/ui/Icon';
+import { PersianDateInput } from '@/components/ui/PersianDateInput';
+import { TimeRangeField } from '@/components/ui/TimeInput';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Dialog } from '@/components/layout/Dialog';
@@ -30,6 +32,12 @@ import {
   type EmployeeDto,
 } from '@/services/api';
 import { ATTENDANCE_STATUS_LABELS, getPersonName } from '@/lib/hrLabels';
+import {
+  combineGregorianDateAndTimeToIso,
+  isoToGregorianDateString,
+  isoToTimeString,
+  todayGregorianDateString,
+} from '@/lib/persianDateTime';
 
 const ATTENDANCE_STATUS = {
   Present: 1,
@@ -61,24 +69,24 @@ function formatTimeFa(iso?: string | null) {
 }
 
 function toDateInputValue(iso: string) {
-  return new Date(iso).toISOString().slice(0, 10);
+  return isoToGregorianDateString(iso);
 }
 
 function toTimeInputValue(iso?: string | null) {
-  if (!iso) return '';
-  const date = new Date(iso);
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  return `${hours}:${minutes}`;
+  return isoToTimeString(iso);
 }
 
 function todayInputValue() {
-  return new Date().toISOString().slice(0, 10);
+  return todayGregorianDateString();
 }
 
 function combineDateTimeToUtcIso(date: string, time: string): string | null {
   if (!date || !time) return null;
-  return new Date(`${date}T${time}`).toISOString();
+  try {
+    return combineGregorianDateAndTimeToIso(date, time);
+  } catch {
+    return null;
+  }
 }
 
 function isSameCalendarDay(left: Date, rightIso: string) {
@@ -564,21 +572,21 @@ export default function AttendancePage() {
                 </option>
               ))}
             </Select>
-            <Input
-              type="date"
+            <PersianDateInput
               value={dateFrom}
-              onChange={(event) => {
-                setDateFrom(event.target.value);
+              onChange={(value) => {
+                setDateFrom(value);
                 setPageNumber(1);
               }}
+              showTodayButton={false}
             />
-            <Input
-              type="date"
+            <PersianDateInput
               value={dateTo}
-              onChange={(event) => {
-                setDateTo(event.target.value);
+              onChange={(value) => {
+                setDateTo(value);
                 setPageNumber(1);
               }}
+              showTodayButton={false}
             />
           </div>
         </CardContent>
@@ -959,12 +967,11 @@ export default function AttendancePage() {
             </div>
             <div className="space-y-2">
               <label className="label">تاریخ کاری</label>
-              <Input
-                type="date"
+              <PersianDateInput
                 required
                 value={createForm.workDate}
-                onChange={(event) =>
-                  setCreateForm((prev) => ({ ...prev, workDate: event.target.value }))
+                onChange={(value) =>
+                  setCreateForm((prev) => ({ ...prev, workDate: value }))
                 }
               />
             </div>
@@ -984,26 +991,18 @@ export default function AttendancePage() {
               </Select>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="label">ساعت ورود</label>
-                <Input
-                  type="time"
-                  value={createForm.checkInTime}
-                  onChange={(event) =>
-                    setCreateForm((prev) => ({ ...prev, checkInTime: event.target.value }))
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="label">ساعت خروج</label>
-                <Input
-                  type="time"
-                  value={createForm.checkOutTime}
-                  onChange={(event) =>
-                    setCreateForm((prev) => ({ ...prev, checkOutTime: event.target.value }))
-                  }
-                />
-              </div>
+              <TimeRangeField
+                startValue={createForm.checkInTime}
+                endValue={createForm.checkOutTime}
+                onStartChange={(value) =>
+                  setCreateForm((prev) => ({ ...prev, checkInTime: value }))
+                }
+                onEndChange={(value) =>
+                  setCreateForm((prev) => ({ ...prev, checkOutTime: value }))
+                }
+                startLabel="ورود"
+                endLabel="خروج"
+              />
             </div>
           </div>
           <div className="dialog-footer">
@@ -1042,12 +1041,11 @@ export default function AttendancePage() {
             </div>
             <div className="space-y-2">
               <label className="label">تاریخ کاری</label>
-              <Input
-                type="date"
+              <PersianDateInput
                 required
                 value={editForm.workDate}
-                onChange={(event) =>
-                  setEditForm((prev) => ({ ...prev, workDate: event.target.value }))
+                onChange={(value) =>
+                  setEditForm((prev) => ({ ...prev, workDate: value }))
                 }
               />
             </div>
@@ -1067,26 +1065,18 @@ export default function AttendancePage() {
               </Select>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="label">ساعت ورود</label>
-                <Input
-                  type="time"
-                  value={editForm.checkInTime}
-                  onChange={(event) =>
-                    setEditForm((prev) => ({ ...prev, checkInTime: event.target.value }))
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="label">ساعت خروج</label>
-                <Input
-                  type="time"
-                  value={editForm.checkOutTime}
-                  onChange={(event) =>
-                    setEditForm((prev) => ({ ...prev, checkOutTime: event.target.value }))
-                  }
-                />
-              </div>
+              <TimeRangeField
+                startValue={editForm.checkInTime}
+                endValue={editForm.checkOutTime}
+                onStartChange={(value) =>
+                  setEditForm((prev) => ({ ...prev, checkInTime: value }))
+                }
+                onEndChange={(value) =>
+                  setEditForm((prev) => ({ ...prev, checkOutTime: value }))
+                }
+                startLabel="ورود"
+                endLabel="خروج"
+              />
             </div>
           </div>
           <div className="dialog-footer">

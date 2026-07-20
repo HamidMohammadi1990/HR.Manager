@@ -10,11 +10,14 @@ export const ATTENDANCE_STATUS_LABELS: Record<number, string> = {
   4: 'مرخصی',
 };
 
+export const LEAVE_TYPE_HOURLY = 5;
+
 export const LEAVE_TYPE_LABELS: Record<number, string> = {
   1: 'استحقاقی',
   2: 'استعلاجی',
   3: 'بدون حقوق',
   4: 'سایر',
+  5: 'ساعتی',
 };
 
 export const LEAVE_STATUS_LABELS: Record<number, string> = {

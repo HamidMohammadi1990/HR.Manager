@@ -5,31 +5,28 @@ import { Dropdown } from '@/components/ui/Dropdown';
 import { Icon } from '@/components/ui/Icon';
 import { useTheme } from '@/hooks';
 import { useAuth } from '@/contexts/AuthContext';
-import { cn } from '@/lib/utils';
+import { getUserDisplayName, getUserInitials } from '@/lib/userDisplay';
 import {
   getAllNotifications,
   getUnreadNotificationCount,
   markAllNotificationsRead,
 } from '@/services/api/notifications';
 import type { NotificationDto } from '@/services/api/types';
+import { cn } from '@/lib/utils';
 import { formatRelativeTime, getNotificationStyle } from '@/lib/notifications';
 
 interface AppHeaderProps {
   onOpenQuickAccess: () => void;
   onOpenMobileSidebar: () => void;
-  showSidebarExpand?: boolean;
-  onExpandSidebar?: () => void;
 }
 
 export function AppHeader({
   onOpenQuickAccess,
   onOpenMobileSidebar,
-  showSidebarExpand,
-  onExpandSidebar,
 }: AppHeaderProps) {
   const navigate = useNavigate();
   const { toggleTheme } = useTheme();
-  const { userName, signOut } = useAuth();
+  const { currentUser, displayName, isUserLoading, signOut } = useAuth();
   const [openMenu, setOpenMenu] = useState<'user' | 'notifications' | null>(null);
   const [headerItems, setHeaderItems] = useState<NotificationDto[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -68,8 +65,8 @@ export function AppHeader({
     navigate('/login', { replace: true });
   };
 
-  const displayName = userName ?? 'کاربر';
-  const displayInitials = displayName.slice(0, 2);
+  const displayInitials = currentUser ? getUserInitials(currentUser) : displayName.slice(0, 2);
+  const profileSubtitle = currentUser?.Email || currentUser?.UserName || (isUserLoading ? 'در حال بارگذاری...' : '');
 
   const handleMenuChange = (menu: 'user' | 'notifications') => (open: boolean) => {
     setOpenMenu(open ? menu : null);
@@ -88,18 +85,6 @@ export function AppHeader({
           >
             <Icon name="material-symbols:menu" className="size-6" />
           </Button>
-
-          {showSidebarExpand && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hidden lg:block"
-              onClick={onExpandSidebar}
-              aria-label="نمایش نوار کناری"
-            >
-              <Icon name="material-symbols:right-panel-open" className="size-5" />
-            </Button>
-          )}
 
           <button
             type="button"
@@ -137,7 +122,7 @@ export function AppHeader({
                 </div>
                 <div className="hidden text-start sm:block">
                   <p className="text-sm leading-none font-medium">{displayName}</p>
-                  <p className="text-muted-foreground text-xs">{userName ?? ''}</p>
+                  <p className="text-muted-foreground text-xs">{profileSubtitle}</p>
                 </div>
                 <Icon
                   name="material-symbols:keyboard-arrow-down"
@@ -148,7 +133,7 @@ export function AppHeader({
           >
             <div className="bg-muted/30 border-b px-3 py-3">
               <p className="text-sm font-semibold">{displayName}</p>
-              <p className="text-muted-foreground text-xs">{userName ?? ''}</p>
+              <p className="text-muted-foreground text-xs">{profileSubtitle}</p>
             </div>
             <div className="p-1">
               <Link
@@ -167,10 +152,14 @@ export function AppHeader({
                 <Icon name="material-symbols:settings" className="size-4" />
                 <span>تنظیمات</span>
               </Link>
-              <a href="#support" className="dropdown-item py-2">
+              <Link
+                to="/help"
+                className="dropdown-item py-2"
+                onClick={() => setOpenMenu(null)}
+              >
                 <Icon name="material-symbols:help" className="size-4" />
                 <span>راهنما و پشتیبانی</span>
-              </a>
+              </Link>
             </div>
             <div className="border-t p-1">
               <button

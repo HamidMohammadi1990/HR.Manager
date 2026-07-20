@@ -42,6 +42,7 @@ import {
   PAYROLL_STATUS_LABELS,
   getPersonName,
 } from '@/lib/hrLabels';
+import { shortEntityId } from '@/lib/entityId';
 
 ChartJS.register(
   CategoryScale,
@@ -311,7 +312,7 @@ export default function DashboardPage() {
     if (!data) return [];
 
     const leaveRows = data.leaves.map((leave) => ({
-      id: leave.Id.slice(0, 8),
+      id: shortEntityId(leave.Id),
       employee: getPersonName(leave.UserFirstName, leave.UserLastName, leave.EmployeeCode),
       type: 'درخواست مرخصی',
       status: LEAVE_STATUS_LABELS[leave.Status] ?? String(leave.Status),
@@ -325,7 +326,7 @@ export default function DashboardPage() {
     }));
 
     const attendanceRows = data.attendance.map((record) => ({
-      id: record.Id.slice(0, 8),
+      id: shortEntityId(record.Id),
       employee: getPersonName(record.UserFirstName, record.UserLastName, record.EmployeeCode),
       type: 'ثبت حضور',
       status: ATTENDANCE_STATUS_LABELS[record.Status] ?? String(record.Status),
@@ -339,7 +340,7 @@ export default function DashboardPage() {
     }));
 
     const payrollRows = data.payroll.map((entry) => ({
-      id: entry.Id.slice(0, 8),
+      id: shortEntityId(entry.Id),
       employee: getPersonName(entry.UserFirstName, entry.UserLastName, entry.EmployeeCode),
       type: 'فیش حقوقی',
       status: PAYROLL_STATUS_LABELS[entry.Status] ?? String(entry.Status),
@@ -353,7 +354,7 @@ export default function DashboardPage() {
     }));
 
     const employeeRows = data.employees.slice(0, 20).map((emp) => ({
-      id: emp.Id.slice(0, 8),
+      id: shortEntityId(emp.Id),
       employee: personFromEmployee(emp),
       type: emp.IsActive ? 'پرسنل فعال' : 'پرسنل غیرفعال',
       status: emp.IsActive ? 'فعال' : 'غیرفعال',
@@ -600,18 +601,17 @@ export default function DashboardPage() {
               <CardTitle>اقدامات سریع</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-3">
                 {quickActions.map((action) => (
                   <Link
                     key={action.label}
                     to={action.path}
-                    className="button flex h-auto flex-col items-center gap-2 border border-dashed p-3"
-                    data-variant="outline"
+                    className="bg-background hover:bg-muted/50 flex min-h-24 flex-col items-center justify-center gap-2.5 rounded-xl border border-dashed p-3 text-center transition-colors"
                   >
-                    <div className={`flex size-8 items-center justify-center rounded-lg ${action.iconBg}`}>
-                      <Icon name={action.icon} className={`size-4 ${action.iconColor}`} />
+                    <div className={`flex size-10 shrink-0 items-center justify-center rounded-lg ${action.iconBg}`}>
+                      <Icon name={action.icon} className={`size-5 ${action.iconColor}`} />
                     </div>
-                    <span className="text-xs font-medium">{action.label}</span>
+                    <span className="text-xs leading-5 font-medium">{action.label}</span>
                   </Link>
                 ))}
               </div>

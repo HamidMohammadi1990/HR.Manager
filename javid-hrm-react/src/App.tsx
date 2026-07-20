@@ -34,6 +34,7 @@ const ForgotPasswordPage = lazy(() => import('@/features/auth/ForgotPasswordPage
 const ResetPasswordPage = lazy(() => import('@/features/auth/ResetPasswordPage'));
 const LoginOtpPage = lazy(() => import('@/features/auth/LoginOtpPage'));
 const TwoFactorPage = lazy(() => import('@/features/auth/TwoFactorPage'));
+const HelpSupportPage = lazy(() => import('@/features/help/HelpSupportPage'));
 const MaintenancePage = lazy(() => import('@/features/auth/MaintenancePage'));
 
 function PageLoader() {
@@ -82,6 +83,7 @@ export const router = createBrowserRouter([
       { path: 'announcements', element: <SuspensePage><AnnouncementsPage /></SuspensePage> },
       { path: 'todo', element: <SuspensePage><TodoPage /></SuspensePage> },
       { path: 'backup', element: <SuspensePage><BackupPage /></SuspensePage> },
+      { path: 'help', element: <SuspensePage><HelpSupportPage /></SuspensePage> },
     ],
   },
   {

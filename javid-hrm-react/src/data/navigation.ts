@@ -8,32 +8,38 @@ export interface NavItem {
 }
 
 export const mainNavItems: NavItem[] = [
-  { label: 'داشبورد', path: '/', icon: 'material-symbols:home' },
+  { label: 'داشبورد', path: '/', icon: 'material-symbols:space-dashboard' },
   { label: 'تقویم', path: '/calendar', icon: 'material-symbols:calendar-month' },
 ];
 
 export const usersNavItems: NavItem[] = [
-  { label: 'لیست کاربران', path: '/users' },
-  { label: 'کاربر جدید', path: '/users/new' },
-  { label: 'نقش‌ها', path: '/roles' },
-  { label: 'دسترسی‌ها', path: '/permissions' },
+  { label: 'لیست کاربران', path: '/users', icon: 'material-symbols:groups' },
+  { label: 'کاربر جدید', path: '/users/new', icon: 'material-symbols:person-add' },
+  { label: 'نقش‌ها', path: '/roles', icon: 'material-symbols:shield-person' },
+  { label: 'دسترسی‌ها', path: '/permissions', icon: 'material-symbols:lock-person' },
 ];
 
 export const hrNavItems: NavItem[] = [
-  { label: 'کارمندان', path: '/employees' },
-  { label: 'بخش‌ها', path: '/departments' },
-  { label: 'حضور و غیاب', path: '/attendance' },
-  { label: 'مرخصی‌ها', path: '/leaves' },
-  { label: 'موجودی مرخصی', path: '/leave-balances' },
-  { label: 'حقوق و دستمزد', path: '/payroll' },
-  { label: 'شیفت کاری', path: '/work-shifts' },
+  { label: 'کارمندان', path: '/employees', icon: 'material-symbols:badge' },
+  { label: 'بخش‌ها', path: '/departments', icon: 'material-symbols:corporate-fare' },
+  { label: 'حضور و غیاب', path: '/attendance', icon: 'material-symbols:fingerprint' },
+  { label: 'مرخصی‌ها', path: '/leaves', icon: 'material-symbols:beach-access' },
+  { label: 'موجودی مرخصی', path: '/leave-balances', icon: 'material-symbols:hourglass-top' },
+  { label: 'حقوق و دستمزد', path: '/payroll', icon: 'material-symbols:payments' },
+  { label: 'شیفت کاری', path: '/work-shifts', icon: 'material-symbols:work-history' },
 ];
 
 export const toolsNavItems: NavItem[] = [
-  { label: 'لیست کارها', path: '/todo' },
-  { label: 'اطلاعیه‌ها', path: '/announcements' },
-  { label: 'اعلان‌ها', path: '/notifications' },
-  { label: 'پشتیبان‌گیری', path: '/backup' },
+  { label: 'لیست کارها', path: '/todo', icon: 'material-symbols:checklist' },
+  { label: 'اطلاعیه‌ها', path: '/announcements', icon: 'material-symbols:campaign' },
+  { label: 'اعلان‌ها', path: '/notifications', icon: 'material-symbols:notifications' },
+  { label: 'پشتیبان‌گیری', path: '/backup', icon: 'material-symbols:cloud-upload' },
+];
+
+export const accountNavItems: NavItem[] = [
+  { label: 'پروفایل کاربری', path: '/profile', icon: 'material-symbols:account-circle' },
+  { label: 'تنظیمات', path: '/settings', icon: 'material-symbols:settings' },
+  { label: 'راهنما و پشتیبانی', path: '/help', icon: 'material-symbols:support-agent' },
 ];
 
 export const quickAccessActions = [
@@ -76,13 +82,14 @@ export const quickAccessActions = [
 ];
 
 export const quickAccessPages = [
-  { label: 'داشبورد', path: '/', icon: 'material-symbols:home' },
+  { label: 'داشبورد', path: '/', icon: 'material-symbols:space-dashboard' },
   { label: 'کارمندان', path: '/employees', icon: 'material-symbols:badge' },
-  { label: 'حضور و غیاب', path: '/attendance', icon: 'material-symbols:schedule' },
-  { label: 'مرخصی‌ها', path: '/leaves', icon: 'material-symbols:event-note' },
+  { label: 'حضور و غیاب', path: '/attendance', icon: 'material-symbols:fingerprint' },
+  { label: 'مرخصی‌ها', path: '/leaves', icon: 'material-symbols:beach-access' },
   { label: 'حقوق و دستمزد', path: '/payroll', icon: 'material-symbols:payments' },
-  { label: 'کاربران', path: '/users', icon: 'material-symbols:group' },
+  { label: 'کاربران', path: '/users', icon: 'material-symbols:groups' },
   { label: 'تنظیمات', path: '/settings', icon: 'material-symbols:settings' },
+  { label: 'راهنما', path: '/help', icon: 'material-symbols:support-agent' },
 ];
 
 export interface NotificationItem {
@@ -162,6 +169,7 @@ export function buildBreadcrumbs(path: string): BreadcrumbItem[] {
     '/backup': 'پشتیبان‌گیری',
     '/profile': 'پروفایل',
     '/account-settings': 'تنظیمات حساب',
+    '/help': 'راهنما و پشتیبانی',
   };
   const label = map[path];
   return label ? [{ label }] : [];

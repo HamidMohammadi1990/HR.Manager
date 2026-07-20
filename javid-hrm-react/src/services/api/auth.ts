@@ -1,6 +1,49 @@
 import { apiRequest } from './client';
-import type { SignInRequest, SignInResponse } from './types';
+import type {
+  ChangePasswordRequest,
+  SignInRequest,
+  SignInResponse,
+  UpdateCurrentUserProfileRequest,
+  UserDto,
+} from './types';
 import { clearTokens, setTokens } from './tokenStorage';
+
+export async function getCurrentUser(): Promise<UserDto> {
+  const result = await apiRequest<UserDto>('/api/v1/account/current-user', {
+    method: 'POST',
+    auth: true,
+  });
+
+  if (!result.Data) {
+    throw new Error('اطلاعات کاربر یافت نشد');
+  }
+
+  return result.Data;
+}
+
+export async function updateCurrentUserProfile(
+  request: UpdateCurrentUserProfileRequest,
+): Promise<void> {
+  await apiRequest('/api/v1/account/update-profile', {
+    method: 'PUT',
+    body: request,
+    auth: true,
+  });
+}
+
+export async function changePassword(request: ChangePasswordRequest): Promise<void> {
+  const result = await apiRequest<SignInResponse>('/api/v1/account/change-password', {
+    method: 'POST',
+    body: request,
+    auth: true,
+  });
+
+  if (!result.Data) {
+    throw new Error('تغییر رمز عبور ناموفق بود');
+  }
+
+  setTokens(result.Data.AccessToken, result.Data.RefreshToken);
+}
 
 export async function signIn(request: SignInRequest): Promise<SignInResponse> {
   const result = await apiRequest<SignInResponse>('/api/v1/account/sign-in', {

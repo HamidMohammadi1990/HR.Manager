@@ -14,9 +14,10 @@ public record GetAllUserRequestDto
     [QueryFilter(MemberPath = "user.LastName", Operator = FilterOperator.Contains)]
     public string? LastName { get; init; }
 
+    [QueryFilter(MemberPath = "user.Email", Operator = FilterOperator.Contains)]
     public string? Email { get; init; }
 
-    [QueryFilter(MemberPath = "user.PhoneNumber")]
+    [QueryFilter(MemberPath = "user.PhoneNumber", Operator = FilterOperator.Contains)]
     public string? PhoneNumber { get; init; }
 
     [QueryFilter(MemberPath = "user.EmailConfirmed")]
@@ -33,6 +34,8 @@ public record GetAllUserRequestDto
 
     [QueryFilter(MemberPath = "user.IsActive")]
     public bool? IsActive { get; init; }
+
+    public string? Search { get; init; }
 
     [QueryFilter(MemberPath = "user.CityId")]
     public int? CityId { get; init; }

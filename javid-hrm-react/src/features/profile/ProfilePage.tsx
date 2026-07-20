@@ -7,22 +7,30 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Dialog } from '@/components/layout/Dialog';
 import { useDisclosure } from '@/hooks';
-import { formatDateTime, getUserDisplayName, getUserInitials } from '@/lib/userDisplay';
+import { useToast } from '@/contexts/ToastContext';
+import {
+  formatDateTime,
+  GENDER_FEMALE,
+  GENDER_MALE,
+  genderSelectValue,
+  getUserDisplayName,
+  getUserInitials,
+  normalizeGender,
+} from '@/lib/userDisplay';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   getApiErrorMessage,
-  getUser,
+  getCurrentUser,
   searchCities,
   updateUser,
   type CityDto,
   type UserDto,
 } from '@/services/api';
-import { getAccessToken, getUserIdFromToken } from '@/services/api/tokenStorage';
-
-const GENDER_MALE = 2;
-const GENDER_FEMALE = 1;
 
 export default function ProfilePage() {
   const editDialog = useDisclosure();
+  const { toast } = useToast();
+  const { refreshCurrentUser } = useAuth();
   const [user, setUser] = useState<UserDto | null>(null);
   const [cities, setCities] = useState<CityDto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,12 +50,8 @@ export default function ProfilePage() {
     setLoading(true);
     setError('');
     try {
-      const token = getAccessToken();
-      const userId = token ? getUserIdFromToken(token) : undefined;
-      if (!userId) throw new Error('کاربر وارد نشده است');
-
       const [userData, cityData] = await Promise.all([
-        getUser({ Id: userId }),
+        getCurrentUser(),
         searchCities({ Pagination: { PageNumber: 1, PageSize: 100 } }),
       ]);
       setUser(userData);
@@ -58,7 +62,7 @@ export default function ProfilePage() {
       setEmail(userData.Email ?? '');
       setPhoneNumber(userData.PhoneNumber ?? '');
       setCityId(userData.CityId ?? '');
-      setGender(String(userData.Gender ?? GENDER_MALE));
+      setGender(genderSelectValue(userData.Gender));
     } catch (err) {
       setError(getApiErrorMessage(err));
     } finally {
@@ -84,14 +88,18 @@ export default function ProfilePage() {
         LastName: lastName.trim(),
         Email: email.trim() || null,
         PhoneNumber: phoneNumber.trim(),
-        Gender: Number(gender),
+        Gender: normalizeGender(gender),
         IsActive: user.IsActive,
         LoginPermission: user.LoginPermission,
       });
       editDialog.close();
       await loadUser();
+      await refreshCurrentUser();
+      toast.success('پروفایل با موفقیت به‌روزرسانی شد');
     } catch (err) {
-      setFormError(getApiErrorMessage(err));
+      const message = getApiErrorMessage(err);
+      setFormError(message);
+      toast.error(message);
     } finally {
       setIsSaving(false);
     }

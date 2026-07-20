@@ -13,6 +13,8 @@ import {
   StatCard,
 } from '@/components/ui/Card';
 import { Icon } from '@/components/ui/Icon';
+import { PersianDateRangeField } from '@/components/ui/PersianDateRangeField';
+import { PersianHourlyLeaveField } from '@/components/ui/PersianHourlyLeaveField';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
@@ -30,7 +32,12 @@ import {
   type EmployeeDto,
   type LeaveRequestDto,
 } from '@/services/api';
-import { LEAVE_STATUS_LABELS, LEAVE_TYPE_LABELS, getPersonName } from '@/lib/hrLabels';
+import { LEAVE_STATUS_LABELS, LEAVE_TYPE_HOURLY, LEAVE_TYPE_LABELS, getPersonName } from '@/lib/hrLabels';
+import {
+  combineGregorianDateAndTimeToIso,
+  isoToGregorianDateString,
+  isoToTimeString,
+} from '@/lib/persianDateTime';
 
 const LEAVE_STATUS = { Pending: 1, Approved: 2, Rejected: 3 } as const;
 const PAGE_SIZE = 10;
@@ -45,22 +52,50 @@ function getInitials(name: string) {
   return name.slice(0, 2) || '—';
 }
 
+function isHourlyLeaveType(leaveType: number) {
+  return leaveType === LEAVE_TYPE_HOURLY;
+}
+
 function leaveDurationDays(start: string, end: string) {
   const startDate = new Date(start);
   const endDate = new Date(end);
   return Math.floor((endDate.getTime() - startDate.getTime()) / 86_400_000) + 1;
 }
 
+function leaveDurationHours(start: string, end: string) {
+  const diffMs = new Date(end).getTime() - new Date(start).getTime();
+  if (diffMs <= 0) return 0;
+  const totalMinutes = Math.round(diffMs / 60_000);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  if (minutes === 0) return `${hours} ساعت`;
+  return `${hours} ساعت و ${minutes} دقیقه`;
+}
+
+function formatLeaveDuration(request: Pick<LeaveRequestDto, 'LeaveType' | 'StartDate' | 'EndDate'>) {
+  if (isHourlyLeaveType(request.LeaveType)) {
+    return leaveDurationHours(request.StartDate, request.EndDate);
+  }
+  return `${leaveDurationDays(request.StartDate, request.EndDate)} روز`;
+}
+
 function formatDateFa(iso: string) {
   return new Date(iso).toLocaleDateString('fa-IR');
 }
 
-function formatDateRange(start: string, end: string) {
+function formatTimeFa(iso: string) {
+  return new Date(iso).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
+}
+
+function formatDateRange(start: string, end: string, leaveType?: number) {
+  if (leaveType !== undefined && isHourlyLeaveType(leaveType)) {
+    return `${formatDateFa(start)} • ${formatTimeFa(start)} – ${formatTimeFa(end)}`;
+  }
   return `${formatDateFa(start)} – ${formatDateFa(end)}`;
 }
 
 function toDateInputValue(iso: string) {
-  return new Date(iso).toISOString().slice(0, 10);
+  return isoToGregorianDateString(iso);
 }
 
 function statusBadgeVariant(status: number) {
@@ -79,6 +114,8 @@ interface LeaveFormState {
   leaveType: number;
   startDate: string;
   endDate: string;
+  startTime: string;
+  endTime: string;
   status: number;
   reason: string;
 }
@@ -88,9 +125,44 @@ const emptyCreateForm = (): LeaveFormState => ({
   leaveType: 1,
   startDate: '',
   endDate: '',
+  startTime: '09:00',
+  endTime: '10:00',
   status: LEAVE_STATUS.Pending,
   reason: '',
 });
+
+function buildLeavePayloadDates(form: LeaveFormState) {
+  if (isHourlyLeaveType(form.leaveType)) {
+    if (!form.startDate) throw new Error('تاریخ الزامی است');
+    if (!form.startTime || !form.endTime) throw new Error('ساعت شروع و پایان الزامی است');
+
+    const startDate = combineGregorianDateAndTimeToIso(form.startDate, form.startTime);
+    const endDate = combineGregorianDateAndTimeToIso(form.startDate, form.endTime);
+    if (new Date(endDate) <= new Date(startDate)) {
+      throw new Error('ساعت پایان باید بعد از ساعت شروع باشد');
+    }
+    return { startDate, endDate };
+  }
+
+  if (!form.startDate || !form.endDate) throw new Error('تاریخ شروع و پایان الزامی است');
+  return { startDate: form.startDate, endDate: form.endDate };
+}
+
+function handleLeaveTypeChange(
+  prev: LeaveFormState,
+  leaveType: number,
+): LeaveFormState {
+  if (isHourlyLeaveType(leaveType)) {
+    return {
+      ...prev,
+      leaveType,
+      endDate: prev.startDate,
+      startTime: prev.startTime || '09:00',
+      endTime: prev.endTime || '10:00',
+    };
+  }
+  return { ...prev, leaveType };
+}
 
 export default function LeavesPage() {
   const createDialog = useDisclosure();
@@ -226,14 +298,15 @@ export default function LeavesPage() {
     setIsSubmitting(true);
     try {
       if (!createForm.employeeId) throw new Error('کارمند را انتخاب کنید');
-      if (!createForm.startDate || !createForm.endDate) throw new Error('تاریخ شروع و پایان الزامی است');
       if (!createForm.reason.trim()) throw new Error('دلیل مرخصی الزامی است');
+
+      const { startDate, endDate } = buildLeavePayloadDates(createForm);
 
       await createLeaveRequest({
         EmployeeId: createForm.employeeId,
         LeaveType: createForm.leaveType,
-        StartDate: createForm.startDate,
-        EndDate: createForm.endDate,
+        StartDate: startDate,
+        EndDate: endDate,
         Reason: createForm.reason.trim(),
       });
 
@@ -254,6 +327,8 @@ export default function LeavesPage() {
       leaveType: request.LeaveType,
       startDate: toDateInputValue(request.StartDate),
       endDate: toDateInputValue(request.EndDate),
+      startTime: isoToTimeString(request.StartDate) || '09:00',
+      endTime: isoToTimeString(request.EndDate) || '10:00',
       status: request.Status,
       reason: request.Reason ?? '',
     });
@@ -280,12 +355,14 @@ export default function LeavesPage() {
     try {
       if (!editForm.reason.trim()) throw new Error('دلیل مرخصی الزامی است');
 
+      const { startDate, endDate } = buildLeavePayloadDates(editForm);
+
       await updateLeaveRequest({
         Id: selectedLeave.Id,
         EmployeeId: editForm.employeeId,
         LeaveType: editForm.leaveType,
-        StartDate: editForm.startDate,
-        EndDate: editForm.endDate,
+        StartDate: startDate,
+        EndDate: endDate,
         Status: editForm.status,
         Reason: editForm.reason.trim(),
       });
@@ -493,10 +570,10 @@ export default function LeavesPage() {
                           {LEAVE_TYPE_LABELS[request.LeaveType] ?? request.LeaveType}
                         </td>
                         <td className="table-cell text-sm">
-                          {formatDateRange(request.StartDate, request.EndDate)}
+                          {formatDateRange(request.StartDate, request.EndDate, request.LeaveType)}
                         </td>
                         <td className="table-cell text-sm">
-                          {leaveDurationDays(request.StartDate, request.EndDate)} روز
+                          {formatLeaveDuration(request)}
                         </td>
                         <td className="table-cell">
                           <Badge variant={statusBadgeVariant(request.Status)}>
@@ -637,13 +714,13 @@ export default function LeavesPage() {
                           <div>
                             <div className="text-muted-foreground text-xs">تاریخ</div>
                             <div className="text-sm font-medium">
-                              {formatDateRange(request.StartDate, request.EndDate)}
+                              {formatDateRange(request.StartDate, request.EndDate, request.LeaveType)}
                             </div>
                           </div>
                           <div>
                             <div className="text-muted-foreground text-xs">مدت</div>
                             <div className="text-sm font-medium">
-                              {leaveDurationDays(request.StartDate, request.EndDate)} روز
+                              {formatLeaveDuration(request)}
                             </div>
                           </div>
                         </div>
@@ -715,7 +792,7 @@ export default function LeavesPage() {
                           </div>
                         </div>
                         <div className="text-muted-foreground text-sm">
-                          {formatDateRange(request.StartDate, request.EndDate)}
+                          {formatDateRange(request.StartDate, request.EndDate, request.LeaveType)}
                         </div>
                       </div>
                     );
@@ -761,13 +838,19 @@ export default function LeavesPage() {
                 label="میانگین مدت"
                 value={
                   statsItems.length > 0
-                    ? `${Math.round(
-                        statsItems.reduce(
-                          (sum, item) =>
-                            sum + leaveDurationDays(item.StartDate, item.EndDate),
-                          0,
-                        ) / statsItems.length,
-                      )} روز`
+                    ? (() => {
+                        const dailyItems = statsItems.filter(
+                          (item) => !isHourlyLeaveType(item.LeaveType),
+                        );
+                        if (dailyItems.length === 0) return '—';
+                        return `${Math.round(
+                          dailyItems.reduce(
+                            (sum, item) =>
+                              sum + leaveDurationDays(item.StartDate, item.EndDate),
+                            0,
+                          ) / dailyItems.length,
+                        )} روز`;
+                      })()
                     : '—'
                 }
               />
@@ -819,10 +902,10 @@ export default function LeavesPage() {
                           {LEAVE_TYPE_LABELS[request.LeaveType]}
                         </td>
                         <td className="table-cell text-sm">
-                          {formatDateRange(request.StartDate, request.EndDate)}
+                          {formatDateRange(request.StartDate, request.EndDate, request.LeaveType)}
                         </td>
                         <td className="table-cell text-sm">
-                          {leaveDurationDays(request.StartDate, request.EndDate)} روز
+                          {formatLeaveDuration(request)}
                         </td>
                         <td className="table-cell">
                           <Badge variant={statusBadgeVariant(request.Status)}>
@@ -877,7 +960,9 @@ export default function LeavesPage() {
               <Select
                 value={String(createForm.leaveType)}
                 onChange={(event) =>
-                  setCreateForm((prev) => ({ ...prev, leaveType: Number(event.target.value) }))
+                  setCreateForm((prev) =>
+                    handleLeaveTypeChange(prev, Number(event.target.value)),
+                  )
                 }
               >
                 {Object.entries(LEAVE_TYPE_LABELS).map(([value, label]) => (
@@ -887,30 +972,33 @@ export default function LeavesPage() {
                 ))}
               </Select>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="label">از تاریخ</label>
-                <Input
-                  type="date"
-                  required
-                  value={createForm.startDate}
-                  onChange={(event) =>
-                    setCreateForm((prev) => ({ ...prev, startDate: event.target.value }))
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="label">تا تاریخ</label>
-                <Input
-                  type="date"
-                  required
-                  value={createForm.endDate}
-                  onChange={(event) =>
-                    setCreateForm((prev) => ({ ...prev, endDate: event.target.value }))
-                  }
-                />
-              </div>
-            </div>
+            {isHourlyLeaveType(createForm.leaveType) ? (
+              <PersianHourlyLeaveField
+                date={createForm.startDate}
+                startTime={createForm.startTime}
+                endTime={createForm.endTime}
+                onDateChange={(value) =>
+                  setCreateForm((prev) => ({ ...prev, startDate: value, endDate: value }))
+                }
+                onStartTimeChange={(value) =>
+                  setCreateForm((prev) => ({ ...prev, startTime: value }))
+                }
+                onEndTimeChange={(value) =>
+                  setCreateForm((prev) => ({ ...prev, endTime: value }))
+                }
+                required
+              />
+            ) : (
+              <PersianDateRangeField
+                startDate={createForm.startDate}
+                endDate={createForm.endDate}
+                onChange={(startDate, endDate) =>
+                  setCreateForm((prev) => ({ ...prev, startDate, endDate }))
+                }
+                label="بازه مرخصی"
+                required
+              />
+            )}
             <div className="space-y-2">
               <label className="label">دلیل</label>
               <Textarea
@@ -967,7 +1055,9 @@ export default function LeavesPage() {
               <Select
                 value={String(editForm.leaveType)}
                 onChange={(event) =>
-                  setEditForm((prev) => ({ ...prev, leaveType: Number(event.target.value) }))
+                  setEditForm((prev) =>
+                    handleLeaveTypeChange(prev, Number(event.target.value)),
+                  )
                 }
               >
                 {Object.entries(LEAVE_TYPE_LABELS).map(([value, label]) => (
@@ -977,30 +1067,33 @@ export default function LeavesPage() {
                 ))}
               </Select>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="label">از تاریخ</label>
-                <Input
-                  type="date"
-                  required
-                  value={editForm.startDate}
-                  onChange={(event) =>
-                    setEditForm((prev) => ({ ...prev, startDate: event.target.value }))
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="label">تا تاریخ</label>
-                <Input
-                  type="date"
-                  required
-                  value={editForm.endDate}
-                  onChange={(event) =>
-                    setEditForm((prev) => ({ ...prev, endDate: event.target.value }))
-                  }
-                />
-              </div>
-            </div>
+            {isHourlyLeaveType(editForm.leaveType) ? (
+              <PersianHourlyLeaveField
+                date={editForm.startDate}
+                startTime={editForm.startTime}
+                endTime={editForm.endTime}
+                onDateChange={(value) =>
+                  setEditForm((prev) => ({ ...prev, startDate: value, endDate: value }))
+                }
+                onStartTimeChange={(value) =>
+                  setEditForm((prev) => ({ ...prev, startTime: value }))
+                }
+                onEndTimeChange={(value) =>
+                  setEditForm((prev) => ({ ...prev, endTime: value }))
+                }
+                required
+              />
+            ) : (
+              <PersianDateRangeField
+                startDate={editForm.startDate}
+                endDate={editForm.endDate}
+                onChange={(startDate, endDate) =>
+                  setEditForm((prev) => ({ ...prev, startDate, endDate }))
+                }
+                label="بازه مرخصی"
+                required
+              />
+            )}
             <div className="space-y-2">
               <label className="label">وضعیت</label>
               <Select
@@ -1063,13 +1156,17 @@ export default function LeavesPage() {
               </div>
               <div className="flex justify-between gap-4">
                 <span className="text-muted-foreground">بازه</span>
-                <span>{formatDateRange(selectedLeave.StartDate, selectedLeave.EndDate)}</span>
+                <span>
+                  {formatDateRange(
+                    selectedLeave.StartDate,
+                    selectedLeave.EndDate,
+                    selectedLeave.LeaveType,
+                  )}
+                </span>
               </div>
               <div className="flex justify-between gap-4">
                 <span className="text-muted-foreground">مدت</span>
-                <span>
-                  {leaveDurationDays(selectedLeave.StartDate, selectedLeave.EndDate)} روز
-                </span>
+                <span>{formatLeaveDuration(selectedLeave)}</span>
               </div>
               <div className="flex justify-between gap-4">
                 <span className="text-muted-foreground">وضعیت</span>

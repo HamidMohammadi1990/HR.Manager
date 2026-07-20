@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Dialog } from '@/components/layout/Dialog';
 import { useDisclosure } from '@/hooks';
+import { useToast } from '@/contexts/ToastContext';
 import {
   deleteUser,
   getApiErrorMessage,
@@ -23,14 +24,20 @@ import {
   type UserRoleDto,
   type RoleDto,
 } from '@/services/api';
-import { formatDateTime, getUserDisplayName, getUserInitials } from '@/lib/userDisplay';
-
-const GENDER_MALE = 2;
-const GENDER_FEMALE = 1;
+import {
+  formatDateTime,
+  GENDER_FEMALE,
+  GENDER_MALE,
+  genderSelectValue,
+  getUserDisplayName,
+  getUserInitials,
+  normalizeGender,
+} from '@/lib/userDisplay';
 
 export default function UserDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const deleteDialog = useDisclosure();
   const [user, setUser] = useState<UserDto | null>(null);
   const [cities, setCities] = useState<CityDto[]>([]);
@@ -82,7 +89,7 @@ export default function UserDetailPage() {
         setEmail(userData.Email ?? '');
         setPhoneNumber(userData.PhoneNumber ?? '');
         setCityId(userData.CityId ?? '');
-        setGender(String(userData.Gender ?? GENDER_MALE));
+        setGender(genderSelectValue(userData.Gender));
         setIsActive(userData.IsActive);
         setLoginPermission(userData.LoginPermission);
       } catch (err) {
@@ -113,7 +120,7 @@ export default function UserDetailPage() {
         LastName: lastName.trim(),
         Email: email.trim() || null,
         PhoneNumber: phoneNumber.trim(),
-        Gender: Number(gender),
+        Gender: normalizeGender(gender),
         IsActive: isActive,
         LoginPermission: loginPermission,
         Password: password.trim() || null,
@@ -121,8 +128,11 @@ export default function UserDetailPage() {
       setPassword('');
       const refreshed = await getUser({ Id: user.Id });
       setUser(refreshed);
+      toast.success('اطلاعات کاربر با موفقیت ذخیره شد');
     } catch (err) {
-      setFormError(getApiErrorMessage(err));
+      const message = getApiErrorMessage(err);
+      setFormError(message);
+      toast.error(message);
     } finally {
       setIsSaving(false);
     }
@@ -137,8 +147,11 @@ export default function UserDetailPage() {
       setSelectedRoleId('');
       const refreshed = await getAllUserRoles({ UserId: user.Id, Pagination: { PageNumber: 1, PageSize: 50 } });
       setUserRoles(refreshed.Items ?? []);
+      toast.success('نقش با موفقیت به کاربر اختصاص داده شد');
     } catch (err) {
-      setRolesError(getApiErrorMessage(err));
+      const message = getApiErrorMessage(err);
+      setRolesError(message);
+      toast.error(message);
     } finally {
       setIsAssigningRole(false);
     }
@@ -151,8 +164,11 @@ export default function UserDetailPage() {
       await deleteUserRole(userRoleId);
       const refreshed = await getAllUserRoles({ UserId: user.Id, Pagination: { PageNumber: 1, PageSize: 50 } });
       setUserRoles(refreshed.Items ?? []);
+      toast.success('نقش از کاربر حذف شد');
     } catch (err) {
-      setRolesError(getApiErrorMessage(err));
+      const message = getApiErrorMessage(err);
+      setRolesError(message);
+      toast.error(message);
     }
   };
 
@@ -161,9 +177,12 @@ export default function UserDetailPage() {
     try {
       await deleteUser(user.Id);
       deleteDialog.close();
+      toast.success('کاربر با موفقیت حذف شد');
       navigate('/users', { replace: true });
     } catch (err) {
-      setFormError(getApiErrorMessage(err));
+      const message = getApiErrorMessage(err);
+      setFormError(message);
+      toast.error(message);
       deleteDialog.close();
     }
   };

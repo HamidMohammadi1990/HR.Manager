@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Icon } from '@/components/ui/Icon';
+import { PersianDateTimeField } from '@/components/ui/PersianDateTimeField';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
@@ -28,6 +29,11 @@ import {
   AnnouncementChannel,
   AnnouncementStatus,
 } from '@/services/api';
+import {
+  combineGregorianDateAndTimeToIso,
+  isoToGregorianDateString,
+  isoToTimeString,
+} from '@/lib/persianDateTime';
 
 const PAGE_SIZE = 10;
 
@@ -61,7 +67,8 @@ interface FormState {
   channel: number;
   departmentId: string;
   roleId: string;
-  scheduledAt: string;
+  scheduledDate: string;
+  scheduledTime: string;
 }
 
 const emptyForm = (): FormState => ({
@@ -71,7 +78,8 @@ const emptyForm = (): FormState => ({
   channel: AnnouncementChannel.InApp,
   departmentId: '',
   roleId: '',
-  scheduledAt: '',
+  scheduledDate: '',
+  scheduledTime: '09:00',
 });
 
 export default function AnnouncementsPage() {
@@ -165,7 +173,8 @@ export default function AnnouncementsPage() {
       channel: item.Channel,
       departmentId: item.DepartmentId ?? '',
       roleId: item.RoleId ?? '',
-      scheduledAt: item.ScheduledAtUtc ? item.ScheduledAtUtc.slice(0, 16) : '',
+      scheduledDate: item.ScheduledAtUtc ? isoToGregorianDateString(item.ScheduledAtUtc) : '',
+      scheduledTime: item.ScheduledAtUtc ? isoToTimeString(item.ScheduledAtUtc) || '09:00' : '09:00',
     });
     setFormError('');
     composeDrawer.open();
@@ -190,8 +199,8 @@ export default function AnnouncementsPage() {
         throw new Error('نقش را انتخاب کنید');
       }
 
-      const scheduledAtUtc = form.scheduledAt
-        ? new Date(form.scheduledAt).toISOString()
+      const scheduledAtUtc = form.scheduledDate
+        ? combineGregorianDateAndTimeToIso(form.scheduledDate, form.scheduledTime)
         : null;
       const status = scheduledAtUtc ? AnnouncementStatus.Scheduled : AnnouncementStatus.Draft;
 
@@ -477,11 +486,16 @@ export default function AnnouncementsPage() {
                 </Select>
               </div>
             )}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="label">زمان‌بندی (اختیاری)</label>
-                <Input type="datetime-local" value={form.scheduledAt} onChange={(e) => setForm({ ...form, scheduledAt: e.target.value })} />
-              </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <PersianDateTimeField
+                dateLabel="تاریخ زمان‌بندی"
+                timeLabel="ساعت ارسال"
+                dateValue={form.scheduledDate}
+                timeValue={form.scheduledTime}
+                onDateChange={(value) => setForm({ ...form, scheduledDate: value })}
+                onTimeChange={(value) => setForm({ ...form, scheduledTime: value })}
+                hint="در صورت خالی بودن، اطلاعیه به‌صورت پیش‌نویس ذخیره می‌شود"
+              />
               <div className="space-y-2">
                 <label className="label">کانال</label>
                 <Select value={String(form.channel)} onChange={(e) => setForm({ ...form, channel: Number(e.target.value) })}>

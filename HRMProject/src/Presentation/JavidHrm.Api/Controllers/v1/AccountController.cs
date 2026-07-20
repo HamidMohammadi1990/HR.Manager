@@ -84,6 +84,16 @@ public class AccountController
     public async Task<ApiResult<GetUserResponse?>> UserInfo(GetUserRequest request)
         => await mediator.Send(request);
 
+    [Authorize]
+    [HttpPost("current-user")]
+    public async Task<ApiResult<GetUserResponse?>> GetCurrentUser()
+        => await mediator.Send(new GetCurrentUserRequest());
+
+    [Authorize]
+    [HttpPut("update-profile")]
+    public async Task<ApiResult<OperationResult>> UpdateProfile(UpdateCurrentUserProfileRequest request)
+        => await mediator.Send(request);
+
     [HttpPost("forget-password-options")]
     public async Task<ApiResult<GetForgetPasswordOptionResponse>> GetForgetPasswordOptions(GetForgetPasswordOptionRequest request)
         => await mediator.Send(request);

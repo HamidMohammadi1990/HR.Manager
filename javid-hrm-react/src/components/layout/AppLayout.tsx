@@ -1,15 +1,15 @@
 import { Outlet } from 'react-router-dom';
 import { useCallback, useState } from 'react';
+import { AuthSessionBridge } from '@/components/auth/AuthSessionBridge';
 import { Sidebar } from './Sidebar';
 import { AppHeader } from './AppHeader';
 import { AppFooter } from './AppFooter';
 import { Drawer, QuickAccessDialog } from './Dialog';
-import { useKeyboardShortcut, useSidebar } from '@/hooks';
+import { useKeyboardShortcut } from '@/hooks';
 
 export function AppLayout() {
   const [quickAccessOpen, setQuickAccessOpen] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const { isHidden, expandSidebar } = useSidebar();
 
   const openQuickAccess = useCallback(() => setQuickAccessOpen(true), []);
 
@@ -17,9 +17,15 @@ export function AppLayout() {
 
   return (
     <div className="app-layout">
+      <AuthSessionBridge />
       <Sidebar />
 
-      <Drawer open={mobileSidebarOpen} onClose={() => setMobileSidebarOpen(false)} id="mobile-sidebar-drawer">
+      <Drawer
+        variant="sidebar"
+        open={mobileSidebarOpen}
+        onClose={() => setMobileSidebarOpen(false)}
+        id="mobile-sidebar-drawer"
+      >
         <Sidebar id="mobile-sidebar-drawer-content" />
         <button
           type="button"
@@ -32,8 +38,6 @@ export function AppLayout() {
       <AppHeader
         onOpenQuickAccess={openQuickAccess}
         onOpenMobileSidebar={() => setMobileSidebarOpen(true)}
-        showSidebarExpand={isHidden}
-        onExpandSidebar={expandSidebar}
       />
 
       <QuickAccessDialog open={quickAccessOpen} onClose={() => setQuickAccessOpen(false)} />

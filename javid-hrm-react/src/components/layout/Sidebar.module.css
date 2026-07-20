@@ -1,3 +1,112 @@
 .accordionContent {
-  transition: height 0.2s ease;
+  transition: height 0.25s ease;
+}
+
+.groupTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--muted-foreground);
+}
+
+.groupTitle::before {
+  content: '';
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 9999px;
+  background: color-mix(in oklab, var(--primary) 70%, transparent);
+  flex-shrink: 0;
+}
+
+.navIconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.625rem;
+  background: color-mix(in oklab, var(--primary) 10%, transparent);
+  color: var(--primary);
+  flex-shrink: 0;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.navLinkActive .navIconWrap {
+  background: color-mix(in oklab, var(--primary-foreground) 18%, transparent);
+  color: var(--primary-foreground);
+}
+
+.subNavList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: 0.25rem 0 0.375rem;
+  margin-inline-start: 0.75rem;
+  border-inline-start: 1px solid color-mix(in oklab, var(--border) 80%, transparent);
+}
+
+.subNavLink {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  margin-inline-start: 0.5rem;
+  border-radius: 0.625rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.subNavLink:hover {
+  background: var(--sidebar-accent);
+  color: var(--sidebar-foreground);
+}
+
+.subNavLinkActive {
+  background: color-mix(in oklab, var(--primary) 12%, transparent);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.subNavIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.625rem;
+  height: 1.625rem;
+  border-radius: 0.5rem;
+  background: color-mix(in oklab, var(--muted) 55%, transparent);
+  flex-shrink: 0;
+}
+
+.subNavLinkActive .subNavIcon {
+  background: color-mix(in oklab, var(--primary) 16%, transparent);
+  color: var(--primary);
+}
+
+.accordionTriggerActive {
+  background: color-mix(in oklab, var(--primary) 8%, var(--sidebar-accent));
+  color: var(--primary);
+}
+
+.accordionTriggerActive .navIconWrap {
+  background: color-mix(in oklab, var(--primary) 16%, transparent);
+}
+
+.sidebarFooter {
+  margin-top: auto;
+  border-top: 1px solid var(--sidebar-border);
+  padding: 0.75rem;
+}
+
+.footerTitle {
+  padding: 0 0.5rem 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
 }

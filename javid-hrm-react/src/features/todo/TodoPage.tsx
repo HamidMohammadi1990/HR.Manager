@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Icon } from '@/components/ui/Icon';
+import { PersianDateInput } from '@/components/ui/PersianDateInput';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
@@ -19,7 +20,8 @@ import {
   type TodoItemDto,
   TodoPriority,
 } from '@/services/api';
-import { getAccessToken, getUserIdFromToken } from '@/services/api/tokenStorage';
+import { useAuth } from '@/contexts/AuthContext';
+import { combineGregorianDateAndTimeToIso, isoToGregorianDateString } from '@/lib/persianDateTime';
 
 const PAGE_SIZE = 10;
 
@@ -50,7 +52,8 @@ const emptyForm = (): FormState => ({
 
 export default function TodoPage() {
   const addTaskDrawer = useDrawer();
-  const [currentUserId, setCurrentUserId] = useState('');
+  const { currentUser } = useAuth();
+  const currentUserId = currentUser?.Id ?? '';
   const [items, setItems] = useState<TodoItemDto[]>([]);
   const [statsItems, setStatsItems] = useState<TodoItemDto[]>([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -65,11 +68,6 @@ export default function TodoPage() {
   const [actionId, setActionId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [editing, setEditing] = useState<TodoItemDto | null>(null);
-
-  useEffect(() => {
-    const token = getAccessToken();
-    if (token) setCurrentUserId(getUserIdFromToken(token) ?? '');
-  }, []);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -122,7 +120,7 @@ export default function TodoPage() {
       title: item.Title,
       description: item.Description ?? '',
       priority: item.Priority,
-      dueDate: item.DueDate ? item.DueDate.slice(0, 10) : '',
+      dueDate: item.DueDate ? isoToGregorianDateString(item.DueDate) : '',
     });
     setFormError('');
     addTaskDrawer.open();
@@ -138,7 +136,7 @@ export default function TodoPage() {
     setIsSubmitting(true);
     try {
       if (!form.title.trim()) throw new Error('عنوان کار الزامی است');
-      const dueDate = form.dueDate ? new Date(form.dueDate).toISOString() : null;
+      const dueDate = form.dueDate ? combineGregorianDateAndTimeToIso(form.dueDate, '23:59') : null;
       if (editing) {
         await updateTodoItem({
           Id: editing.Id,
@@ -370,7 +368,7 @@ export default function TodoPage() {
               </div>
               <div className="space-y-2">
                 <label className="label">موعد</label>
-                <Input type="date" value={form.dueDate} onChange={(e) => setForm({ ...form, dueDate: e.target.value })} />
+                <PersianDateInput value={form.dueDate} onChange={(value) => setForm({ ...form, dueDate: value })} />
               </div>
             </div>
           </div>
