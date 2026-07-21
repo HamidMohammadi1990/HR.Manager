@@ -44,6 +44,7 @@ const ATTENDANCE_STATUS = {
   Absent: 2,
   Late: 3,
   OnLeave: 4,
+  EarlyLeave: 5,
 } as const;
 
 const PAGE_SIZE = 10;
@@ -110,9 +111,15 @@ function workDurationLabel(checkIn?: string | null, checkOut?: string | null) {
 function statusBadgeVariant(status: number) {
   if (status === ATTENDANCE_STATUS.Present) return 'success' as const;
   if (status === ATTENDANCE_STATUS.Late) return 'alert' as const;
+  if (status === ATTENDANCE_STATUS.EarlyLeave) return 'warning' as const;
   if (status === ATTENDANCE_STATUS.OnLeave) return 'info' as const;
   if (status === ATTENDANCE_STATUS.Absent) return 'destructive' as const;
   return 'secondary' as const;
+}
+
+function formatMinutes(value?: number) {
+  if (!value) return '—';
+  return `${value.toLocaleString('fa-IR')} د`;
 }
 
 function getEmployeeLabel(employee: EmployeeDto) {
@@ -604,10 +611,12 @@ export default function AttendancePage() {
                 <tr>
                   <th className="table-head">پرسنل</th>
                   <th className="table-head">بخش</th>
+                  <th className="table-head">شیفت</th>
                   <th className="table-head">تاریخ</th>
                   <th className="table-head">ورود</th>
                   <th className="table-head">خروج</th>
-                  <th className="table-head">مدت</th>
+                  <th className="table-head">تأخیر</th>
+                  <th className="table-head">اضافه‌کار</th>
                   <th className="table-head">وضعیت</th>
                   <th className="table-head w-32">عملیات</th>
                 </tr>
@@ -615,13 +624,13 @@ export default function AttendancePage() {
               <tbody className="table-body">
                 {isLoading ? (
                   <tr className="table-row">
-                    <td colSpan={8} className="table-cell text-muted-foreground py-8 text-center text-sm">
+                    <td colSpan={10} className="table-cell text-muted-foreground py-8 text-center text-sm">
                       در حال بارگذاری...
                     </td>
                   </tr>
                 ) : records.length === 0 ? (
                   <tr className="table-row">
-                    <td colSpan={8} className="table-cell text-muted-foreground py-8 text-center text-sm">
+                    <td colSpan={10} className="table-cell text-muted-foreground py-8 text-center text-sm">
                       رکوردی یافت نشد
                     </td>
                   </tr>
@@ -637,12 +646,12 @@ export default function AttendancePage() {
                           </div>
                         </td>
                         <td className="table-cell text-sm">{record.DepartmentName}</td>
+                        <td className="table-cell text-sm">{record.WorkShiftName || '—'}</td>
                         <td className="table-cell text-sm">{formatDateFa(record.WorkDate)}</td>
                         <td className="table-cell text-sm" dir="ltr">{formatTimeFa(record.CheckInUtc)}</td>
                         <td className="table-cell text-sm" dir="ltr">{formatTimeFa(record.CheckOutUtc)}</td>
-                        <td className="table-cell text-sm">
-                          {workDurationLabel(record.CheckInUtc, record.CheckOutUtc)}
-                        </td>
+                        <td className="table-cell text-sm">{formatMinutes(record.LateMinutes)}</td>
+                        <td className="table-cell text-sm">{formatMinutes(record.OvertimeMinutes)}</td>
                         <td className="table-cell">
                           <Badge variant={statusBadgeVariant(record.Status)}>
                             {ATTENDANCE_STATUS_LABELS[record.Status] ?? record.Status}
@@ -1107,6 +1116,10 @@ export default function AttendancePage() {
                 <span>{selectedRecord.DepartmentName}</span>
               </div>
               <div className="flex justify-between gap-4">
+                <span className="text-muted-foreground">شیفت</span>
+                <span>{selectedRecord.WorkShiftName || '—'}</span>
+              </div>
+              <div className="flex justify-between gap-4">
                 <span className="text-muted-foreground">تاریخ</span>
                 <span>{formatDateFa(selectedRecord.WorkDate)}</span>
               </div>
@@ -1121,8 +1134,22 @@ export default function AttendancePage() {
               <div className="flex justify-between gap-4">
                 <span className="text-muted-foreground">مدت کار</span>
                 <span>
-                  {workDurationLabel(selectedRecord.CheckInUtc, selectedRecord.CheckOutUtc)}
+                  {selectedRecord.WorkedMinutes > 0
+                    ? formatMinutes(selectedRecord.WorkedMinutes)
+                    : workDurationLabel(selectedRecord.CheckInUtc, selectedRecord.CheckOutUtc)}
                 </span>
+              </div>
+              <div className="flex justify-between gap-4">
+                <span className="text-muted-foreground">تأخیر</span>
+                <span>{formatMinutes(selectedRecord.LateMinutes)}</span>
+              </div>
+              <div className="flex justify-between gap-4">
+                <span className="text-muted-foreground">خروج زودهنگام</span>
+                <span>{formatMinutes(selectedRecord.EarlyLeaveMinutes)}</span>
+              </div>
+              <div className="flex justify-between gap-4">
+                <span className="text-muted-foreground">اضافه‌کار</span>
+                <span>{formatMinutes(selectedRecord.OvertimeMinutes)}</span>
               </div>
               <div className="flex justify-between gap-4">
                 <span className="text-muted-foreground">وضعیت</span>

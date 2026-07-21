@@ -9,18 +9,14 @@ namespace JavidHrm.Application.Features.Departments.Queries;
 
 public record SearchDepartmentRequest : IRequest<OperationResult<PagedResult<SearchDepartmentResponse>>>, IContentPolicyFilteredRequest<Department>
 {
-    [JsonConverter(typeof(ProvinceNullableEncryptor))]
-    public int? ProvinceId { get; set; }
-
-    [JsonConverter(typeof(CityNullableEncryptor))]
-    public int? CityId { get; init; }
-
     public string? Name { get; init; }
     public string? Code { get; init; }
 
     [JsonConverter(typeof(UserNullableEncryptor))]
     public int? UserId { get; set; }
 
-    public string? PostalCode { get; init; }
+    [JsonConverter(typeof(DepartmentNullableEncryptor))]
+    public int? ParentDepartmentId { get; init; }
+
     public PagedRequest Pagination { get; init; } = default!;
 }

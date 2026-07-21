@@ -19,9 +19,6 @@ public static class ContentPolicyQueryActionResolver
         if (stem.StartsWith("Search", StringComparison.Ordinal))
             return ContentPolicyQueryAction.Search;
 
-        if (string.Equals(stem, "GetUserAddresses", StringComparison.Ordinal))
-            return ContentPolicyQueryAction.GetUserAddresses;
-
         if (stem.StartsWith("Get", StringComparison.Ordinal))
             return ContentPolicyQueryAction.Get;
 

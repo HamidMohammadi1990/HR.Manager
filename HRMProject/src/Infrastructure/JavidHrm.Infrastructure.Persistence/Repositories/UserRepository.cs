@@ -14,47 +14,38 @@ public class UserRepository
 {
     public async Task<PagedResult<GetAllUserDto>> GetAllAsync(GetAllUserRequestDto request, Expression<Func<User, bool>>? contentFilter = null)
     {
-        var userSource = Context.User
-            .ApplyContentPolicyFilter(contentFilter);
-
-        var users =
-            from user in userSource
-            join city in Context.City on user.CityId equals city.Id into joinCity
-            from city in joinCity.DefaultIfEmpty()
-            select new { user, city };
-
-        users = users.ApplyQueryFilters(request);
+        var users = Context.User
+            .ApplyContentPolicyFilter(contentFilter)
+            .ApplyQueryFilters(request);
 
         if (!string.IsNullOrWhiteSpace(request.Search))
         {
             var term = request.Search.Trim();
             users = users.Where(x =>
-                x.user.FirstName.Contains(term)
-                || x.user.LastName.Contains(term)
-                || x.user.UserName.Contains(term)
-                || (x.user.Email != null && x.user.Email.Contains(term))
-                || (x.user.PhoneNumber != null && x.user.PhoneNumber.Contains(term)));
+                x.FirstName.Contains(term)
+                || x.LastName.Contains(term)
+                || x.UserName.Contains(term)
+                || (x.Email != null && x.Email.Contains(term))
+                || (x.PhoneNumber != null && x.PhoneNumber.Contains(term)));
         }
 
         var result =
             await users
                 .Select(x => new GetAllUserDto
                 {
-                    Id = x.user.Id,
-                    Email = x.user.Email,
-                    CityId = x.user.CityId,
-                    Gender = x.user.Gender,
-                    IsActive = x.user.IsActive,
-                    CityName = x.city.Name,
-                    FirstName = x.user.FirstName,
-                    LastName = x.user.LastName,
-                    UserName = x.user.UserName,
-                    PhoneNumber = x.user.PhoneNumber,
-                    EmailConfirmed = x.user.EmailConfirmed,
-                    LoginPermission = x.user.LoginPermission,
-                    AccessFailedCount = x.user.AccessFailedCount,
-                    LastLoginDateOnUtc = x.user.LastLoginDateOnUtc,
-                    PhoneNumberConfirmed = x.user.PhoneNumberConfirmed
+                    Id = x.Id,
+                    Email = x.Email,
+                    Gender = x.Gender,
+                    IsActive = x.IsActive,
+                    FirstName = x.FirstName,
+                    LastName = x.LastName,
+                    UserName = x.UserName,
+                    PhoneNumber = x.PhoneNumber,
+                    EmailConfirmed = x.EmailConfirmed,
+                    LoginPermission = x.LoginPermission,
+                    AccessFailedCount = x.AccessFailedCount,
+                    LastLoginDateOnUtc = x.LastLoginDateOnUtc,
+                    PhoneNumberConfirmed = x.PhoneNumberConfirmed
                 })
                 .AsNoTracking()
                 .ToPagedAsync(request.Pagination);

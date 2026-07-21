@@ -25,5 +25,14 @@ public record GetAllAttendanceRecordResponse
     public DateTime? CheckInUtc { get; init; }
     public DateTime? CheckOutUtc { get; init; }
     public AttendanceStatus Status { get; init; }
+
+    [JsonConverter(typeof(WorkShiftNullableEncryptor))]
+    public int? WorkShiftId { get; init; }
+
+    public string? WorkShiftName { get; init; }
+    public int LateMinutes { get; init; }
+    public int EarlyLeaveMinutes { get; init; }
+    public int OvertimeMinutes { get; init; }
+    public int WorkedMinutes { get; init; }
     public DateTime CreatedOnUtc { get; init; }
 }

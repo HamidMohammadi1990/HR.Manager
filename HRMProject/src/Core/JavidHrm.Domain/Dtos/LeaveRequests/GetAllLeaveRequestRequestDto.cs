@@ -15,8 +15,8 @@ public record GetAllLeaveRequestRequestDto
     [QueryFilter(MemberPath = "employee.UserId")]
     public int? UserId { get; init; }
 
-    [QueryFilter(MemberPath = "request.LeaveType")]
-    public LeaveType? LeaveType { get; init; }
+    [QueryFilter(MemberPath = "request.LeaveTypeDefinitionId")]
+    public int? LeaveTypeDefinitionId { get; init; }
 
     [QueryFilter(MemberPath = "request.Status")]
     public LeaveRequestStatus? Status { get; init; }

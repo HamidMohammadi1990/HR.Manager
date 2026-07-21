@@ -1055,6 +1055,13 @@
   <data name="PermissionType_ToggleCompleteTodoItem" xml:space="preserve"><value>تغییر وضعیت انجام کار</value></data>
   <data name="PermissionType_RunBackupJob" xml:space="preserve"><value>اجرای پشتیبان‌گیری</value></data>
   <data name="PermissionType_DownloadBackupJob" xml:space="preserve"><value>دانلود پشتیبان</value></data>
+  <data name="PermissionType_GetLeaveApprovalInbox" xml:space="preserve"><value>کارتابل تأیید مرخصی</value></data>
+  <data name="PermissionType_ManageEmployeeShiftScheduleGroup" xml:space="preserve"><value>مدیریت گروه برنامه شیفت پرسنل</value></data>
+  <data name="PermissionType_ManageEmployeeShiftSchedule" xml:space="preserve"><value>مدیریت برنامه شیفت پرسنل</value></data>
+  <data name="PermissionType_ListEmployeeShiftSchedule" xml:space="preserve"><value>لیست برنامه شیفت پرسنل</value></data>
+  <data name="PermissionType_CreateEmployeeShiftSchedule" xml:space="preserve"><value>ایجاد برنامه شیفت پرسنل</value></data>
+  <data name="PermissionType_DeleteEmployeeShiftSchedule" xml:space="preserve"><value>حذف برنامه شیفت پرسنل</value></data>
+  <data name="PermissionType_GetEmployeeLeaveBalance" xml:space="preserve"><value>دریافت مانده مرخصی پرسنل</value></data>
 
 </root>
 

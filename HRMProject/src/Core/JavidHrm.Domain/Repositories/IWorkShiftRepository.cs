@@ -15,4 +15,5 @@ public interface IWorkShiftRepository
     Task<PagedResult<GetAllWorkShiftResponseDto>> GetAllAsync(
         GetAllWorkShiftRequestDto request,
         Expression<Func<WorkShift, bool>>? contentFilter = null);
+    Task<bool> IsInUseAsync(int workShiftId, CancellationToken cancellationToken = default);
 }

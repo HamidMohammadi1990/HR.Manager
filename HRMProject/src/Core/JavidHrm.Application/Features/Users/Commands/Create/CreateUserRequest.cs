@@ -1,14 +1,10 @@
 ﻿using JavidHrm.Domain.Enums;
 using JavidHrm.Common.Models;
-using System.Text.Json.Serialization;
-using JavidHrm.Application.Common.Utilities.Security.Attributes;
 
 namespace JavidHrm.Application.Features.Users.Commands;
 
 public record CreateUserRequest : IRequest<OperationResult<CreateUserResponse>>
 {
-    [JsonConverter(typeof(CityEncryptor))]
-    public int CityId { get; init; }
     public string UserName { get; init; } = default!;
     public string FirstName { get; init; } = default!;
     public string LastName { get; init; } = default!;

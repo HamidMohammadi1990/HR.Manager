@@ -15,6 +15,9 @@ public record UpdateEmployeeRequest : IRequest<OperationResult>
     [JsonConverter(typeof(EmployeeNullableEncryptor))]
     public int? ManagerId { get; init; }
 
+    [JsonConverter(typeof(WorkShiftNullableEncryptor))]
+    public int? WorkShiftId { get; init; }
+
     public string EmployeeCode { get; init; } = default!;
     public string JobTitle { get; init; } = default!;
     public DateTime HireDate { get; init; }

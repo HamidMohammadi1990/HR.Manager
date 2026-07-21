@@ -9,28 +9,38 @@ public class UpdateLeaveBalanceValidator : AbstractValidator<UpdateLeaveBalanceR
 {
     public UpdateLeaveBalanceValidator(
         IEmployeeRepository employeeRepository,
-        ILeaveBalanceRepository leaveBalanceRepository)
+        ILeaveBalanceRepository leaveBalanceRepository,
+        ILeaveTypeDefinitionRepository leaveTypeDefinitionRepository)
     {
         RuleFor(x => x.Id).MustBeValidEntityId();
         RuleFor(x => x.EmployeeId).MustBeValidEntityId();
-        RuleFor(x => x.LeaveType).IsInEnum().Must(t => t != default).WithMessage(MessageKeys.InvalidId);
-        RuleFor(x => x.Year).GreaterThan(2000).LessThanOrEqualTo(2100);
+        RuleFor(x => x.LeaveTypeDefinitionId).MustBeValidEntityId();
+
+        RuleFor(x => x.LeaveTypeDefinitionId)
+            .MustAsync(async (leaveTypeDefinitionId, cancellationToken)
+                => await leaveTypeDefinitionRepository.AnyAsync(
+                    x => x.Id == leaveTypeDefinitionId && x.IsActive,
+                    cancellationToken))
+            .WithMessage(MessageKeys.InvalidId);
+
+        RuleFor(x => x.Year).GreaterThan(2000);
         RuleFor(x => x.TotalDays).GreaterThanOrEqualTo(0);
         RuleFor(x => x.UsedDays).GreaterThanOrEqualTo(0);
-        RuleFor(x => x).Must(r => r.UsedDays <= r.TotalDays).WithMessage(MessageKeys.InvalidRequest);
+        RuleFor(x => x.UsedDays).LessThanOrEqualTo(x => x.TotalDays);
 
         RuleFor(x => x.EmployeeId)
-            .MustAsync(async (id, ct) => await employeeRepository.AnyAsync(e => e.Id == id, ct))
+            .MustAsync(async (employeeId, cancellationToken)
+                => await employeeRepository.AnyAsync(x => x.Id == employeeId, cancellationToken))
             .WithMessage(MessageKeys.InvalidId);
 
         RuleFor(x => x)
-            .MustAsync(async (request, ct) =>
-                !await leaveBalanceRepository.ExistsAsync(
+            .MustAsync(async (request, cancellationToken)
+                => !await leaveBalanceRepository.ExistsAsync(
                     request.EmployeeId,
-                    request.LeaveType,
+                    request.LeaveTypeDefinitionId,
                     request.Year,
-                    excludeId: request.Id,
-                    ct))
+                    request.Id,
+                    cancellationToken))
             .WithMessage(MessageKeys.DuplicateRecord);
     }
 }

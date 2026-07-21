@@ -24,6 +24,12 @@ internal class AttendanceRecordConfig : IEntityTypeConfiguration<AttendanceRecor
             .HasForeignKey(e => e.EmployeeId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder
+            .HasOne(e => e.WorkShift)
+            .WithMany()
+            .HasForeignKey(e => e.WorkShiftId)
+            .OnDelete(DeleteBehavior.SetNull);
+
         builder.HasIndex(e => new { e.EmployeeId, e.WorkDate }).IsUnique();
         builder.HasIndex(e => e.EmployeeId);
         builder.HasIndex(e => e.WorkDate);

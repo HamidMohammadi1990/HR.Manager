@@ -14,6 +14,7 @@ public class CreateEmployeeHandler
             request.UserId,
             request.DepartmentId,
             request.ManagerId,
+            request.WorkShiftId,
             request.EmployeeCode.Trim(),
             request.JobTitle.Trim(),
             request.HireDate);

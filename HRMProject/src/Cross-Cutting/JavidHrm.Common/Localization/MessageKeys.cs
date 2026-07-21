@@ -44,8 +44,13 @@ public static class MessageKeys
     public const string InvalidIpAddress = nameof(InvalidIpAddress);
     public const string IpRequired = nameof(IpRequired);
     public const string StartDateMustBeBeforeEndDate = nameof(StartDateMustBeBeforeEndDate);
+    public const string WorkShiftInUse = nameof(WorkShiftInUse);
+    public const string OverlappingShiftSchedule = nameof(OverlappingShiftSchedule);
     public const string OverlappingLeavePeriod = nameof(OverlappingLeavePeriod);
     public const string LeaveRequestNotPending = nameof(LeaveRequestNotPending);
+    public const string LeaveApprovalUnauthorized = nameof(LeaveApprovalUnauthorized);
+    public const string LeaveApprovalStepNotFound = nameof(LeaveApprovalStepNotFound);
+    public const string InsufficientLeaveBalance = nameof(InsufficientLeaveBalance);
     public const string CheckOutMustBeAfterCheckIn = nameof(CheckOutMustBeAfterCheckIn);
     public const string AttendanceAlreadyCheckedIn = nameof(AttendanceAlreadyCheckedIn);
     public const string AttendanceNotCheckedIn = nameof(AttendanceNotCheckedIn);

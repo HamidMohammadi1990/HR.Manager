@@ -29,6 +29,10 @@ public static class ConfigureServices
         services.AddScoped<IUserSessionService, UserSessionService>();
         services.AddScoped<IUserAuthCache, UserAuthCache>();
         services.AddScoped<ILocalFileService, LocalFileService>();
+        services.AddScoped<ILeaveBalanceService, LeaveBalanceService>();
+        services.AddScoped<ILeaveApprovalWorkflowService, LeaveApprovalWorkflowService>();
+        services.AddScoped<IWorkShiftResolutionService, WorkShiftResolutionService>();
+        services.AddScoped<IAttendanceMetricsService, AttendanceMetricsService>();
 
         services.AddSingleton<ContentPolicyCompiledFilterCache>();
         services.AddScoped<ContentPolicyRuleExpressionFactory>();

@@ -21,10 +21,6 @@ import {
   type EmployeeDto,
 } from '@/services/api';
 
-function getManagerName(dept: DepartmentDto) {
-  return [dept.UserFirstName, dept.UserLastName].filter(Boolean).join(' ') || '—';
-}
-
 export default function DepartmentsPage() {
   const [departments, setDepartments] = useState<DepartmentDto[]>([]);
   const [employees, setEmployees] = useState<EmployeeDto[]>([]);
@@ -40,7 +36,7 @@ export default function DepartmentsPage() {
       setDeptError('');
       try {
         const [deptResult, empResult] = await Promise.all([
-          getAllDepartments({ Pagination: { PageNumber: 1, PageSize: 100 } }),
+          getAllDepartments({ Pagination: { PageNumber: 1, PageSize: 200 } }),
           getAllEmployees({ Pagination: { PageNumber: 1, PageSize: 500 } }),
         ]);
         if (!cancelled) {
@@ -55,7 +51,9 @@ export default function DepartmentsPage() {
     }
 
     void load();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const filteredDepartments = useMemo(() => {
@@ -65,14 +63,14 @@ export default function DepartmentsPage() {
       (dept) =>
         dept.Name.toLowerCase().includes(query)
         || dept.Code.toLowerCase().includes(query)
-        || (dept.CityName ?? '').toLowerCase().includes(query),
+        || (dept.ParentDepartmentName ?? '').toLowerCase().includes(query),
     );
   }, [departments, search]);
 
   const headcountByDepartment = useMemo(() => {
     const counts = new Map<string, number>();
     for (const emp of employees) {
-      const key = emp.DepartmentName || 'بدون بخش';
+      const key = emp.DepartmentName || 'بدون دپارتمان';
       counts.set(key, (counts.get(key) ?? 0) + 1);
     }
     return departments
@@ -87,15 +85,13 @@ export default function DepartmentsPage() {
 
   const stats = useMemo(() => {
     const active = departments.filter((dept) => dept.IsActive).length;
-    const withManager = departments.filter(
-      (dept) => dept.UserFirstName || dept.UserLastName,
-    ).length;
-    const cities = new Set(departments.map((dept) => dept.CityName).filter(Boolean)).size;
+    const rootDepartments = departments.filter((dept) => !dept.ParentDepartmentId).length;
+    const subDepartments = departments.filter((dept) => dept.ParentDepartmentId).length;
     return {
       total: departments.length,
       active,
-      withManager,
-      cities,
+      rootDepartments,
+      subDepartments,
       totalEmployees: employees.length,
     };
   }, [departments, employees]);
@@ -105,13 +101,19 @@ export default function DepartmentsPage() {
   return (
     <div className="flex-1 p-4 lg:p-6">
       <PageHeader
-        title="مدیریت بخش‌ها"
-        description="ساختار سازمانی و تخصیص پرسنل"
+        title="مدیریت دپارتمان‌ها"
+        description="ساختار سازمانی شرکت و تخصیص پرسنل"
         actions={
-          <Link to="/departments/new" className="button" data-variant="default">
-            <Icon name="material-symbols:add" className="size-4" />
-            بخش جدید
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link to="/departments/tree" className="button" data-variant="outline">
+              <Icon name="material-symbols:account-tree" className="size-4" />
+              چارت سازمانی
+            </Link>
+            <Link to="/departments/new" className="button" data-variant="default">
+              <Icon name="material-symbols:add" className="size-4" />
+              دپارتمان جدید
+            </Link>
+          </div>
         }
       />
 
@@ -125,13 +127,13 @@ export default function DepartmentsPage() {
         <MetricCard
           icon={<Icon name="material-symbols:corporate-fare" className="text-primary size-5" />}
           iconClassName="bg-primary/10"
-          label="کل بخش‌ها"
+          label="کل دپارتمان‌ها"
           value={deptLoading ? '...' : String(stats.total)}
         />
         <MetricCard
           icon={<Icon name="material-symbols:verified" className="size-5 text-emerald-500" />}
           iconClassName="bg-emerald-500/10"
-          label="بخش‌های فعال"
+          label="دپارتمان‌های فعال"
           value={deptLoading ? '...' : String(stats.active)}
         />
         <MetricCard
@@ -141,10 +143,10 @@ export default function DepartmentsPage() {
           value={deptLoading ? '...' : String(stats.totalEmployees)}
         />
         <MetricCard
-          icon={<Icon name="material-symbols:location-city" className="size-5 text-violet-500" />}
+          icon={<Icon name="material-symbols:account-tree" className="size-5 text-violet-500" />}
           iconClassName="bg-violet-500/10"
-          label="شهرها"
-          value={deptLoading ? '...' : String(stats.cities)}
+          label="زیردپارتمان‌ها"
+          value={deptLoading ? '...' : String(stats.subDepartments)}
         />
       </div>
 
@@ -157,7 +159,7 @@ export default function DepartmentsPage() {
             />
             <Input
               type="text"
-              placeholder="جستجوی نام، کد یا شهر..."
+              placeholder="جستجوی نام، کد یا دپارتمان والد..."
               className="w-full pe-10"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
@@ -168,8 +170,8 @@ export default function DepartmentsPage() {
 
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>لیست بخش‌ها</CardTitle>
-          <CardDescription>مدیریت بخش‌های سازمان از API</CardDescription>
+          <CardTitle>لیست دپارتمان‌ها</CardTitle>
+          <CardDescription>واحدهای سازمانی شرکت</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <div className="table-wrapper">
@@ -178,8 +180,7 @@ export default function DepartmentsPage() {
                 <tr>
                   <th className="table-head">نام</th>
                   <th className="table-head">کد</th>
-                  <th className="table-head">شهر</th>
-                  <th className="table-head">مدیر</th>
+                  <th className="table-head">دپارتمان والد</th>
                   <th className="table-head">پرسنل</th>
                   <th className="table-head">وضعیت</th>
                   <th className="table-head">عملیات</th>
@@ -188,14 +189,14 @@ export default function DepartmentsPage() {
               <tbody className="table-body">
                 {deptLoading ? (
                   <tr className="table-row">
-                    <td colSpan={7} className="table-cell text-muted-foreground py-6 text-center text-sm">
+                    <td colSpan={6} className="table-cell text-muted-foreground py-6 text-center text-sm">
                       در حال بارگذاری...
                     </td>
                   </tr>
                 ) : filteredDepartments.length === 0 ? (
                   <tr className="table-row">
-                    <td colSpan={7} className="table-cell text-muted-foreground py-6 text-center text-sm">
-                      بخشی یافت نشد
+                    <td colSpan={6} className="table-cell text-muted-foreground py-6 text-center text-sm">
+                      دپارتمانی یافت نشد
                     </td>
                   </tr>
                 ) : (
@@ -205,8 +206,7 @@ export default function DepartmentsPage() {
                       <tr key={dept.Id} className="table-row">
                         <td className="table-cell font-medium">{dept.Name}</td>
                         <td className="table-cell text-sm">{dept.Code}</td>
-                        <td className="table-cell text-sm">{dept.CityName ?? '—'}</td>
-                        <td className="table-cell text-sm">{getManagerName(dept)}</td>
+                        <td className="table-cell text-sm">{dept.ParentDepartmentName ?? '—'}</td>
                         <td className="table-cell text-sm">{headcount.toLocaleString('fa-IR')}</td>
                         <td className="table-cell">
                           <Badge variant={dept.IsActive ? 'success' : 'secondary'}>
@@ -240,13 +240,13 @@ export default function DepartmentsPage() {
               <Icon name="material-symbols:groups" className="size-5 text-indigo-500" />
               توزیع نیروی انسانی
             </CardTitle>
-            <CardDescription>تعداد پرسنل در هر بخش</CardDescription>
+            <CardDescription>تعداد پرسنل در هر دپارتمان</CardDescription>
           </CardHeader>
           <CardContent>
             {deptLoading ? (
               <p className="text-muted-foreground text-sm">در حال بارگذاری...</p>
             ) : headcountByDepartment.length === 0 ? (
-              <p className="text-muted-foreground text-sm">بخشی ثبت نشده</p>
+              <p className="text-muted-foreground text-sm">دپارتمانی ثبت نشده</p>
             ) : (
               <div className="space-y-3">
                 {headcountByDepartment.map((item) => (
@@ -276,28 +276,24 @@ export default function DepartmentsPage() {
           <CardContent>
             <div className="space-y-3">
               <div className="flex items-center justify-between text-sm">
-                <span>بخش‌های دارای مدیر</span>
-                <span className="font-medium">{stats.withManager.toLocaleString('fa-IR')}</span>
+                <span>دپارتمان‌های اصلی</span>
+                <span className="font-medium">{stats.rootDepartments.toLocaleString('fa-IR')}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span>بخش‌های بدون پرسنل</span>
+                <span>زیردپارتمان‌ها</span>
+                <span className="font-medium">{stats.subDepartments.toLocaleString('fa-IR')}</span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span>دپارتمان‌های بدون پرسنل</span>
                 <span className="font-medium">
                   {headcountByDepartment.filter((item) => item.count === 0).length.toLocaleString('fa-IR')}
                 </span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span>میانگین پرسنل هر بخش</span>
+                <span>میانگین پرسنل هر دپارتمان</span>
                 <span className="font-medium">
                   {stats.total > 0
                     ? Math.round(stats.totalEmployees / stats.total).toLocaleString('fa-IR')
-                    : '—'}
-                </span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span>بیشترین ظرفیت</span>
-                <span className="font-medium">
-                  {headcountByDepartment[0]
-                    ? `${headcountByDepartment[0].name} (${headcountByDepartment[0].count.toLocaleString('fa-IR')})`
                     : '—'}
                 </span>
               </div>
@@ -309,7 +305,7 @@ export default function DepartmentsPage() {
               </Link>
               <Link to="/departments/new" className="button" data-variant="default">
                 <Icon name="material-symbols:add" className="size-4" />
-                بخش جدید
+                دپارتمان جدید
               </Link>
             </div>
           </CardContent>

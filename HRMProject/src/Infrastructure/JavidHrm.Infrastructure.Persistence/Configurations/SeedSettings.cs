@@ -8,5 +8,4 @@ public class SeedSettings
     public string AdminEmail { get; set; } = "admin@javidhrm.local";
     public string AdminFirstName { get; set; } = "مدیر";
     public string AdminLastName { get; set; } = "سیستم";
-    public int AdminCityId { get; set; } = 301;
 }

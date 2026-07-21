@@ -26,9 +26,7 @@ import {
   changePassword,
   getApiErrorMessage,
   getCurrentUser,
-  searchCities,
   updateCurrentUserProfile,
-  type CityDto,
   type UserDto,
 } from '@/services/api';
 
@@ -67,7 +65,6 @@ export default function SettingsPage() {
   const { toast } = useToast();
 
   const [user, setUser] = useState<UserDto | null>(null);
-  const [cities, setCities] = useState<CityDto[]>([]);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [profileError, setProfileError] = useState('');
   const [isSavingProfile, setIsSavingProfile] = useState(false);
@@ -75,7 +72,6 @@ export default function SettingsPage() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [cityId, setCityId] = useState('');
   const [gender, setGender] = useState(String(GENDER_MALE));
 
   const [notificationPrefs, setNotificationPrefs] = useState<NotificationPreferences>(
@@ -92,16 +88,11 @@ export default function SettingsPage() {
     setLoadingProfile(true);
     setProfileError('');
     try {
-      const [userData, cityData] = await Promise.all([
-        getCurrentUser(),
-        searchCities({ Pagination: { PageNumber: 1, PageSize: 100 } }),
-      ]);
+      const userData = await getCurrentUser();
       setUser(userData);
-      setCities(cityData.Items ?? []);
       setFirstName(userData.FirstName ?? '');
       setLastName(userData.LastName ?? '');
       setPhoneNumber(userData.PhoneNumber ?? '');
-      setCityId(userData.CityId ?? '');
       setGender(genderSelectValue(userData.Gender));
     } catch (err) {
       setProfileError(getApiErrorMessage(err));
@@ -133,7 +124,6 @@ export default function SettingsPage() {
         FirstName: firstName.trim(),
         LastName: lastName.trim(),
         PhoneNumber: phoneNumber.trim(),
-        CityId: cityId,
         Gender: normalizeGender(gender),
       });
       await loadProfile();
@@ -341,15 +331,6 @@ export default function SettingsPage() {
                       <div className="space-y-2">
                         <label className="label">شماره تماس</label>
                         <Input type="tel" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} required />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="label">شهر</label>
-                        <Select value={cityId} onChange={(e) => setCityId(e.target.value)} required>
-                          <option value="">انتخاب شهر</option>
-                          {cities.map((city) => (
-                            <option key={city.Id} value={city.Id}>{city.Name}</option>
-                          ))}
-                        </Select>
                       </div>
                       <div className="space-y-2">
                         <label className="label">جنسیت</label>

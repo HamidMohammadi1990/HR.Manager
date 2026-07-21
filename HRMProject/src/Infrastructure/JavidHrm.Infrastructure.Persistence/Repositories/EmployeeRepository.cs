@@ -25,7 +25,9 @@ public class EmployeeRepository(JavidHrmDbContext context)
             from manager in managers.DefaultIfEmpty()
             join managerUser in Context.User on manager.UserId equals managerUser.Id into managerUsers
             from managerUser in managerUsers.DefaultIfEmpty()
-            select new { employee, user, department, managerUser };
+            join workShift in Context.WorkShift on employee.WorkShiftId equals workShift.Id into workShifts
+            from workShift in workShifts.DefaultIfEmpty()
+            select new { employee, user, department, managerUser, workShift };
 
         employees = employees.ApplyQueryFilters(request);
 
@@ -42,6 +44,8 @@ public class EmployeeRepository(JavidHrmDbContext context)
                 ManagerId = x.employee.ManagerId,
                 ManagerFirstName = x.managerUser != null ? x.managerUser.FirstName : null,
                 ManagerLastName = x.managerUser != null ? x.managerUser.LastName : null,
+                WorkShiftId = x.employee.WorkShiftId,
+                WorkShiftName = x.workShift != null ? x.workShift.Name : null,
                 EmployeeCode = x.employee.EmployeeCode,
                 JobTitle = x.employee.JobTitle,
                 HireDate = x.employee.HireDate,
@@ -50,5 +54,46 @@ public class EmployeeRepository(JavidHrmDbContext context)
             })
             .AsNoTracking()
             .ToPagedAsync(request.Pagination);
+    }
+
+    public Task<Employee?> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
+        => Context.Employee
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.UserId == userId && x.IsActive, cancellationToken);
+
+    public async Task<IReadOnlyList<int>> GetManagerChainAsync(
+        int employeeId,
+        CancellationToken cancellationToken = default)
+    {
+        var chain = new List<int>();
+        var visited = new HashSet<int>();
+        var currentEmployeeId = employeeId;
+
+        while (true)
+        {
+            var employee = await Context.Employee
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == currentEmployeeId, cancellationToken);
+
+            if (employee?.ManagerId is null)
+                break;
+
+            if (!visited.Add(employee.ManagerId.Value))
+                break;
+
+            var manager = await Context.Employee
+                .AsNoTracking()
+                .FirstOrDefaultAsync(
+                    x => x.Id == employee.ManagerId.Value && x.IsActive,
+                    cancellationToken);
+
+            if (manager is null)
+                break;
+
+            chain.Add(manager.Id);
+            currentEmployeeId = manager.Id;
+        }
+
+        return chain;
     }
 }

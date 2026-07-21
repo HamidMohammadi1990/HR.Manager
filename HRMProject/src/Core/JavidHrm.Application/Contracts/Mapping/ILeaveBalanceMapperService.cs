@@ -8,6 +8,11 @@ namespace JavidHrm.Application.Contracts.Mapping;
 public interface ILeaveBalanceMapperService : IMapper
 {
     GetAllLeaveBalanceRequestDto Map(GetAllLeaveBalanceRequest model);
-    GetLeaveBalanceResponse Map(LeaveBalance model, Employee employee, User user, Department department);
+    GetLeaveBalanceResponse Map(
+        LeaveBalance model,
+        Employee employee,
+        User user,
+        Department department,
+        LeaveTypeDefinition leaveTypeDefinition);
     PagedResult<GetAllLeaveBalanceResponse> Map(PagedResult<GetAllLeaveBalanceResponseDto> model);
 }

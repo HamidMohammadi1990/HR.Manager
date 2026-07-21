@@ -31,6 +31,11 @@ public class LeaveBalanceController(ISender mediator) : BaseApiAdminController
     public async Task<ApiResult<GetLeaveBalanceResponse?>> Get(GetLeaveBalanceRequest request)
         => await mediator.Send(request);
 
+    [ActionInfo(PermissionType.GetEmployeeLeaveBalance)]
+    [HttpPost("get-for-employee")]
+    public async Task<ApiResult<GetEmployeeLeaveBalanceResponse?>> GetForEmployee(GetEmployeeLeaveBalanceRequest request)
+        => await mediator.Send(request);
+
     [ActionInfo(PermissionType.CreateLeaveBalance)]
     [HttpPost("create")]
     public async Task<ApiResult<CreateLeaveBalanceResponse>> Create(CreateLeaveBalanceRequest request)

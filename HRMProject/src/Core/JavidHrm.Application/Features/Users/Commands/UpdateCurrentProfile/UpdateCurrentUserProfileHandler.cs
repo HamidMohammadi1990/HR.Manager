@@ -36,7 +36,6 @@ public class UpdateCurrentUserProfileHandler
             request.LastName,
             user.Email,
             request.PhoneNumber,
-            request.CityId,
             request.Gender,
             user.IsActive,
             user.LoginPermission);

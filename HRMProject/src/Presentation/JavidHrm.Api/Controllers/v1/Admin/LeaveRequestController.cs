@@ -53,6 +53,11 @@ public class LeaveRequestController
     public async Task<ApiResult<OperationResult>> Reject(RejectLeaveRequestRequest request)
         => await mediator.Send(request);
 
+    [ActionInfo(PermissionType.GetLeaveApprovalInbox)]
+    [HttpPost("get-approval-inbox")]
+    public async Task<ApiResult<PagedResult<GetLeaveApprovalInboxResponse>>> GetApprovalInbox(GetLeaveApprovalInboxRequest request)
+        => await mediator.Send(request);
+
     [ActionInfo(PermissionType.DeleteLeave)]
     [HttpDelete("delete")]
     public async Task<ApiResult<OperationResult>> Delete(DeleteLeaveRequestRequest request)

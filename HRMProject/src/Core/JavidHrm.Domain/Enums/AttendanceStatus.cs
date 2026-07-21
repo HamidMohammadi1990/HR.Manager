@@ -15,5 +15,8 @@ public enum AttendanceStatus
     Late = 3,
 
     [Display(Name = "AttendanceStatus_OnLeave", ResourceType = typeof(EnumResources))]
-    OnLeave = 4
+    OnLeave = 4,
+
+    [Display(Name = "AttendanceStatus_EarlyLeave", ResourceType = typeof(EnumResources))]
+    EarlyLeave = 5
 }

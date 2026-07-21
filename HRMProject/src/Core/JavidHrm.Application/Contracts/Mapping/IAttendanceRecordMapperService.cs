@@ -9,6 +9,11 @@ namespace JavidHrm.Application.Contracts.Mapping;
 public interface IAttendanceRecordMapperService : IMapper
 {
     GetAllAttendanceRecordRequestDto Map(GetAllAttendanceRecordRequest model);
-    GetAttendanceRecordResponse Map(AttendanceRecord model, Employee employee, User user, Department department);
+    GetAttendanceRecordResponse Map(
+        AttendanceRecord model,
+        Employee employee,
+        User user,
+        Department department,
+        string? workShiftName = null);
     PagedResult<GetAllAttendanceRecordResponse> Map(PagedResult<GetAllAttendanceRecordResponseDto> model);
 }

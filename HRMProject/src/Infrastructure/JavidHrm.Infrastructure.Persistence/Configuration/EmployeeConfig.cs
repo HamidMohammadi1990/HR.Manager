@@ -41,6 +41,12 @@ internal class EmployeeConfig : IEntityTypeConfiguration<Employee>
             .HasForeignKey(e => e.ManagerId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder
+            .HasOne(e => e.WorkShift)
+            .WithMany()
+            .HasForeignKey(e => e.WorkShiftId)
+            .OnDelete(DeleteBehavior.SetNull);
+
         builder.HasIndex(e => e.UserId).IsUnique();
         builder.HasIndex(e => e.EmployeeCode).IsUnique();
         builder.HasIndex(e => e.DepartmentId);

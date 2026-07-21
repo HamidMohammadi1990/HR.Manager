@@ -11,6 +11,13 @@ namespace JavidHrm.Infrastructure.Persistence.Repositories;
 public class DepartmentRepository(JavidHrmDbContext context)
     : Repository<Department>(context), IDepartmentRepository
 {
+    public Task<Department?> GetDetailAsync(int id, CancellationToken cancellationToken = default)
+        => Context.Department
+            .AsNoTracking()
+            .Include(x => x.ParentDepartment)
+            .Include(x => x.DefaultWorkShift)
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
     public async Task<PagedResult<GetAllDepartmentResponseDto>> GetAllAsync(
         GetAllDepartmentRequestDto request,
         Expression<Func<Department, bool>>? contentFilter = null)
@@ -19,10 +26,9 @@ public class DepartmentRepository(JavidHrmDbContext context)
 
         var departments =
             from department in departmentSource
-            join user in Context.User on department.UserId equals user.Id
-            join city in Context.City on department.CityId equals city.Id
-            join province in Context.Province on city.ProvinceId equals province.Id
-            select new { department, province, city, user };
+            join parent in Context.Department on department.ParentDepartmentId equals parent.Id into parentJoin
+            from parent in parentJoin.DefaultIfEmpty()
+            select new { department, parent };
 
         departments = departments.ApplyQueryFilters(request);
 
@@ -32,20 +38,12 @@ public class DepartmentRepository(JavidHrmDbContext context)
                 Id = x.department.Id,
                 Name = x.department.Name,
                 Code = x.department.Code,
-                CityId = x.department.CityId,
-                CityName = x.city.Name,
+                ParentDepartmentId = x.department.ParentDepartmentId,
+                ParentDepartmentName = x.parent != null ? x.parent.Name : null,
                 IsActive = x.department.IsActive,
-                Address = x.department.Address,
-                Email = x.department.Email,
-                Latitude = x.department.Latitude,
-                Longitude = x.department.Longitude,
-                PhoneNumber = x.department.PhoneNumber,
-                PostalCode = x.department.PostalCode,
-                ProvinceId = x.province.Id,
-                ProvinceName = x.province.Name,
                 UserId = x.department.UserId,
-                UserFirstName = x.user.FirstName,
-                UserLastName = x.user.LastName,
+                UserFirstName = null,
+                UserLastName = null,
                 Description = x.department.Description,
                 CreatedOnUtc = x.department.CreatedOnUtc,
             })
@@ -63,10 +61,9 @@ public class DepartmentRepository(JavidHrmDbContext context)
 
         var departments =
             from department in departmentSource
-            join user in Context.User on department.UserId equals user.Id
-            join city in Context.City on department.CityId equals city.Id
-            join province in Context.Province on city.ProvinceId equals province.Id
-            select new { department, province, city, user };
+            join parent in Context.Department on department.ParentDepartmentId equals parent.Id into parentJoin
+            from parent in parentJoin.DefaultIfEmpty()
+            select new { department, parent };
 
         departments = departments.ApplyQueryFilters(request);
 
@@ -76,19 +73,11 @@ public class DepartmentRepository(JavidHrmDbContext context)
                 Id = x.department.Id,
                 Name = x.department.Name,
                 Code = x.department.Code,
-                CityId = x.department.CityId,
-                CityName = x.city.Name,
-                Address = x.department.Address,
-                Email = x.department.Email,
-                Latitude = x.department.Latitude,
-                Longitude = x.department.Longitude,
-                PhoneNumber = x.department.PhoneNumber,
-                PostalCode = x.department.PostalCode,
-                ProvinceId = x.province.Id,
-                ProvinceName = x.province.Name,
+                ParentDepartmentId = x.department.ParentDepartmentId,
+                ParentDepartmentName = x.parent != null ? x.parent.Name : null,
                 UserId = x.department.UserId,
-                UserFirstName = x.user.FirstName,
-                UserLastName = x.user.LastName,
+                UserFirstName = null,
+                UserLastName = null,
                 Description = x.department.Description,
                 CreatedOnUtc = x.department.CreatedOnUtc,
             })

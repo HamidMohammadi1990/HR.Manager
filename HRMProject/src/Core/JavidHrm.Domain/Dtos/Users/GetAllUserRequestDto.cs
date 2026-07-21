@@ -5,40 +5,37 @@ namespace JavidHrm.Domain.Dtos.Users;
 
 public record GetAllUserRequestDto
 {
-    [QueryFilter(MemberPath = "user.UserName", Operator = FilterOperator.Contains)]
+    [QueryFilter(MemberPath = "UserName", Operator = FilterOperator.Contains)]
     public string? UserName { get; init; }
 
-    [QueryFilter(MemberPath = "user.FirstName", Operator = FilterOperator.Contains)]
+    [QueryFilter(MemberPath = "FirstName", Operator = FilterOperator.Contains)]
     public string? FirstName { get; init; }
 
-    [QueryFilter(MemberPath = "user.LastName", Operator = FilterOperator.Contains)]
+    [QueryFilter(MemberPath = "LastName", Operator = FilterOperator.Contains)]
     public string? LastName { get; init; }
 
-    [QueryFilter(MemberPath = "user.Email", Operator = FilterOperator.Contains)]
+    [QueryFilter(MemberPath = "Email", Operator = FilterOperator.Contains)]
     public string? Email { get; init; }
 
-    [QueryFilter(MemberPath = "user.PhoneNumber", Operator = FilterOperator.Contains)]
+    [QueryFilter(MemberPath = "PhoneNumber", Operator = FilterOperator.Contains)]
     public string? PhoneNumber { get; init; }
 
-    [QueryFilter(MemberPath = "user.EmailConfirmed")]
+    [QueryFilter(MemberPath = "EmailConfirmed")]
     public bool? EmailConfirmed { get; init; }
 
-    [QueryFilter(MemberPath = "user.PhoneNumberConfirmed")]
+    [QueryFilter(MemberPath = "PhoneNumberConfirmed")]
     public bool? PhoneNumberConfirmed { get; init; }
 
-    [QueryFilter(MemberPath = "user.LoginPermission")]
+    [QueryFilter(MemberPath = "LoginPermission")]
     public bool? LoginPermission { get; init; }
 
-    [QueryFilter(MemberPath = "user.Gender")]
+    [QueryFilter(MemberPath = "Gender")]
     public GenderType? Gender { get; init; }
 
-    [QueryFilter(MemberPath = "user.IsActive")]
+    [QueryFilter(MemberPath = "IsActive")]
     public bool? IsActive { get; init; }
 
     public string? Search { get; init; }
-
-    [QueryFilter(MemberPath = "user.CityId")]
-    public int? CityId { get; init; }
 
     public PagedRequest Pagination { get; init; } = default!;
 }

@@ -14,7 +14,6 @@ public class UserMapperService : IUserMapperService
         return new GetAllUserRequestDto
         {
             Email = model.Email,
-            CityId = model.CityId,
             Gender = model.Gender,
             IsActive = model.IsActive,
             LastName = model.LastName,
@@ -29,7 +28,7 @@ public class UserMapperService : IUserMapperService
         };
     }
 
-    public GetUserResponse Map(User model, string? cityName = null)
+    public GetUserResponse Map(User model)
     {
         return new GetUserResponse
         {
@@ -40,8 +39,6 @@ public class UserMapperService : IUserMapperService
             FirstName = model.FirstName,
             LastName = model.LastName,
             PhoneNumber = model.PhoneNumber,
-            CityId = model.CityId,
-            CityName = cityName,
             IsActive = model.IsActive,
             LoginPermission = model.LoginPermission,
             LastLoginDateOnUtc = model.LastLoginDateOnUtc,
@@ -58,8 +55,6 @@ public class UserMapperService : IUserMapperService
             {
                 Id = x.Id,
                 Email = x.Email,
-                CityId = x.CityId,
-                CityName = x.CityName,
                 FirstName = x.FirstName,
                 LastName = x.LastName,
                 Gender = x.Gender,

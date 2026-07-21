@@ -24,8 +24,12 @@ public class WorkShiftMapperService : IWorkShiftMapperService
             StartTime = model.StartTime,
             EndTime = model.EndTime,
             BreakMinutes = model.BreakMinutes,
+            GraceMinutes = model.GraceMinutes,
+            EarlyLeaveGraceMinutes = model.EarlyLeaveGraceMinutes,
+            IsOvernight = model.IsOvernight,
             IsActive = model.IsActive,
-            Description = model.Description
+            Description = model.Description,
+            Color = model.Color
         };
 
     public PagedResult<GetAllWorkShiftResponse> Map(PagedResult<GetAllWorkShiftResponseDto> model)
@@ -37,8 +41,12 @@ public class WorkShiftMapperService : IWorkShiftMapperService
             StartTime = x.StartTime,
             EndTime = x.EndTime,
             BreakMinutes = x.BreakMinutes,
+            GraceMinutes = x.GraceMinutes,
+            EarlyLeaveGraceMinutes = x.EarlyLeaveGraceMinutes,
+            IsOvernight = x.IsOvernight,
             IsActive = x.IsActive,
-            Description = x.Description
+            Description = x.Description,
+            Color = x.Color
         }).ToList();
 
         return PagedResult<GetAllWorkShiftResponse>.Create(items, model);

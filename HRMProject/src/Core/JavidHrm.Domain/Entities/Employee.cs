@@ -7,6 +7,7 @@ public class Employee : BaseEntity
     public int UserId { get; private set; }
     public int DepartmentId { get; private set; }
     public int? ManagerId { get; private set; }
+    public int? WorkShiftId { get; private set; }
     public string EmployeeCode { get; private set; } = default!;
     public string JobTitle { get; private set; } = default!;
     public DateTime HireDate { get; private set; }
@@ -16,12 +17,14 @@ public class Employee : BaseEntity
     public User User { get; private set; } = default!;
     public Department Department { get; private set; } = default!;
     public Employee? Manager { get; private set; }
+    public WorkShift? WorkShift { get; private set; }
     public ICollection<Employee> DirectReports { get; private set; } = [];
 
     public static Employee Create(
         int userId,
         int departmentId,
         int? managerId,
+        int? workShiftId,
         string employeeCode,
         string jobTitle,
         DateTime hireDate)
@@ -30,6 +33,7 @@ public class Employee : BaseEntity
             UserId = userId,
             DepartmentId = departmentId,
             ManagerId = managerId,
+            WorkShiftId = workShiftId,
             EmployeeCode = employeeCode,
             JobTitle = jobTitle,
             HireDate = hireDate,
@@ -39,12 +43,14 @@ public class Employee : BaseEntity
     public void Update(
         int departmentId,
         int? managerId,
+        int? workShiftId,
         string employeeCode,
         string jobTitle,
         DateTime hireDate)
     {
         DepartmentId = departmentId;
         ManagerId = managerId;
+        WorkShiftId = workShiftId;
         EmployeeCode = employeeCode;
         JobTitle = jobTitle;
         HireDate = hireDate;

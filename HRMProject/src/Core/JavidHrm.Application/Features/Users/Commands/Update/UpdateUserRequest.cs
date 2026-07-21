@@ -10,9 +10,6 @@ public record UpdateUserRequest : IRequest<OperationResult>
     [JsonConverter(typeof(UserEncryptor))]
     public int Id { get; init; }
 
-    [JsonConverter(typeof(CityEncryptor))]
-    public int CityId { get; init; }
-
     public string UserName { get; init; } = default!;
     public string FirstName { get; init; } = default!;
     public string LastName { get; init; } = default!;

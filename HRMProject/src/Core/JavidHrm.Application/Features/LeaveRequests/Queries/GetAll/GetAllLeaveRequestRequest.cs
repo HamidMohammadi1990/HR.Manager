@@ -10,16 +10,18 @@ namespace JavidHrm.Application.Features.LeaveRequests.Queries;
 
 public record GetAllLeaveRequestRequest : IRequest<OperationResult<PagedResult<GetAllLeaveRequestResponse>>>, IContentPolicyFilteredRequest<LeaveRequest>
 {
-    [JsonConverter(typeof(EmployeeNullableEncryptor))]
+    [JsonConverter(typeof(EmployeeEncryptor))]
     public int? EmployeeId { get; init; }
 
-    [JsonConverter(typeof(DepartmentNullableEncryptor))]
+    [JsonConverter(typeof(DepartmentEncryptor))]
     public int? DepartmentId { get; init; }
 
-    [JsonConverter(typeof(UserNullableEncryptor))]
+    [JsonConverter(typeof(UserEncryptor))]
     public int? UserId { get; init; }
 
-    public LeaveType? LeaveType { get; init; }
+    [JsonConverter(typeof(LeaveTypeDefinitionEncryptor))]
+    public int? LeaveTypeDefinitionId { get; init; }
+
     public LeaveRequestStatus? Status { get; init; }
     public string? FirstName { get; init; }
     public string? LastName { get; init; }

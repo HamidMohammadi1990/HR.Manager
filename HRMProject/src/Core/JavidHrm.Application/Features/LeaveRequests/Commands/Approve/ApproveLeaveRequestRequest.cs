@@ -8,4 +8,6 @@ public record ApproveLeaveRequestRequest : IRequest<OperationResult>
 {
     [JsonConverter(typeof(LeaveRequestEncryptor))]
     public int Id { get; init; }
+
+    public string? Comment { get; init; }
 }

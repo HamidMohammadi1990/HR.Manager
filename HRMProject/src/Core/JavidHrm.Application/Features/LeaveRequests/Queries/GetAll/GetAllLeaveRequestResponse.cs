@@ -21,10 +21,18 @@ public record GetAllLeaveRequestResponse
 
     public string DepartmentName { get; init; } = default!;
     public string EmployeeCode { get; init; } = default!;
-    public LeaveType LeaveType { get; init; }
+
+    [JsonConverter(typeof(LeaveTypeDefinitionEncryptor))]
+    public int LeaveTypeDefinitionId { get; init; }
+
+    public string LeaveTypeName { get; init; } = default!;
+    public LeaveTypeUnit LeaveTypeUnit { get; init; }
+    public string LeaveTypeCode { get; init; } = default!;
     public DateTime StartDate { get; init; }
     public DateTime EndDate { get; init; }
     public LeaveRequestStatus Status { get; init; }
     public string Reason { get; init; } = default!;
     public DateTime CreatedOnUtc { get; init; }
+    public int? CurrentApprovalStepOrder { get; init; }
+    public int? TotalApprovalSteps { get; init; }
 }

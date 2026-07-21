@@ -7,23 +7,25 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Dialog } from '@/components/layout/Dialog';
 import { useDisclosure } from '@/hooks';
-import { LEAVE_TYPE_LABELS, getPersonName } from '@/lib/hrLabels';
+import { getPersonName } from '@/lib/hrLabels';
 import {
   createLeaveBalance,
   deleteLeaveBalance,
   getAllEmployees,
   getAllLeaveBalances,
   getApiErrorMessage,
+  searchLeaveTypeDefinitions,
   updateLeaveBalance,
   type EmployeeDto,
   type LeaveBalanceDto,
+  type LeaveTypeDefinitionDto,
 } from '@/services/api';
 
 const PAGE_SIZE = 10;
 
 interface FormState {
   employeeId: string;
-  leaveType: number;
+  leaveTypeDefinitionId: string;
   year: string;
   totalDays: string;
   usedDays: string;
@@ -31,7 +33,7 @@ interface FormState {
 
 const emptyForm = (): FormState => ({
   employeeId: '',
-  leaveType: 1,
+  leaveTypeDefinitionId: '',
   year: String(new Date().getFullYear()),
   totalDays: '0',
   usedDays: '0',
@@ -49,6 +51,7 @@ export default function LeaveBalancesPage() {
 
   const [items, setItems] = useState<LeaveBalanceDto[]>([]);
   const [employees, setEmployees] = useState<EmployeeDto[]>([]);
+  const [leaveTypes, setLeaveTypes] = useState<LeaveTypeDefinitionDto[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [page, setPage] = useState(1);
   const [yearFilter, setYearFilter] = useState('');
@@ -70,13 +73,25 @@ export default function LeaveBalancesPage() {
     }
   }, []);
 
+  const loadLeaveTypes = useCallback(async () => {
+    try {
+      const result = await searchLeaveTypeDefinitions({
+        IsActive: true,
+        Pagination: { PageNumber: 1, PageSize: 100 },
+      });
+      setLeaveTypes(result.Items ?? []);
+    } catch {
+      setLeaveTypes([]);
+    }
+  }, []);
+
   const loadData = useCallback(async () => {
     setLoading(true);
     setError('');
     try {
       const result = await getAllLeaveBalances({
         Year: yearFilter ? Number(yearFilter) : undefined,
-        LeaveType: typeFilter ? Number(typeFilter) : undefined,
+        LeaveTypeDefinitionId: typeFilter || undefined,
         Pagination: { PageNumber: page, PageSize: PAGE_SIZE },
       });
       setItems(result.Items ?? []);
@@ -90,7 +105,8 @@ export default function LeaveBalancesPage() {
 
   useEffect(() => {
     void loadEmployees();
-  }, [loadEmployees]);
+    void loadLeaveTypes();
+  }, [loadEmployees, loadLeaveTypes]);
 
   useEffect(() => {
     void loadData();
@@ -106,7 +122,7 @@ export default function LeaveBalancesPage() {
   function toPayload(form: FormState) {
     return {
       EmployeeId: form.employeeId,
-      LeaveType: form.leaveType,
+      LeaveTypeDefinitionId: form.leaveTypeDefinitionId,
       Year: Number(form.year),
       TotalDays: Number(form.totalDays),
       UsedDays: Number(form.usedDays),
@@ -134,7 +150,7 @@ export default function LeaveBalancesPage() {
     setSelected(item);
     setEditForm({
       employeeId: item.EmployeeId,
-      leaveType: item.LeaveType,
+      leaveTypeDefinitionId: item.LeaveTypeDefinitionId,
       year: String(item.Year),
       totalDays: String(item.TotalDays),
       usedDays: String(item.UsedDays),
@@ -216,8 +232,8 @@ export default function LeaveBalancesPage() {
           </Select>
           <Select value={typeFilter} onChange={(e) => { setTypeFilter(e.target.value); setPage(1); }}>
             <option value="">همه انواع</option>
-            {Object.entries(LEAVE_TYPE_LABELS).map(([value, label]) => (
-              <option key={value} value={value}>{label}</option>
+            {leaveTypes.map((type) => (
+              <option key={type.Id} value={type.Id}>{type.Name}</option>
             ))}
           </Select>
         </div>
@@ -254,7 +270,7 @@ export default function LeaveBalancesPage() {
                           {getPersonName(item.UserFirstName, item.UserLastName, item.EmployeeCode)}
                         </td>
                         <td className="table-cell">{item.DepartmentName}</td>
-                        <td className="table-cell">{LEAVE_TYPE_LABELS[item.LeaveType]}</td>
+                        <td className="table-cell">{item.LeaveTypeName}</td>
                         <td className="table-cell">{item.Year.toLocaleString('fa-IR')}</td>
                         <td className="table-cell">{item.TotalDays.toLocaleString('fa-IR')}</td>
                         <td className="table-cell">{item.UsedDays.toLocaleString('fa-IR')}</td>
@@ -303,9 +319,10 @@ export default function LeaveBalancesPage() {
               <option value="">انتخاب کارمند</option>
               {employees.map((emp) => <option key={emp.Id} value={emp.Id}>{getEmployeeLabel(emp)}</option>)}
             </Select>
-            <Select value={String(createForm.leaveType)} onChange={(e) => setCreateForm({ ...createForm, leaveType: Number(e.target.value) })}>
-              {Object.entries(LEAVE_TYPE_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
+            <Select value={createForm.leaveTypeDefinitionId} onChange={(e) => setCreateForm({ ...createForm, leaveTypeDefinitionId: e.target.value })}>
+              <option value="">انتخاب نوع...</option>
+              {leaveTypes.map((type) => (
+                <option key={type.Id} value={type.Id}>{type.Name}</option>
               ))}
             </Select>
             <Input type="number" placeholder="سال" value={createForm.year} onChange={(e) => setCreateForm({ ...createForm, year: e.target.value })} required />
@@ -329,9 +346,9 @@ export default function LeaveBalancesPage() {
             <Select value={editForm.employeeId} onChange={(e) => setEditForm({ ...editForm, employeeId: e.target.value })} required>
               {employees.map((emp) => <option key={emp.Id} value={emp.Id}>{getEmployeeLabel(emp)}</option>)}
             </Select>
-            <Select value={String(editForm.leaveType)} onChange={(e) => setEditForm({ ...editForm, leaveType: Number(e.target.value) })}>
-              {Object.entries(LEAVE_TYPE_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
+            <Select value={editForm.leaveTypeDefinitionId} onChange={(e) => setEditForm({ ...editForm, leaveTypeDefinitionId: e.target.value })}>
+              {leaveTypes.map((type) => (
+                <option key={type.Id} value={type.Id}>{type.Name}</option>
               ))}
             </Select>
             <Input type="number" value={editForm.year} onChange={(e) => setEditForm({ ...editForm, year: e.target.value })} required />

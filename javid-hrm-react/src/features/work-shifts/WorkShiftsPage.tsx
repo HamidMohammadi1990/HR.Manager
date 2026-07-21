@@ -24,7 +24,11 @@ interface FormState {
   startTime: string;
   endTime: string;
   breakMinutes: string;
+  graceMinutes: string;
+  earlyLeaveGraceMinutes: string;
+  isOvernight: boolean;
   isActive: boolean;
+  color: string;
   description: string;
 }
 
@@ -33,7 +37,11 @@ const emptyForm = (): FormState => ({
   startTime: '08:00',
   endTime: '17:00',
   breakMinutes: '60',
+  graceMinutes: '15',
+  earlyLeaveGraceMinutes: '10',
+  isOvernight: false,
   isActive: true,
+  color: '#3B82F6',
   description: '',
 });
 
@@ -92,7 +100,11 @@ export default function WorkShiftsPage() {
       StartTime: form.startTime.length === 5 ? `${form.startTime}:00` : form.startTime,
       EndTime: form.endTime.length === 5 ? `${form.endTime}:00` : form.endTime,
       BreakMinutes: Number(form.breakMinutes) || 0,
+      GraceMinutes: Number(form.graceMinutes) || 0,
+      EarlyLeaveGraceMinutes: Number(form.earlyLeaveGraceMinutes) || 0,
+      IsOvernight: form.isOvernight,
       IsActive: form.isActive,
+      Color: form.color.trim() || null,
       Description: form.description.trim() || null,
     };
   }
@@ -121,7 +133,11 @@ export default function WorkShiftsPage() {
       startTime: formatTime(item.StartTime),
       endTime: formatTime(item.EndTime),
       breakMinutes: String(item.BreakMinutes),
+      graceMinutes: String(item.GraceMinutes ?? 0),
+      earlyLeaveGraceMinutes: String(item.EarlyLeaveGraceMinutes ?? 0),
+      isOvernight: item.IsOvernight ?? false,
       isActive: item.IsActive,
+      color: item.Color ?? '#3B82F6',
       description: item.Description ?? '',
     });
     setFormError('');
@@ -211,23 +227,38 @@ export default function WorkShiftsPage() {
                     <th className="table-head">نام</th>
                     <th className="table-head">شروع</th>
                     <th className="table-head">پایان</th>
-                    <th className="table-head">استراحت (دقیقه)</th>
+                    <th className="table-head">استراحت</th>
+                    <th className="table-head">تأخیر مجاز</th>
+                    <th className="table-head">نوع</th>
                     <th className="table-head">وضعیت</th>
                     <th className="table-head">عملیات</th>
                   </tr>
                 </thead>
                 <tbody className="table-body">
                   {loading ? (
-                    <tr className="table-row"><td colSpan={6} className="table-cell text-muted-foreground py-8 text-center text-sm">در حال بارگذاری...</td></tr>
+                    <tr className="table-row"><td colSpan={8} className="table-cell text-muted-foreground py-8 text-center text-sm">در حال بارگذاری...</td></tr>
                   ) : items.length === 0 ? (
-                    <tr className="table-row"><td colSpan={6} className="table-cell text-muted-foreground py-8 text-center text-sm">شیفتی یافت نشد</td></tr>
+                    <tr className="table-row"><td colSpan={8} className="table-cell text-muted-foreground py-8 text-center text-sm">شیفتی یافت نشد</td></tr>
                   ) : (
                     items.map((item) => (
                       <tr key={item.Id} className="table-row">
-                        <td className="table-cell font-medium">{item.Name}</td>
+                        <td className="table-cell font-medium">
+                          <div className="flex items-center gap-2">
+                            {item.Color && (
+                              <span className="inline-block size-3 rounded-full" style={{ backgroundColor: item.Color }} />
+                            )}
+                            {item.Name}
+                          </div>
+                        </td>
                         <td className="table-cell">{formatTime(item.StartTime)}</td>
                         <td className="table-cell">{formatTime(item.EndTime)}</td>
-                        <td className="table-cell">{item.BreakMinutes.toLocaleString('fa-IR')}</td>
+                        <td className="table-cell">{item.BreakMinutes.toLocaleString('fa-IR')} د</td>
+                        <td className="table-cell">{(item.GraceMinutes ?? 0).toLocaleString('fa-IR')} د</td>
+                        <td className="table-cell">
+                          <Badge variant={item.IsOvernight ? 'info' : 'secondary'}>
+                            {item.IsOvernight ? 'شبانه' : 'روزانه'}
+                          </Badge>
+                        </td>
                         <td className="table-cell">
                           <Badge variant={item.IsActive ? 'success' : 'secondary'}>
                             {item.IsActive ? 'فعال' : 'غیرفعال'}
@@ -282,6 +313,20 @@ export default function WorkShiftsPage() {
               required
             />
             <Input type="number" placeholder="دقیقه استراحت" value={createForm.breakMinutes} onChange={(e) => setCreateForm({ ...createForm, breakMinutes: e.target.value })} />
+            <div className="grid grid-cols-2 gap-3">
+              <Input type="number" placeholder="تأخیر مجاز (دقیقه)" value={createForm.graceMinutes} onChange={(e) => setCreateForm({ ...createForm, graceMinutes: e.target.value })} />
+              <Input type="number" placeholder="خروج زودهنگام مجاز" value={createForm.earlyLeaveGraceMinutes} onChange={(e) => setCreateForm({ ...createForm, earlyLeaveGraceMinutes: e.target.value })} />
+            </div>
+            <div className="flex flex-wrap items-center gap-4">
+              <label className="flex items-center gap-2 text-sm">
+                <input type="checkbox" checked={createForm.isOvernight} onChange={(e) => setCreateForm({ ...createForm, isOvernight: e.target.checked })} />
+                شیفت شبانه
+              </label>
+              <div className="flex items-center gap-2 text-sm">
+                <span>رنگ</span>
+                <input type="color" value={createForm.color} onChange={(e) => setCreateForm({ ...createForm, color: e.target.value })} />
+              </div>
+            </div>
             <Textarea placeholder="توضیحات" value={createForm.description} onChange={(e) => setCreateForm({ ...createForm, description: e.target.value })} />
           </div>
           <div className="dialog-footer">
@@ -309,6 +354,20 @@ export default function WorkShiftsPage() {
               required
             />
             <Input type="number" value={editForm.breakMinutes} onChange={(e) => setEditForm({ ...editForm, breakMinutes: e.target.value })} />
+            <div className="grid grid-cols-2 gap-3">
+              <Input type="number" placeholder="تأخیر مجاز" value={editForm.graceMinutes} onChange={(e) => setEditForm({ ...editForm, graceMinutes: e.target.value })} />
+              <Input type="number" placeholder="خروج زودهنگام مجاز" value={editForm.earlyLeaveGraceMinutes} onChange={(e) => setEditForm({ ...editForm, earlyLeaveGraceMinutes: e.target.value })} />
+            </div>
+            <div className="flex flex-wrap items-center gap-4">
+              <label className="flex items-center gap-2 text-sm">
+                <input type="checkbox" checked={editForm.isOvernight} onChange={(e) => setEditForm({ ...editForm, isOvernight: e.target.checked })} />
+                شیفت شبانه
+              </label>
+              <div className="flex items-center gap-2 text-sm">
+                <span>رنگ</span>
+                <input type="color" value={editForm.color} onChange={(e) => setEditForm({ ...editForm, color: e.target.value })} />
+              </div>
+            </div>
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={editForm.isActive} onChange={(e) => setEditForm({ ...editForm, isActive: e.target.checked })} />
               فعال

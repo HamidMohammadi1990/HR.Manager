@@ -99,7 +99,16 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedOnUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("EarlyLeaveMinutes")
+                        .HasColumnType("int");
+
                     b.Property<int>("EmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LateMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OvertimeMinutes")
                         .HasColumnType("int");
 
                     b.Property<int>("Status")
@@ -108,6 +117,12 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("WorkDate")
                         .HasColumnType("date");
 
+                    b.Property<int?>("WorkShiftId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WorkedMinutes")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("EmployeeId");
@@ -115,6 +130,8 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
                     b.HasIndex("Status");
 
                     b.HasIndex("WorkDate");
+
+                    b.HasIndex("WorkShiftId");
 
                     b.HasIndex("EmployeeId", "WorkDate")
                         .IsUnique();
@@ -170,30 +187,6 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
                     b.ToTable("BackupJob");
                 });
 
-            modelBuilder.Entity("JavidHrm.Domain.Entities.Bank", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Icon")
-                        .IsRequired()
-                        .HasColumnType("VARCHAR(50)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR(30)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Bank");
-                });
-
             modelBuilder.Entity("JavidHrm.Domain.Entities.CalendarEvent", b =>
                 {
                     b.Property<int>("Id")
@@ -243,85 +236,6 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("CalendarEvent");
-                });
-
-            modelBuilder.Entity("JavidHrm.Domain.Entities.ChartOfAccount", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AccountCode")
-                        .IsRequired()
-                        .HasColumnType("VARCHAR(20)");
-
-                    b.Property<int>("AccountDetailType")
-                        .HasColumnType("int");
-
-                    b.Property<string>("AccountTitle")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR(50)");
-
-                    b.Property<int>("AccountType")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Level")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ParentId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParentId");
-
-                    b.ToTable("ChartOfAccount");
-                });
-
-            modelBuilder.Entity("JavidHrm.Domain.Entities.City", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .HasColumnType("NVARCHAR(200)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<float?>("Latitude")
-                        .HasColumnType("real");
-
-                    b.Property<float?>("Longitude")
-                        .HasColumnType("real");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR(25)");
-
-                    b.Property<int>("ProvinceId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Rate")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Slug")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR(30)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProvinceId");
-
-                    b.HasIndex("Slug")
-                        .IsUnique();
-
-                    b.ToTable("City");
                 });
 
             modelBuilder.Entity("JavidHrm.Domain.Entities.ContentPolicy", b =>
@@ -445,30 +359,6 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
                     b.ToTable("ContentPolicyRule");
                 });
 
-            modelBuilder.Entity("JavidHrm.Domain.Entities.Currency", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("VARCHAR(5)");
-
-                    b.Property<bool>("IsDefault")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR(15)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Currency");
-                });
-
             modelBuilder.Entity("JavidHrm.Domain.Entities.Department", b =>
                 {
                     b.Property<int>("Id")
@@ -477,13 +367,6 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR(120)");
-
-                    b.Property<int>("CityId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasColumnType("VARCHAR(12)");
@@ -491,42 +374,33 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedOnUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("DefaultWorkShiftId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Description")
                         .HasColumnType("NVARCHAR(300)");
 
-                    b.Property<string>("Email")
-                        .HasColumnType("VARCHAR(35)");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
-
-                    b.Property<float>("Latitude")
-                        .HasColumnType("real");
-
-                    b.Property<float>("Longitude")
-                        .HasColumnType("real");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("NVARCHAR(30)");
 
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasColumnType("VARCHAR(11)");
-
-                    b.Property<string>("PostalCode")
-                        .IsRequired()
-                        .HasColumnType("VARCHAR(10)");
+                    b.Property<int?>("ParentDepartmentId")
+                        .HasColumnType("int");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CityId");
+                    b.HasIndex("DefaultWorkShiftId");
 
                     b.HasIndex("Name")
                         .IsUnique();
+
+                    b.HasIndex("ParentDepartmentId");
 
                     b.HasIndex("UserId");
 
@@ -567,6 +441,9 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("WorkShiftId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("DepartmentId");
@@ -581,10 +458,12 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
+                    b.HasIndex("WorkShiftId");
+
                     b.ToTable("Employee");
                 });
 
-            modelBuilder.Entity("JavidHrm.Domain.Entities.FinancialYear", b =>
+            modelBuilder.Entity("JavidHrm.Domain.Entities.EmployeeShiftSchedule", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -595,27 +474,30 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedOnUtc")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("DepartmentId")
+                    b.Property<DateTime>("EffectiveFrom")
+                        .HasColumnType("date");
+
+                    b.Property<DateTime?>("EffectiveTo")
+                        .HasColumnType("date");
+
+                    b.Property<int>("EmployeeId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("Note")
+                        .HasColumnType("NVARCHAR(300)");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR(50)");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("WorkShiftId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DepartmentId");
+                    b.HasIndex("EmployeeId");
 
-                    b.ToTable("FinancialYear");
+                    b.HasIndex("WorkShiftId");
+
+                    b.HasIndex("EmployeeId", "EffectiveFrom");
+
+                    b.ToTable("EmployeeShiftSchedule");
                 });
 
             modelBuilder.Entity("JavidHrm.Domain.Entities.LeaveBalance", b =>
@@ -629,25 +511,27 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
                     b.Property<int>("EmployeeId")
                         .HasColumnType("int");
 
-                    b.Property<int>("LeaveType")
+                    b.Property<int>("LeaveTypeDefinitionId")
                         .HasColumnType("int");
 
                     b.Property<decimal>("TotalDays")
-                        .HasPrecision(5, 2)
-                        .HasColumnType("decimal(5,2)");
+                        .HasPrecision(8, 2)
+                        .HasColumnType("decimal(8,2)");
 
                     b.Property<decimal>("UsedDays")
-                        .HasPrecision(5, 2)
-                        .HasColumnType("decimal(5,2)");
+                        .HasPrecision(8, 2)
+                        .HasColumnType("decimal(8,2)");
 
                     b.Property<int>("Year")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("LeaveTypeDefinitionId");
+
                     b.HasIndex("Year");
 
-                    b.HasIndex("EmployeeId", "LeaveType", "Year")
+                    b.HasIndex("EmployeeId", "LeaveTypeDefinitionId", "Year")
                         .IsUnique();
 
                     b.ToTable("LeaveBalance");
@@ -664,13 +548,16 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedOnUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("CurrentApprovalStepOrder")
+                        .HasColumnType("int");
+
                     b.Property<int>("EmployeeId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("EndDate")
-                        .HasColumnType("date");
+                        .HasColumnType("datetime2");
 
-                    b.Property<int>("LeaveType")
+                    b.Property<int>("LeaveTypeDefinitionId")
                         .HasColumnType("int");
 
                     b.Property<string>("Reason")
@@ -678,24 +565,169 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
                         .HasColumnType("NVARCHAR(500)");
 
                     b.Property<DateTime>("StartDate")
-                        .HasColumnType("date");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
+                    b.Property<int?>("SubmittedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TotalApprovalSteps")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("CurrentApprovalStepOrder");
 
                     b.HasIndex("EmployeeId");
 
                     b.HasIndex("EndDate");
 
-                    b.HasIndex("LeaveType");
+                    b.HasIndex("LeaveTypeDefinitionId");
 
                     b.HasIndex("StartDate");
 
                     b.HasIndex("Status");
 
                     b.ToTable("LeaveRequest");
+                });
+
+            modelBuilder.Entity("JavidHrm.Domain.Entities.LeaveRequestApprovalStep", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("ActionedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("ActionedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ApproverEmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("NVARCHAR(500)");
+
+                    b.Property<int>("LeaveRequestId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StepOrder")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApproverEmployeeId");
+
+                    b.HasIndex("LeaveRequestId");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("LeaveRequestId", "StepOrder")
+                        .IsUnique();
+
+                    b.ToTable("LeaveRequestApprovalStep");
+                });
+
+            modelBuilder.Entity("JavidHrm.Domain.Entities.LeaveTypeDefinition", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("AffectsLeaveBalance")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("AllowNegativeBalance")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CarryForwardEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Category")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("VARCHAR(12)");
+
+                    b.Property<string>("Color")
+                        .HasColumnType("VARCHAR(20)");
+
+                    b.Property<DateTime>("CreatedOnUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("DefaultAnnualAllowance")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("decimal(8,2)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("NVARCHAR(300)");
+
+                    b.Property<bool>("IncludeHolidays")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IncludeWeekends")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPaid")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal?>("MaxCarryForwardDays")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("decimal(8,2)");
+
+                    b.Property<decimal?>("MaxPerRequest")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("decimal(8,2)");
+
+                    b.Property<decimal?>("MaxPerYear")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("decimal(8,2)");
+
+                    b.Property<int?>("MinNoticeDays")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR(50)");
+
+                    b.Property<bool>("RequiresApproval")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Unit")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Category");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.HasIndex("SortOrder");
+
+                    b.ToTable("LeaveTypeDefinition");
                 });
 
             modelBuilder.Entity("JavidHrm.Domain.Entities.Notification", b =>
@@ -854,48 +886,6 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
                         });
                 });
 
-            modelBuilder.Entity("JavidHrm.Domain.Entities.Province", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .HasColumnType("NVARCHAR(200)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<float?>("Latitude")
-                        .HasColumnType("real");
-
-                    b.Property<float?>("Longitude")
-                        .HasColumnType("real");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR(25)");
-
-                    b.Property<int>("Rate")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Slug")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR(30)");
-
-                    b.Property<string>("TelPrefix")
-                        .HasColumnType("VARCHAR(6)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Slug")
-                        .IsUnique();
-
-                    b.ToTable("Province");
-                });
-
             modelBuilder.Entity("JavidHrm.Domain.Entities.RefreshToken", b =>
                 {
                     b.Property<long>("Id")
@@ -1045,9 +1035,6 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
-                    b.Property<int?>("CityId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Email")
                         .HasColumnType("VARCHAR(50)");
 
@@ -1102,8 +1089,6 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CityId");
-
                     b.HasIndex("Email")
                         .IsUnique()
                         .HasFilter("[Email] IS NOT NULL");
@@ -1123,53 +1108,6 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
                                     .HasPeriodEnd("PeriodEnd")
                                     .HasColumnName("PeriodEnd");
                             }));
-                });
-
-            modelBuilder.Entity("JavidHrm.Domain.Entities.UserAddress", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR(150)");
-
-                    b.Property<int>("CityId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasColumnType("VARCHAR(11)");
-
-                    b.Property<string>("PostalCode")
-                        .HasColumnType("VARCHAR(10)");
-
-                    b.Property<string>("RecipientFirstName")
-                        .HasColumnType("NVARCHAR(20)");
-
-                    b.Property<string>("RecipientLastName")
-                        .HasColumnType("NVARCHAR(30)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR(30)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CityId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserAddress");
                 });
 
             modelBuilder.Entity("JavidHrm.Domain.Entities.UserRole", b =>
@@ -1304,13 +1242,25 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
                     b.Property<int>("BreakMinutes")
                         .HasColumnType("int");
 
+                    b.Property<string>("Color")
+                        .HasColumnType("VARCHAR(20)");
+
                     b.Property<string>("Description")
                         .HasColumnType("NVARCHAR(500)");
+
+                    b.Property<int>("EarlyLeaveGraceMinutes")
+                        .HasColumnType("int");
 
                     b.Property<TimeOnly>("EndTime")
                         .HasColumnType("time");
 
+                    b.Property<int>("GraceMinutes")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsOvernight")
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
@@ -1360,7 +1310,14 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("JavidHrm.Domain.Entities.WorkShift", "WorkShift")
+                        .WithMany()
+                        .HasForeignKey("WorkShiftId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("Employee");
+
+                    b.Navigation("WorkShift");
                 });
 
             modelBuilder.Entity("JavidHrm.Domain.Entities.BackupJob", b =>
@@ -1389,27 +1346,6 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
                     b.Navigation("Department");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("JavidHrm.Domain.Entities.ChartOfAccount", b =>
-                {
-                    b.HasOne("JavidHrm.Domain.Entities.ChartOfAccount", "Parent")
-                        .WithMany("Children")
-                        .HasForeignKey("ParentId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Parent");
-                });
-
-            modelBuilder.Entity("JavidHrm.Domain.Entities.City", b =>
-                {
-                    b.HasOne("JavidHrm.Domain.Entities.Province", "Province")
-                        .WithMany("Cities")
-                        .HasForeignKey("ProvinceId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Province");
                 });
 
             modelBuilder.Entity("JavidHrm.Domain.Entities.ContentPolicy", b =>
@@ -1453,11 +1389,15 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("JavidHrm.Domain.Entities.Department", b =>
                 {
-                    b.HasOne("JavidHrm.Domain.Entities.City", "City")
-                        .WithMany("Departments")
-                        .HasForeignKey("CityId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                    b.HasOne("JavidHrm.Domain.Entities.WorkShift", "DefaultWorkShift")
+                        .WithMany()
+                        .HasForeignKey("DefaultWorkShiftId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("JavidHrm.Domain.Entities.Department", "ParentDepartment")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentDepartmentId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("JavidHrm.Domain.Entities.User", "User")
                         .WithMany("Departments")
@@ -1465,7 +1405,9 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("City");
+                    b.Navigation("DefaultWorkShift");
+
+                    b.Navigation("ParentDepartment");
 
                     b.Navigation("User");
                 });
@@ -1489,22 +1431,37 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("JavidHrm.Domain.Entities.WorkShift", "WorkShift")
+                        .WithMany()
+                        .HasForeignKey("WorkShiftId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("Department");
 
                     b.Navigation("Manager");
 
                     b.Navigation("User");
+
+                    b.Navigation("WorkShift");
                 });
 
-            modelBuilder.Entity("JavidHrm.Domain.Entities.FinancialYear", b =>
+            modelBuilder.Entity("JavidHrm.Domain.Entities.EmployeeShiftSchedule", b =>
                 {
-                    b.HasOne("JavidHrm.Domain.Entities.Department", "Department")
-                        .WithMany("FinancialYears")
-                        .HasForeignKey("DepartmentId")
+                    b.HasOne("JavidHrm.Domain.Entities.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("JavidHrm.Domain.Entities.WorkShift", "WorkShift")
+                        .WithMany()
+                        .HasForeignKey("WorkShiftId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Department");
+                    b.Navigation("Employee");
+
+                    b.Navigation("WorkShift");
                 });
 
             modelBuilder.Entity("JavidHrm.Domain.Entities.LeaveBalance", b =>
@@ -1515,7 +1472,15 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("JavidHrm.Domain.Entities.LeaveTypeDefinition", "LeaveTypeDefinition")
+                        .WithMany()
+                        .HasForeignKey("LeaveTypeDefinitionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Employee");
+
+                    b.Navigation("LeaveTypeDefinition");
                 });
 
             modelBuilder.Entity("JavidHrm.Domain.Entities.LeaveRequest", b =>
@@ -1526,7 +1491,33 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("JavidHrm.Domain.Entities.LeaveTypeDefinition", "LeaveTypeDefinition")
+                        .WithMany()
+                        .HasForeignKey("LeaveTypeDefinitionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Employee");
+
+                    b.Navigation("LeaveTypeDefinition");
+                });
+
+            modelBuilder.Entity("JavidHrm.Domain.Entities.LeaveRequestApprovalStep", b =>
+                {
+                    b.HasOne("JavidHrm.Domain.Entities.Employee", "ApproverEmployee")
+                        .WithMany()
+                        .HasForeignKey("ApproverEmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("JavidHrm.Domain.Entities.LeaveRequest", "LeaveRequest")
+                        .WithMany("ApprovalSteps")
+                        .HasForeignKey("LeaveRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ApproverEmployee");
+
+                    b.Navigation("LeaveRequest");
                 });
 
             modelBuilder.Entity("JavidHrm.Domain.Entities.Notification", b =>
@@ -1609,35 +1600,6 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("JavidHrm.Domain.Entities.User", b =>
-                {
-                    b.HasOne("JavidHrm.Domain.Entities.City", "City")
-                        .WithMany("Users")
-                        .HasForeignKey("CityId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("City");
-                });
-
-            modelBuilder.Entity("JavidHrm.Domain.Entities.UserAddress", b =>
-                {
-                    b.HasOne("JavidHrm.Domain.Entities.City", "City")
-                        .WithMany("UserAddresses")
-                        .HasForeignKey("CityId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("JavidHrm.Domain.Entities.User", "User")
-                        .WithMany("UserAddresses")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("City");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("JavidHrm.Domain.Entities.UserRole", b =>
                 {
                     b.HasOne("JavidHrm.Domain.Entities.Role", "Role")
@@ -1668,20 +1630,6 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("JavidHrm.Domain.Entities.ChartOfAccount", b =>
-                {
-                    b.Navigation("Children");
-                });
-
-            modelBuilder.Entity("JavidHrm.Domain.Entities.City", b =>
-                {
-                    b.Navigation("Departments");
-
-                    b.Navigation("UserAddresses");
-
-                    b.Navigation("Users");
-                });
-
             modelBuilder.Entity("JavidHrm.Domain.Entities.ContentPolicy", b =>
                 {
                     b.Navigation("RecordAccesses");
@@ -1691,7 +1639,7 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("JavidHrm.Domain.Entities.Department", b =>
                 {
-                    b.Navigation("FinancialYears");
+                    b.Navigation("Children");
                 });
 
             modelBuilder.Entity("JavidHrm.Domain.Entities.Employee", b =>
@@ -1699,16 +1647,16 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
                     b.Navigation("DirectReports");
                 });
 
+            modelBuilder.Entity("JavidHrm.Domain.Entities.LeaveRequest", b =>
+                {
+                    b.Navigation("ApprovalSteps");
+                });
+
             modelBuilder.Entity("JavidHrm.Domain.Entities.Permission", b =>
                 {
                     b.Navigation("Children");
 
                     b.Navigation("RolePermissions");
-                });
-
-            modelBuilder.Entity("JavidHrm.Domain.Entities.Province", b =>
-                {
-                    b.Navigation("Cities");
                 });
 
             modelBuilder.Entity("JavidHrm.Domain.Entities.Role", b =>
@@ -1723,8 +1671,6 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
                     b.Navigation("Departments");
 
                     b.Navigation("RefreshTokens");
-
-                    b.Navigation("UserAddresses");
 
                     b.Navigation("UserRoles");
 

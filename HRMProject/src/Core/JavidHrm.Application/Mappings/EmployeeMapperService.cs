@@ -22,7 +22,7 @@ public class EmployeeMapperService : IEmployeeMapperService
             Pagination = model.Pagination
         };
 
-    public GetEmployeeResponse Map(Employee model, User user, Department department, User? managerUser)
+    public GetEmployeeResponse Map(Employee model, User user, Department department, User? managerUser, WorkShift? workShift)
         => new()
         {
             Id = model.Id,
@@ -35,6 +35,8 @@ public class EmployeeMapperService : IEmployeeMapperService
             ManagerId = model.ManagerId,
             ManagerFirstName = managerUser?.FirstName,
             ManagerLastName = managerUser?.LastName,
+            WorkShiftId = model.WorkShiftId,
+            WorkShiftName = workShift?.Name,
             EmployeeCode = model.EmployeeCode,
             JobTitle = model.JobTitle,
             HireDate = model.HireDate,
@@ -56,6 +58,8 @@ public class EmployeeMapperService : IEmployeeMapperService
             ManagerId = x.ManagerId,
             ManagerFirstName = x.ManagerFirstName,
             ManagerLastName = x.ManagerLastName,
+            WorkShiftId = x.WorkShiftId,
+            WorkShiftName = x.WorkShiftName,
             EmployeeCode = x.EmployeeCode,
             JobTitle = x.JobTitle,
             HireDate = x.HireDate,

@@ -22,7 +22,9 @@ public class AttendanceRecordRepository(JavidHrmDbContext context)
             join employee in Context.Employee on record.EmployeeId equals employee.Id
             join user in Context.User on employee.UserId equals user.Id
             join department in Context.Department on employee.DepartmentId equals department.Id
-            select new { record, employee, user, department };
+            join workShift in Context.WorkShift on record.WorkShiftId equals workShift.Id into workShifts
+            from workShift in workShifts.DefaultIfEmpty()
+            select new { record, employee, user, department, workShift };
 
         records = records.ApplyQueryFilters(request);
 
@@ -41,6 +43,12 @@ public class AttendanceRecordRepository(JavidHrmDbContext context)
                 CheckInUtc = x.record.CheckInUtc,
                 CheckOutUtc = x.record.CheckOutUtc,
                 Status = x.record.Status,
+                WorkShiftId = x.record.WorkShiftId,
+                WorkShiftName = x.workShift != null ? x.workShift.Name : null,
+                LateMinutes = x.record.LateMinutes,
+                EarlyLeaveMinutes = x.record.EarlyLeaveMinutes,
+                OvertimeMinutes = x.record.OvertimeMinutes,
+                WorkedMinutes = x.record.WorkedMinutes,
                 CreatedOnUtc = x.record.CreatedOnUtc
             })
             .AsNoTracking()

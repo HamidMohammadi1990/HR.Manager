@@ -25,6 +25,11 @@ public record GetAllEmployeeResponse
 
     public string? ManagerFirstName { get; init; }
     public string? ManagerLastName { get; init; }
+
+    [JsonConverter(typeof(WorkShiftNullableEncryptor))]
+    public int? WorkShiftId { get; init; }
+
+    public string? WorkShiftName { get; init; }
     public string EmployeeCode { get; init; } = default!;
     public string JobTitle { get; init; } = default!;
     public DateTime HireDate { get; init; }

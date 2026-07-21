@@ -10,20 +10,17 @@ public record GetDepartmentResponse
 
     public string Code { get; init; } = default!;
     public string Name { get; init; } = default!;
-    public string? Email { get; init; }
 
-    [JsonConverter(typeof(UserEncryptor))]
-    public int UserId { get; init; }
+    [JsonConverter(typeof(DepartmentEncryptor))]
+    public int? ParentDepartmentId { get; init; }
 
-    [JsonConverter(typeof(CityEncryptor))]
-    public int CityId { get; init; }
+    public string? ParentDepartmentName { get; init; }
 
-    public string Address { get; init; } = default!;
+    [JsonConverter(typeof(WorkShiftNullableEncryptor))]
+    public int? DefaultWorkShiftId { get; init; }
+
+    public string? DefaultWorkShiftName { get; init; }
     public bool IsActive { get; init; }
-    public float Latitude { get; init; }
-    public float Longitude { get; init; }
-    public string PostalCode { get; init; } = default!;
-    public string PhoneNumber { get; init; } = default!;
     public string? Description { get; init; }
     public DateTime CreatedOnUtc { get; init; }
 }

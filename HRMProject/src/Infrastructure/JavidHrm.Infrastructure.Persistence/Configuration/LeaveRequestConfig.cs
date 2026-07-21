@@ -12,12 +12,12 @@ internal class LeaveRequestConfig : IEntityTypeConfiguration<LeaveRequest>
         builder
             .Property(e => e.StartDate)
             .IsRequired()
-            .HasColumnType("date");
+            .HasColumnType("datetime2");
 
         builder
             .Property(e => e.EndDate)
             .IsRequired()
-            .HasColumnType("date");
+            .HasColumnType("datetime2");
 
         builder
             .Property(e => e.Status)
@@ -34,10 +34,17 @@ internal class LeaveRequestConfig : IEntityTypeConfiguration<LeaveRequest>
             .HasForeignKey(e => e.EmployeeId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder
+            .HasOne(e => e.LeaveTypeDefinition)
+            .WithMany()
+            .HasForeignKey(e => e.LeaveTypeDefinitionId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasIndex(e => e.EmployeeId);
-        builder.HasIndex(e => e.LeaveType);
+        builder.HasIndex(e => e.LeaveTypeDefinitionId);
         builder.HasIndex(e => e.Status);
         builder.HasIndex(e => e.StartDate);
         builder.HasIndex(e => e.EndDate);
+        builder.HasIndex(e => e.CurrentApprovalStepOrder);
     }
 }

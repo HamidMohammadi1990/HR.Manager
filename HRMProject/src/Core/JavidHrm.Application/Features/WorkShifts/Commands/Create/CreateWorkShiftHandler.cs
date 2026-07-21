@@ -15,8 +15,12 @@ public class CreateWorkShiftHandler
             request.StartTime,
             request.EndTime,
             request.BreakMinutes,
+            request.GraceMinutes,
+            request.EarlyLeaveGraceMinutes,
+            request.IsOvernight,
             request.IsActive,
-            request.Description?.Trim());
+            request.Description?.Trim(),
+            request.Color?.Trim());
 
         workShiftRepository.Add(workShift);
 

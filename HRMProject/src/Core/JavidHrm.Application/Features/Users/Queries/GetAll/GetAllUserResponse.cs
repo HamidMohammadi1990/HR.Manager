@@ -21,9 +21,4 @@ public record GetAllUserResponse
     public bool IsActive { get; init; }
     public DateTime? LastLoginDateOnUtc { get; init; }
     public int AccessFailedCount { get; init; }
-
-    [JsonConverter(typeof(CityNullableEncryptor))]
-    public int? CityId { get; init; }
-
-    public string? CityName { get; set; }
 }

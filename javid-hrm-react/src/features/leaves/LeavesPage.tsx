@@ -1,4 +1,5 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import {
@@ -27,12 +28,18 @@ import {
   getAllEmployees,
   getAllLeaveRequests,
   getApiErrorMessage,
+  getEmployeeLeaveBalance,
+  getLeaveRequest,
   rejectLeaveRequest,
+  searchLeaveTypeDefinitions,
   updateLeaveRequest,
   type EmployeeDto,
+  type EmployeeLeaveBalanceDto,
   type LeaveRequestDto,
+  type LeaveTypeDefinitionDto,
 } from '@/services/api';
-import { LEAVE_STATUS_LABELS, LEAVE_TYPE_HOURLY, LEAVE_TYPE_LABELS, getPersonName } from '@/lib/hrLabels';
+import { LEAVE_STATUS_LABELS, LEAVE_TYPE_UNIT_HOUR, getPersonName } from '@/lib/hrLabels';
+import { formatApprovalProgress, LeaveApprovalTimeline } from '@/features/leaves/LeaveApprovalTimeline';
 import {
   combineGregorianDateAndTimeToIso,
   isoToGregorianDateString,
@@ -52,8 +59,8 @@ function getInitials(name: string) {
   return name.slice(0, 2) || '—';
 }
 
-function isHourlyLeaveType(leaveType: number) {
-  return leaveType === LEAVE_TYPE_HOURLY;
+function isHourlyLeaveUnit(unit: number) {
+  return unit === LEAVE_TYPE_UNIT_HOUR;
 }
 
 function leaveDurationDays(start: string, end: string) {
@@ -72,8 +79,8 @@ function leaveDurationHours(start: string, end: string) {
   return `${hours} ساعت و ${minutes} دقیقه`;
 }
 
-function formatLeaveDuration(request: Pick<LeaveRequestDto, 'LeaveType' | 'StartDate' | 'EndDate'>) {
-  if (isHourlyLeaveType(request.LeaveType)) {
+function formatLeaveDuration(request: Pick<LeaveRequestDto, 'LeaveTypeUnit' | 'StartDate' | 'EndDate'>) {
+  if (isHourlyLeaveUnit(request.LeaveTypeUnit)) {
     return leaveDurationHours(request.StartDate, request.EndDate);
   }
   return `${leaveDurationDays(request.StartDate, request.EndDate)} روز`;
@@ -87,8 +94,8 @@ function formatTimeFa(iso: string) {
   return new Date(iso).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
 }
 
-function formatDateRange(start: string, end: string, leaveType?: number) {
-  if (leaveType !== undefined && isHourlyLeaveType(leaveType)) {
+function formatDateRange(start: string, end: string, leaveTypeUnit?: number) {
+  if (leaveTypeUnit !== undefined && isHourlyLeaveUnit(leaveTypeUnit)) {
     return `${formatDateFa(start)} • ${formatTimeFa(start)} – ${formatTimeFa(end)}`;
   }
   return `${formatDateFa(start)} – ${formatDateFa(end)}`;
@@ -111,7 +118,7 @@ function getEmployeeLabel(employee: EmployeeDto) {
 
 interface LeaveFormState {
   employeeId: string;
-  leaveType: number;
+  leaveTypeDefinitionId: string;
   startDate: string;
   endDate: string;
   startTime: string;
@@ -122,7 +129,7 @@ interface LeaveFormState {
 
 const emptyCreateForm = (): LeaveFormState => ({
   employeeId: '',
-  leaveType: 1,
+  leaveTypeDefinitionId: '',
   startDate: '',
   endDate: '',
   startTime: '09:00',
@@ -131,8 +138,9 @@ const emptyCreateForm = (): LeaveFormState => ({
   reason: '',
 });
 
-function buildLeavePayloadDates(form: LeaveFormState) {
-  if (isHourlyLeaveType(form.leaveType)) {
+function buildLeavePayloadDates(form: LeaveFormState, leaveTypes: LeaveTypeDefinitionDto[]) {
+  const selectedType = leaveTypes.find((item) => item.Id === form.leaveTypeDefinitionId);
+  if (selectedType && isHourlyLeaveUnit(selectedType.Unit)) {
     if (!form.startDate) throw new Error('تاریخ الزامی است');
     if (!form.startTime || !form.endTime) throw new Error('ساعت شروع و پایان الزامی است');
 
@@ -150,18 +158,20 @@ function buildLeavePayloadDates(form: LeaveFormState) {
 
 function handleLeaveTypeChange(
   prev: LeaveFormState,
-  leaveType: number,
+  leaveTypeDefinitionId: string,
+  leaveTypes: LeaveTypeDefinitionDto[],
 ): LeaveFormState {
-  if (isHourlyLeaveType(leaveType)) {
+  const selectedType = leaveTypes.find((item) => item.Id === leaveTypeDefinitionId);
+  if (selectedType && isHourlyLeaveUnit(selectedType.Unit)) {
     return {
       ...prev,
-      leaveType,
+      leaveTypeDefinitionId,
       endDate: prev.startDate,
       startTime: prev.startTime || '09:00',
       endTime: prev.endTime || '10:00',
     };
   }
-  return { ...prev, leaveType };
+  return { ...prev, leaveTypeDefinitionId };
 }
 
 export default function LeavesPage() {
@@ -169,10 +179,14 @@ export default function LeavesPage() {
   const editDialog = useDisclosure();
   const deleteDialog = useDisclosure();
   const detailDialog = useDisclosure();
+  const actionDialog = useDisclosure();
 
   const [requests, setRequests] = useState<LeaveRequestDto[]>([]);
   const [statsItems, setStatsItems] = useState<LeaveRequestDto[]>([]);
   const [employees, setEmployees] = useState<EmployeeDto[]>([]);
+  const [leaveTypes, setLeaveTypes] = useState<LeaveTypeDefinitionDto[]>([]);
+  const [createBalance, setCreateBalance] = useState<EmployeeLeaveBalanceDto | null>(null);
+  const [balanceLoading, setBalanceLoading] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
   const [pageNumber, setPageNumber] = useState(1);
   const [statusFilter, setStatusFilter] = useState('');
@@ -188,6 +202,10 @@ export default function LeavesPage() {
   const [createForm, setCreateForm] = useState<LeaveFormState>(emptyCreateForm);
   const [editForm, setEditForm] = useState<LeaveFormState>(emptyCreateForm);
   const [selectedLeave, setSelectedLeave] = useState<LeaveRequestDto | null>(null);
+  const [detailLeave, setDetailLeave] = useState<LeaveRequestDto | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [actionType, setActionType] = useState<'approve' | 'reject'>('approve');
+  const [actionComment, setActionComment] = useState('');
 
   const loadEmployees = useCallback(async () => {
     try {
@@ -200,6 +218,18 @@ export default function LeavesPage() {
     }
   }, []);
 
+  const loadLeaveTypes = useCallback(async () => {
+    try {
+      const result = await searchLeaveTypeDefinitions({
+        IsActive: true,
+        Pagination: { PageNumber: 1, PageSize: 100 },
+      });
+      setLeaveTypes(result.Items ?? []);
+    } catch {
+      setLeaveTypes([]);
+    }
+  }, []);
+
   const loadData = useCallback(async () => {
     setIsLoading(true);
     setError('');
@@ -207,7 +237,7 @@ export default function LeavesPage() {
       const [listResult, statsResult] = await Promise.all([
         getAllLeaveRequests({
           Status: statusFilter ? Number(statusFilter) : undefined,
-          LeaveType: typeFilter ? Number(typeFilter) : undefined,
+          LeaveTypeDefinitionId: typeFilter || undefined,
           Pagination: { PageNumber: pageNumber, PageSize: PAGE_SIZE },
         }),
         getAllLeaveRequests({
@@ -240,7 +270,8 @@ export default function LeavesPage() {
 
   useEffect(() => {
     void loadEmployees();
-  }, [loadEmployees]);
+    void loadLeaveTypes();
+  }, [loadEmployees, loadLeaveTypes]);
 
   useEffect(() => {
     void loadData();
@@ -252,13 +283,40 @@ export default function LeavesPage() {
     const pending = statsItems.filter((item) => item.Status === LEAVE_STATUS.Pending).length;
     const approved = statsItems.filter((item) => item.Status === LEAVE_STATUS.Approved).length;
     const rejected = statsItems.filter((item) => item.Status === LEAVE_STATUS.Rejected).length;
-    const byType = Object.entries(LEAVE_TYPE_LABELS).map(([key, label]) => ({
-      type: Number(key),
-      label,
-      count: statsItems.filter((item) => item.LeaveType === Number(key)).length,
+    const byType = leaveTypes.map((type) => ({
+      id: type.Id,
+      label: type.Name,
+      count: statsItems.filter((item) => item.LeaveTypeDefinitionId === type.Id).length,
     }));
     return { total: statsItems.length, pending, approved, rejected, byType };
-  }, [statsItems]);
+  }, [statsItems, leaveTypes]);
+
+  useEffect(() => {
+    if (!createDialog.isOpen || !createForm.employeeId || !createForm.leaveTypeDefinitionId) {
+      setCreateBalance(null);
+      return;
+    }
+
+    let cancelled = false;
+    setBalanceLoading(true);
+    void getEmployeeLeaveBalance({
+      EmployeeId: createForm.employeeId,
+      LeaveTypeDefinitionId: createForm.leaveTypeDefinitionId,
+    })
+      .then((balance) => {
+        if (!cancelled) setCreateBalance(balance);
+      })
+      .catch(() => {
+        if (!cancelled) setCreateBalance(null);
+      })
+      .finally(() => {
+        if (!cancelled) setBalanceLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [createDialog.isOpen, createForm.employeeId, createForm.leaveTypeDefinitionId]);
 
   const pendingItems = useMemo(
     () => statsItems.filter((item) => item.Status === LEAVE_STATUS.Pending).slice(0, 8),
@@ -300,11 +358,13 @@ export default function LeavesPage() {
       if (!createForm.employeeId) throw new Error('کارمند را انتخاب کنید');
       if (!createForm.reason.trim()) throw new Error('دلیل مرخصی الزامی است');
 
-      const { startDate, endDate } = buildLeavePayloadDates(createForm);
+      if (!createForm.leaveTypeDefinitionId) throw new Error('نوع مرخصی را انتخاب کنید');
+
+      const { startDate, endDate } = buildLeavePayloadDates(createForm, leaveTypes);
 
       await createLeaveRequest({
         EmployeeId: createForm.employeeId,
-        LeaveType: createForm.leaveType,
+        LeaveTypeDefinitionId: createForm.leaveTypeDefinitionId,
         StartDate: startDate,
         EndDate: endDate,
         Reason: createForm.reason.trim(),
@@ -324,7 +384,7 @@ export default function LeavesPage() {
     setSelectedLeave(request);
     setEditForm({
       employeeId: request.EmployeeId,
-      leaveType: request.LeaveType,
+      leaveTypeDefinitionId: request.LeaveTypeDefinitionId,
       startDate: toDateInputValue(request.StartDate),
       endDate: toDateInputValue(request.EndDate),
       startTime: isoToTimeString(request.StartDate) || '09:00',
@@ -338,7 +398,21 @@ export default function LeavesPage() {
 
   function openDetail(request: LeaveRequestDto) {
     setSelectedLeave(request);
+    setDetailLeave(null);
+    setDetailLoading(true);
     detailDialog.open();
+    void getLeaveRequest(request.Id)
+      .then(setDetailLeave)
+      .catch((err) => setFormError(getApiErrorMessage(err)))
+      .finally(() => setDetailLoading(false));
+  }
+
+  function openAction(request: LeaveRequestDto, type: 'approve' | 'reject') {
+    setSelectedLeave(request);
+    setActionType(type);
+    setActionComment('');
+    setFormError('');
+    actionDialog.open();
   }
 
   function openDelete(request: LeaveRequestDto) {
@@ -355,12 +429,12 @@ export default function LeavesPage() {
     try {
       if (!editForm.reason.trim()) throw new Error('دلیل مرخصی الزامی است');
 
-      const { startDate, endDate } = buildLeavePayloadDates(editForm);
+      const { startDate, endDate } = buildLeavePayloadDates(editForm, leaveTypes);
 
       await updateLeaveRequest({
         Id: selectedLeave.Id,
         EmployeeId: editForm.employeeId,
-        LeaveType: editForm.leaveType,
+        LeaveTypeDefinitionId: editForm.leaveTypeDefinitionId,
         StartDate: startDate,
         EndDate: endDate,
         Status: editForm.status,
@@ -394,29 +468,27 @@ export default function LeavesPage() {
     }
   }
 
-  async function handleApprove(id: string) {
-    setActionId(id);
-    setError('');
-    try {
-      await approveLeaveRequest(id);
-      await loadData();
-    } catch (err) {
-      setError(getApiErrorMessage(err));
-    } finally {
-      setActionId(null);
-    }
-  }
+  async function handleActionSubmit(event: FormEvent) {
+    event.preventDefault();
+    if (!selectedLeave) return;
 
-  async function handleReject(id: string) {
-    setActionId(id);
-    setError('');
+    setIsSubmitting(true);
+    setFormError('');
     try {
-      await rejectLeaveRequest(id);
+      if (actionType === 'approve') {
+        await approveLeaveRequest(selectedLeave.Id, actionComment.trim() || undefined);
+      } else {
+        await rejectLeaveRequest(selectedLeave.Id, actionComment.trim() || undefined);
+      }
+      actionDialog.close();
+      detailDialog.close();
+      setSelectedLeave(null);
+      setDetailLeave(null);
       await loadData();
     } catch (err) {
-      setError(getApiErrorMessage(err));
+      setFormError(getApiErrorMessage(err));
     } finally {
-      setActionId(null);
+      setIsSubmitting(false);
     }
   }
 
@@ -426,10 +498,19 @@ export default function LeavesPage() {
         title="مدیریت مرخصی‌ها"
         description="درخواست، تأیید و پیگیری مرخصی‌های پرسنل"
         actions={
-          <Button variant="default" onClick={createDialog.open}>
-            <Icon name="material-symbols:add" className="size-4" />
-            درخواست مرخصی
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              to="/leaves/inbox"
+              className="border-input bg-background hover:bg-muted inline-flex h-9 items-center gap-2 rounded-md border px-4 text-sm font-medium"
+            >
+              <Icon name="material-symbols:inbox" className="size-4" />
+              کارتابل تأیید
+            </Link>
+            <Button variant="default" onClick={createDialog.open}>
+              <Icon name="material-symbols:add" className="size-4" />
+              درخواست مرخصی
+            </Button>
+          </div>
         }
       />
 
@@ -509,9 +590,9 @@ export default function LeavesPage() {
               }}
             >
               <option value="">همه انواع</option>
-              {Object.entries(LEAVE_TYPE_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
+              {leaveTypes.map((type) => (
+                <option key={type.Id} value={type.Id}>
+                  {type.Name}
                 </option>
               ))}
             </Select>
@@ -554,8 +635,6 @@ export default function LeavesPage() {
                 ) : (
                   requests.map((request) => {
                     const personName = getLeavePersonName(request);
-                    const isPending = request.Status === LEAVE_STATUS.Pending;
-                    const isBusy = actionId === request.Id;
 
                     return (
                       <tr key={request.Id} className="table-row">
@@ -567,43 +646,35 @@ export default function LeavesPage() {
                         </td>
                         <td className="table-cell text-sm">{request.DepartmentName}</td>
                         <td className="table-cell text-sm">
-                          {LEAVE_TYPE_LABELS[request.LeaveType] ?? request.LeaveType}
+                          {request.LeaveTypeName}
                         </td>
                         <td className="table-cell text-sm">
-                          {formatDateRange(request.StartDate, request.EndDate, request.LeaveType)}
+                          {formatDateRange(request.StartDate, request.EndDate, request.LeaveTypeUnit)}
                         </td>
                         <td className="table-cell text-sm">
                           {formatLeaveDuration(request)}
                         </td>
                         <td className="table-cell">
-                          <Badge variant={statusBadgeVariant(request.Status)}>
-                            {LEAVE_STATUS_LABELS[request.Status] ?? request.Status}
-                          </Badge>
+                          <div className="flex flex-col gap-1">
+                            <Badge variant={statusBadgeVariant(request.Status)}>
+                              {LEAVE_STATUS_LABELS[request.Status] ?? request.Status}
+                            </Badge>
+                            {request.Status === LEAVE_STATUS.Pending &&
+                              formatApprovalProgress(
+                                request.CurrentApprovalStepOrder,
+                                request.TotalApprovalSteps,
+                              ) && (
+                                <span className="text-muted-foreground text-xs">
+                                  {formatApprovalProgress(
+                                    request.CurrentApprovalStepOrder,
+                                    request.TotalApprovalSteps,
+                                  )}
+                                </span>
+                              )}
+                          </div>
                         </td>
                         <td className="table-cell">
                           <div className="flex flex-wrap items-center gap-1">
-                            {isPending && (
-                              <>
-                                <Button
-                                  size="icon-sm"
-                                  className="bg-emerald-500 text-white hover:bg-emerald-600"
-                                  disabled={isBusy}
-                                  onClick={() => void handleApprove(request.Id)}
-                                  title="تأیید"
-                                >
-                                  <Icon name="material-symbols:check" className="size-4" />
-                                </Button>
-                                <Button
-                                  size="icon-sm"
-                                  className="bg-red-500 text-white hover:bg-red-600"
-                                  disabled={isBusy}
-                                  onClick={() => void handleReject(request.Id)}
-                                  title="رد"
-                                >
-                                  <Icon name="material-symbols:close" className="size-4" />
-                                </Button>
-                              </>
-                            )}
                             <Button
                               variant="ghost"
                               size="icon-sm"
@@ -708,13 +779,13 @@ export default function LeavesPage() {
                           <div>
                             <div className="text-muted-foreground text-xs">نوع</div>
                             <div className="text-sm font-medium">
-                              {LEAVE_TYPE_LABELS[request.LeaveType]}
+                              {request.LeaveTypeName}
                             </div>
                           </div>
                           <div>
                             <div className="text-muted-foreground text-xs">تاریخ</div>
                             <div className="text-sm font-medium">
-                              {formatDateRange(request.StartDate, request.EndDate, request.LeaveType)}
+                              {formatDateRange(request.StartDate, request.EndDate, request.LeaveTypeUnit)}
                             </div>
                           </div>
                           <div>
@@ -732,7 +803,7 @@ export default function LeavesPage() {
                             size="sm"
                             className="bg-emerald-500 text-white hover:bg-emerald-600"
                             disabled={isBusy}
-                            onClick={() => void handleApprove(request.Id)}
+                            onClick={() => openAction(request, 'approve')}
                           >
                             <Icon name="material-symbols:check" className="size-3" />
                             تأیید
@@ -741,7 +812,7 @@ export default function LeavesPage() {
                             size="sm"
                             className="bg-red-500 text-white hover:bg-red-600"
                             disabled={isBusy}
-                            onClick={() => void handleReject(request.Id)}
+                            onClick={() => openAction(request, 'reject')}
                           >
                             <Icon name="material-symbols:close" className="size-3" />
                             رد
@@ -788,11 +859,11 @@ export default function LeavesPage() {
                         <div className="flex-1">
                           <div className="font-medium">{personName}</div>
                           <div className="text-muted-foreground text-sm">
-                            {LEAVE_TYPE_LABELS[request.LeaveType]} • {request.DepartmentName}
+                            {request.LeaveTypeName} • {request.DepartmentName}
                           </div>
                         </div>
                         <div className="text-muted-foreground text-sm">
-                          {formatDateRange(request.StartDate, request.EndDate, request.LeaveType)}
+                          {formatDateRange(request.StartDate, request.EndDate, request.LeaveTypeUnit)}
                         </div>
                       </div>
                     );
@@ -813,7 +884,7 @@ export default function LeavesPage() {
           <CardContent>
             <div className="space-y-3">
               {stats.byType.map((item) => (
-                <div key={item.type} className="flex items-center justify-between text-sm">
+                <div key={item.id} className="flex items-center justify-between text-sm">
                   <span>{item.label}</span>
                   <span className="font-medium">{item.count}</span>
                 </div>
@@ -840,7 +911,7 @@ export default function LeavesPage() {
                   statsItems.length > 0
                     ? (() => {
                         const dailyItems = statsItems.filter(
-                          (item) => !isHourlyLeaveType(item.LeaveType),
+                          (item) => !isHourlyLeaveUnit(item.LeaveTypeUnit),
                         );
                         if (dailyItems.length === 0) return '—';
                         return `${Math.round(
@@ -899,10 +970,10 @@ export default function LeavesPage() {
                           </div>
                         </td>
                         <td className="table-cell text-sm">
-                          {LEAVE_TYPE_LABELS[request.LeaveType]}
+                          {request.LeaveTypeName}
                         </td>
                         <td className="table-cell text-sm">
-                          {formatDateRange(request.StartDate, request.EndDate, request.LeaveType)}
+                          {formatDateRange(request.StartDate, request.EndDate, request.LeaveTypeUnit)}
                         </td>
                         <td className="table-cell text-sm">
                           {formatLeaveDuration(request)}
@@ -958,21 +1029,39 @@ export default function LeavesPage() {
             <div className="space-y-2">
               <label className="label">نوع مرخصی</label>
               <Select
-                value={String(createForm.leaveType)}
+                required
+                value={createForm.leaveTypeDefinitionId}
                 onChange={(event) =>
                   setCreateForm((prev) =>
-                    handleLeaveTypeChange(prev, Number(event.target.value)),
+                    handleLeaveTypeChange(prev, event.target.value, leaveTypes),
                   )
                 }
               >
-                {Object.entries(LEAVE_TYPE_LABELS).map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
+                <option value="">انتخاب نوع مرخصی...</option>
+                {leaveTypes.map((type) => (
+                  <option key={type.Id} value={type.Id}>
+                    {type.Name}
                   </option>
                 ))}
               </Select>
             </div>
-            {isHourlyLeaveType(createForm.leaveType) ? (
+            {createBalance?.AffectsLeaveBalance && (
+              <div className="rounded-lg border bg-muted/30 px-3 py-2 text-sm">
+                {balanceLoading ? (
+                  <span className="text-muted-foreground">در حال بارگذاری مانده...</span>
+                ) : (
+                  <span>
+                    مانده سال جاری:{' '}
+                    <strong>{createBalance.RemainingDays.toLocaleString('fa-IR')}</strong>
+                    {' '}از {createBalance.TotalDays.toLocaleString('fa-IR')}
+                  </span>
+                )}
+              </div>
+            )}
+            {(() => {
+              const selectedType = leaveTypes.find((item) => item.Id === createForm.leaveTypeDefinitionId);
+              return selectedType && isHourlyLeaveUnit(selectedType.Unit);
+            })() ? (
               <PersianHourlyLeaveField
                 date={createForm.startDate}
                 startTime={createForm.startTime}
@@ -1053,21 +1142,24 @@ export default function LeavesPage() {
             <div className="space-y-2">
               <label className="label">نوع مرخصی</label>
               <Select
-                value={String(editForm.leaveType)}
+                value={editForm.leaveTypeDefinitionId}
                 onChange={(event) =>
                   setEditForm((prev) =>
-                    handleLeaveTypeChange(prev, Number(event.target.value)),
+                    handleLeaveTypeChange(prev, event.target.value, leaveTypes),
                   )
                 }
               >
-                {Object.entries(LEAVE_TYPE_LABELS).map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
+                {leaveTypes.map((type) => (
+                  <option key={type.Id} value={type.Id}>
+                    {type.Name}
                   </option>
                 ))}
               </Select>
             </div>
-            {isHourlyLeaveType(editForm.leaveType) ? (
+            {(() => {
+              const selectedType = leaveTypes.find((item) => item.Id === editForm.leaveTypeDefinitionId);
+              return selectedType && isHourlyLeaveUnit(selectedType.Unit);
+            })() ? (
               <PersianHourlyLeaveField
                 date={editForm.startDate}
                 startTime={editForm.startTime}
@@ -1132,7 +1224,7 @@ export default function LeavesPage() {
         </form>
       </Dialog>
 
-      <Dialog open={detailDialog.isOpen} onClose={detailDialog.close} className="max-w-md">
+      <Dialog open={detailDialog.isOpen} onClose={detailDialog.close} className="max-w-lg">
         <button type="button" className="dialog-close" onClick={detailDialog.close}>
           <Icon name="material-symbols:close" className="size-4" />
         </button>
@@ -1141,7 +1233,7 @@ export default function LeavesPage() {
             <div className="dialog-header">
               <h3 className="dialog-title">جزئیات درخواست مرخصی</h3>
             </div>
-            <div className="space-y-3 px-6 py-4 text-sm">
+            <div className="space-y-4 px-6 py-4 text-sm">
               <div className="flex justify-between gap-4">
                 <span className="text-muted-foreground">کارمند</span>
                 <span className="font-medium">{getLeavePersonName(selectedLeave)}</span>
@@ -1152,7 +1244,7 @@ export default function LeavesPage() {
               </div>
               <div className="flex justify-between gap-4">
                 <span className="text-muted-foreground">نوع</span>
-                <span>{LEAVE_TYPE_LABELS[selectedLeave.LeaveType]}</span>
+                <span>{selectedLeave.LeaveTypeName}</span>
               </div>
               <div className="flex justify-between gap-4">
                 <span className="text-muted-foreground">بازه</span>
@@ -1160,7 +1252,7 @@ export default function LeavesPage() {
                   {formatDateRange(
                     selectedLeave.StartDate,
                     selectedLeave.EndDate,
-                    selectedLeave.LeaveType,
+                    selectedLeave.LeaveTypeUnit,
                   )}
                 </span>
               </div>
@@ -1174,6 +1266,20 @@ export default function LeavesPage() {
                   {LEAVE_STATUS_LABELS[selectedLeave.Status]}
                 </Badge>
               </div>
+              {formatApprovalProgress(
+                detailLeave?.CurrentApprovalStepOrder ?? selectedLeave.CurrentApprovalStepOrder,
+                detailLeave?.TotalApprovalSteps ?? selectedLeave.TotalApprovalSteps,
+              ) && (
+                <div className="flex justify-between gap-4">
+                  <span className="text-muted-foreground">پیشرفت تأیید</span>
+                  <span>
+                    {formatApprovalProgress(
+                      detailLeave?.CurrentApprovalStepOrder ?? selectedLeave.CurrentApprovalStepOrder,
+                      detailLeave?.TotalApprovalSteps ?? selectedLeave.TotalApprovalSteps,
+                    )}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between gap-4">
                 <span className="text-muted-foreground">تاریخ ثبت</span>
                 <span>{formatDateFa(selectedLeave.CreatedOnUtc)}</span>
@@ -1184,14 +1290,85 @@ export default function LeavesPage() {
                   <p>{selectedLeave.Reason}</p>
                 </div>
               )}
+              <div>
+                <div className="mb-3 font-medium">زنجیره تأیید</div>
+                {detailLoading ? (
+                  <p className="text-muted-foreground text-sm">در حال بارگذاری...</p>
+                ) : (
+                  <LeaveApprovalTimeline steps={detailLeave?.ApprovalSteps ?? []} />
+                )}
+              </div>
             </div>
             <div className="dialog-footer">
               <Button variant="outline" onClick={detailDialog.close}>
                 بستن
               </Button>
+              {detailLeave?.CanCurrentUserAct && selectedLeave.Status === LEAVE_STATUS.Pending && (
+                <>
+                  <Button
+                    className="bg-emerald-500 text-white hover:bg-emerald-600"
+                    onClick={() => {
+                      detailDialog.close();
+                      openAction(selectedLeave, 'approve');
+                    }}
+                  >
+                    تأیید
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={() => {
+                      detailDialog.close();
+                      openAction(selectedLeave, 'reject');
+                    }}
+                  >
+                    رد
+                  </Button>
+                </>
+              )}
             </div>
           </>
         )}
+      </Dialog>
+
+      <Dialog open={actionDialog.isOpen} onClose={actionDialog.close} className="max-w-md">
+        <button type="button" className="dialog-close" onClick={actionDialog.close}>
+          <Icon name="material-symbols:close" className="size-4" />
+        </button>
+        <form onSubmit={(event) => void handleActionSubmit(event)}>
+          <div className="dialog-header">
+            <h3 className="dialog-title">
+              {actionType === 'approve' ? 'تأیید درخواست مرخصی' : 'رد درخواست مرخصی'}
+            </h3>
+          </div>
+          {formError && <p className="text-destructive px-6 text-sm">{formError}</p>}
+          <div className="space-y-4 px-6 py-4">
+            <div className="space-y-2">
+              <label className="label">توضیحات (اختیاری)</label>
+              <Textarea
+                rows={3}
+                placeholder="یادداشت برای ثبت در گردش تأیید..."
+                value={actionComment}
+                onChange={(event) => setActionComment(event.target.value)}
+              />
+            </div>
+          </div>
+          <div className="dialog-footer">
+            <Button type="button" variant="outline" onClick={actionDialog.close}>
+              انصراف
+            </Button>
+            <Button
+              type="submit"
+              variant={actionType === 'approve' ? 'default' : 'destructive'}
+              disabled={isSubmitting}
+            >
+              {isSubmitting
+                ? 'در حال پردازش...'
+                : actionType === 'approve'
+                  ? 'تأیید'
+                  : 'رد درخواست'}
+            </Button>
+          </div>
+        </form>
       </Dialog>
 
       <Dialog open={deleteDialog.isOpen} onClose={deleteDialog.close} className="max-w-md">

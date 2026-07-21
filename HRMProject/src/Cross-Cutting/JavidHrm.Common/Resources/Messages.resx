@@ -161,7 +161,11 @@
   <data name="IpRequired" xml:space="preserve"><value>IP address is required</value></data>
   <data name="StartDateMustBeBeforeEndDate" xml:space="preserve"><value>Start date must be before end date</value></data>
   <data name="OverlappingLeavePeriod" xml:space="preserve"><value>Leave period overlaps with an existing request</value></data>
+  <data name="WorkShiftInUse" xml:space="preserve"><value>This work shift is assigned and cannot be deleted</value></data>
+  <data name="OverlappingShiftSchedule" xml:space="preserve"><value>Shift schedule overlaps with an existing assignment</value></data>
   <data name="LeaveRequestNotPending" xml:space="preserve"><value>Only pending leave requests can be approved or rejected</value></data>
+  <data name="LeaveApprovalUnauthorized" xml:space="preserve"><value>You are not authorized to act on this approval step</value></data>
+  <data name="LeaveApprovalStepNotFound" xml:space="preserve"><value>No pending approval step was found for this leave request</value></data>
   <data name="CheckOutMustBeAfterCheckIn" xml:space="preserve"><value>Check-out time must be after check-in time</value></data>
   <data name="AttendanceAlreadyCheckedIn" xml:space="preserve"><value>Employee has already checked in for this day</value></data>
   <data name="AttendanceNotCheckedIn" xml:space="preserve"><value>Employee has not checked in for this day</value></data>

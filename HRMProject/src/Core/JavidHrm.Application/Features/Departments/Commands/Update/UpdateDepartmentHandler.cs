@@ -15,16 +15,11 @@ public class UpdateDepartmentHandler
             return ErrorModel.Create("InvalidId");
 
         department.Update(
-            request.CityId,
-            request.Name,
-            request.Code,
-            request.PhoneNumber,
-            request.Email,
-            request.PostalCode,
-            request.Address,
-            request.Description,
-            request.Latitude,
-            request.Longitude);
+            request.Name.Trim(),
+            request.Code.Trim(),
+            request.Description?.Trim(),
+            request.ParentDepartmentId,
+            request.DefaultWorkShiftId);
 
         if (request.IsActive)
             department.Active();
@@ -32,9 +27,6 @@ public class UpdateDepartmentHandler
             department.InActive();
 
         var saveChangesResult = await uow.SaveChangesAsync(cancellationToken);
-        if (!saveChangesResult.IsSuccess)
-            return saveChangesResult;
-
-        return OperationResult.Success();
+        return saveChangesResult.IsSuccess ? OperationResult.Success() : saveChangesResult;
     }
 }

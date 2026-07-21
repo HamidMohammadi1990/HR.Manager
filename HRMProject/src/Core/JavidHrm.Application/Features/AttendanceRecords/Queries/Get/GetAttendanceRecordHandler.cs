@@ -5,7 +5,12 @@ using JavidHrm.Application.Contracts.Mapping;
 namespace JavidHrm.Application.Features.AttendanceRecords.Queries;
 
 public class GetAttendanceRecordHandler
-    (IAttendanceRecordRepository attendanceRecordRepository, IEmployeeRepository employeeRepository, IUserRepository userRepository, IDepartmentRepository departmentRepository, IAttendanceRecordMapperService mapper)
+    (IAttendanceRecordRepository attendanceRecordRepository,
+     IEmployeeRepository employeeRepository,
+     IUserRepository userRepository,
+     IDepartmentRepository departmentRepository,
+     IWorkShiftRepository workShiftRepository,
+     IAttendanceRecordMapperService mapper)
     : IRequestHandler<GetAttendanceRecordRequest, OperationResult<GetAttendanceRecordResponse?>>
 {
     public async Task<OperationResult<GetAttendanceRecordResponse?>> Handle(GetAttendanceRecordRequest request, CancellationToken cancellationToken)
@@ -26,6 +31,15 @@ public class GetAttendanceRecordHandler
         if (department is null)
             return ErrorModel.Create("InvalidId");
 
-        return mapper.Map(attendanceRecord, employee, user, department);
+        string? workShiftName = null;
+        if (attendanceRecord.WorkShiftId is not null)
+        {
+            var workShift = await workShiftRepository.GetAsNoTrackingAsync(
+                attendanceRecord.WorkShiftId.Value,
+                cancellationToken);
+            workShiftName = workShift?.Name;
+        }
+
+        return mapper.Map(attendanceRecord, employee, user, department, workShiftName);
     }
 }

@@ -6,28 +6,34 @@ namespace JavidHrm.Domain.Entities;
 public class LeaveRequest : BaseEntity
 {
     public int EmployeeId { get; private set; }
-    public LeaveType LeaveType { get; private set; }
+    public int LeaveTypeDefinitionId { get; private set; }
     public DateTime StartDate { get; private set; }
     public DateTime EndDate { get; private set; }
     public LeaveRequestStatus Status { get; private set; }
     public string Reason { get; private set; } = default!;
     public DateTime CreatedOnUtc { get; private set; } = DateTime.UtcNow;
+    public int? CurrentApprovalStepOrder { get; private set; }
+    public int? TotalApprovalSteps { get; private set; }
+    public int? SubmittedByUserId { get; private set; }
 
     public Employee Employee { get; private set; } = default!;
+    public LeaveTypeDefinition LeaveTypeDefinition { get; private set; } = default!;
+    public ICollection<LeaveRequestApprovalStep> ApprovalSteps { get; private set; } = [];
 
     public static LeaveRequest Create(
         int employeeId,
-        LeaveType leaveType,
+        int leaveTypeDefinitionId,
+        LeaveTypeUnit unit,
         DateTime startDate,
         DateTime endDate,
         LeaveRequestStatus status,
         string reason)
     {
-        var (normalizedStart, normalizedEnd) = NormalizeDates(leaveType, startDate, endDate);
+        var (normalizedStart, normalizedEnd) = NormalizeDates(unit, startDate, endDate);
         return new()
         {
             EmployeeId = employeeId,
-            LeaveType = leaveType,
+            LeaveTypeDefinitionId = leaveTypeDefinitionId,
             StartDate = normalizedStart,
             EndDate = normalizedEnd,
             Status = status,
@@ -37,15 +43,16 @@ public class LeaveRequest : BaseEntity
 
     public void Update(
         int employeeId,
-        LeaveType leaveType,
+        int leaveTypeDefinitionId,
+        LeaveTypeUnit unit,
         DateTime startDate,
         DateTime endDate,
         LeaveRequestStatus status,
         string reason)
     {
-        var (normalizedStart, normalizedEnd) = NormalizeDates(leaveType, startDate, endDate);
+        var (normalizedStart, normalizedEnd) = NormalizeDates(unit, startDate, endDate);
         EmployeeId = employeeId;
-        LeaveType = leaveType;
+        LeaveTypeDefinitionId = leaveTypeDefinitionId;
         StartDate = normalizedStart;
         EndDate = normalizedEnd;
         Status = status;
@@ -53,14 +60,47 @@ public class LeaveRequest : BaseEntity
     }
 
     private static (DateTime Start, DateTime End) NormalizeDates(
-        LeaveType leaveType,
+        LeaveTypeUnit unit,
         DateTime startDate,
         DateTime endDate)
-        => leaveType == LeaveType.Hourly
+        => unit == LeaveTypeUnit.Hour
             ? (startDate, endDate)
             : (startDate.Date, endDate.Date);
 
-    public void Approve() => Status = LeaveRequestStatus.Approved;
+    public void BeginApprovalWorkflow(int totalSteps, int? submittedByUserId)
+    {
+        TotalApprovalSteps = totalSteps;
+        CurrentApprovalStepOrder = totalSteps > 0 ? 1 : null;
+        SubmittedByUserId = submittedByUserId;
+        Status = LeaveRequestStatus.Pending;
+    }
 
-    public void Reject() => Status = LeaveRequestStatus.Rejected;
+    public void AdvanceApprovalStep()
+    {
+        if (CurrentApprovalStepOrder is null || TotalApprovalSteps is null)
+            return;
+
+        if (CurrentApprovalStepOrder < TotalApprovalSteps)
+            CurrentApprovalStepOrder++;
+        else
+            CurrentApprovalStepOrder = null;
+    }
+
+    public void ClearApprovalWorkflow()
+    {
+        CurrentApprovalStepOrder = null;
+        TotalApprovalSteps = null;
+    }
+
+    public void Approve()
+    {
+        Status = LeaveRequestStatus.Approved;
+        CurrentApprovalStepOrder = null;
+    }
+
+    public void Reject()
+    {
+        Status = LeaveRequestStatus.Rejected;
+        CurrentApprovalStepOrder = null;
+    }
 }

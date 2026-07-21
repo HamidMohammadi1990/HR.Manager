@@ -144,7 +144,6 @@ export default function UsersPage() {
                   </th>
                   <th className="table-head">کاربر</th>
                   <th className="table-head">شماره تماس</th>
-                  <th className="table-head">شهر</th>
                   <th className="table-head">آخرین ورود</th>
                   <th className="table-head">وضعیت</th>
                   <th className="table-head w-24">عملیات</th>
@@ -185,7 +184,6 @@ export default function UsersPage() {
                         </div>
                       </td>
                       <td className="table-cell text-sm">{user.PhoneNumber ?? '—'}</td>
-                      <td className="table-cell text-sm">{user.CityName ?? '—'}</td>
                       <td className="table-cell text-muted-foreground text-sm">
                         {formatDateTime(user.LastLoginDateOnUtc)}
                       </td>

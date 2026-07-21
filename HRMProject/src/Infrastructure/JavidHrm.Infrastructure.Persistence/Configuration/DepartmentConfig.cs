@@ -24,42 +24,25 @@ internal class DepartmentConfig : IEntityTypeConfiguration<Department>
             .HasVarcharMaxLength(12);
 
         builder
-            .Property(x => x.PhoneNumber)
-            .HasVarcharMaxLength(11);
-
-        builder
-            .Property(u => u.Email)
-            .HasVarcharMaxLength(35);
-
-        builder
-            .Property(x => x.PostalCode)
-            .HasVarcharMaxLength(10);
-
-        builder
-            .Property(x => x.Address)
-            .IsRequired()
-            .HasNVarcharMaxLength(120);
-
-        builder
             .HasOne(x => x.User)
             .WithMany(x => x.Departments)
             .HasForeignKey(x => x.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder
-            .HasOne(x => x.City)
-            .WithMany(x => x.Departments)
-            .HasForeignKey(x => x.CityId)
+            .HasOne(x => x.ParentDepartment)
+            .WithMany(x => x.Children)
+            .HasForeignKey(x => x.ParentDepartmentId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder
-            .HasMany(x => x.FinancialYears)
-            .WithOne(x => x.Department)
-            .HasForeignKey(x => x.DepartmentId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .HasOne(x => x.DefaultWorkShift)
+            .WithMany()
+            .HasForeignKey(x => x.DefaultWorkShiftId)
+            .OnDelete(DeleteBehavior.SetNull);
 
+        builder.HasIndex(x => x.ParentDepartmentId);
         builder.HasIndex(x => x.UserId);
-        builder.HasIndex(x => x.CityId);
         builder.HasIndex(x => x.Name).IsUnique();
     }
 }

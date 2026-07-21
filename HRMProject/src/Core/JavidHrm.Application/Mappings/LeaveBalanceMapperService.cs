@@ -13,12 +13,17 @@ public class LeaveBalanceMapperService : ILeaveBalanceMapperService
         {
             EmployeeId = model.EmployeeId,
             DepartmentId = model.DepartmentId,
-            LeaveType = model.LeaveType,
+            LeaveTypeDefinitionId = model.LeaveTypeDefinitionId,
             Year = model.Year,
             Pagination = model.Pagination
         };
 
-    public GetLeaveBalanceResponse Map(LeaveBalance model, Employee employee, User user, Department department)
+    public GetLeaveBalanceResponse Map(
+        LeaveBalance model,
+        Employee employee,
+        User user,
+        Department department,
+        LeaveTypeDefinition leaveTypeDefinition)
         => new()
         {
             Id = model.Id,
@@ -29,11 +34,13 @@ public class LeaveBalanceMapperService : ILeaveBalanceMapperService
             DepartmentId = employee.DepartmentId,
             DepartmentName = department.Name,
             EmployeeCode = employee.EmployeeCode,
-            LeaveType = model.LeaveType,
+            LeaveTypeDefinitionId = model.LeaveTypeDefinitionId,
+            LeaveTypeName = leaveTypeDefinition.Name,
+            LeaveTypeCode = leaveTypeDefinition.Code,
             Year = model.Year,
             TotalDays = model.TotalDays,
             UsedDays = model.UsedDays,
-            RemainingDays = model.TotalDays - model.UsedDays
+            RemainingDays = model.RemainingDays
         };
 
     public PagedResult<GetAllLeaveBalanceResponse> Map(PagedResult<GetAllLeaveBalanceResponseDto> model)
@@ -48,7 +55,9 @@ public class LeaveBalanceMapperService : ILeaveBalanceMapperService
             DepartmentId = x.DepartmentId,
             DepartmentName = x.DepartmentName,
             EmployeeCode = x.EmployeeCode,
-            LeaveType = x.LeaveType,
+            LeaveTypeDefinitionId = x.LeaveTypeDefinitionId,
+            LeaveTypeName = x.LeaveTypeName,
+            LeaveTypeCode = x.LeaveTypeCode,
             Year = x.Year,
             TotalDays = x.TotalDays,
             UsedDays = x.UsedDays,

@@ -10,6 +10,7 @@ public interface IDepartmentRepository
     void Add(Department department);
     void Remove(Department department);
     ValueTask<Department?> FindAsync(int id, CancellationToken cancellationToken = default);
+    Task<Department?> GetDetailAsync(int id, CancellationToken cancellationToken = default);
     Task<Department?> GetAsNoTrackingAsync(int id, CancellationToken cancellationToken = default);
     Task<bool> AnyAsync(Expression<Func<Department, bool>> expression, CancellationToken cancellationToken = default);
     Task<PagedResult<GetAllDepartmentResponseDto>> GetAllAsync(GetAllDepartmentRequestDto request, Expression<Func<Department, bool>>? contentFilter = null);

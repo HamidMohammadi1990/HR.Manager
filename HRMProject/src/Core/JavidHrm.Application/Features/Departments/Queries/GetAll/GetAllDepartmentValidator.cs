@@ -8,8 +8,7 @@ public class GetAllDepartmentValidator : AbstractValidator<GetAllDepartmentReque
     public GetAllDepartmentValidator()
     {
         RuleFor(x => x.Pagination).MustBeValidPagination();
-        RuleFor(x => x.Name).MaximumLengthWhenNotEmpty(EntityFieldLengths.Company.Name);
-        RuleFor(x => x.Code).MaximumLengthWhenNotEmpty(EntityFieldLengths.Company.Code);
-        RuleFor(x => x.PostalCode).MaximumLengthWhenNotEmpty(EntityFieldLengths.Company.PostalCode);
+        RuleFor(x => x.Name).MaximumLengthWhenNotEmpty(EntityFieldLengths.Department.Name);
+        RuleFor(x => x.Code).MaximumLengthWhenNotEmpty(EntityFieldLengths.Department.Code);
     }
 }

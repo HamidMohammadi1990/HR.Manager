@@ -9,6 +9,13 @@ namespace JavidHrm.Application.Contracts.Mapping;
 public interface ILeaveRequestMapperService : IMapper
 {
     GetAllLeaveRequestRequestDto Map(GetAllLeaveRequestRequest model);
-    GetLeaveRequestResponse Map(LeaveRequest model, Employee employee, User user, Department department);
+    GetLeaveRequestResponse Map(
+        LeaveRequest model,
+        Employee employee,
+        User user,
+        Department department,
+        LeaveTypeDefinition leaveTypeDefinition,
+        IReadOnlyList<LeaveRequestApprovalStep> approvalSteps,
+        bool canCurrentUserAct);
     PagedResult<GetAllLeaveRequestResponse> Map(PagedResult<GetAllLeaveRequestResponseDto> model);
 }

@@ -2,6 +2,8 @@ import { apiRequest } from './client';
 import type {
   CreateLeaveRequestRequest,
   GetAllLeaveRequestsRequest,
+  GetLeaveApprovalInboxRequest,
+  LeaveApprovalInboxItemDto,
   LeaveRequestDto,
   PagedResult,
   UpdateLeaveRequestRequest,
@@ -28,6 +30,17 @@ export async function getLeaveRequest(id: string): Promise<LeaveRequestDto> {
   return result.Data;
 }
 
+export async function getLeaveApprovalInbox(
+  request: GetLeaveApprovalInboxRequest,
+): Promise<PagedResult<LeaveApprovalInboxItemDto>> {
+  const result = await apiRequest<PagedResult<LeaveApprovalInboxItemDto>>(
+    '/api/v1/admin/leave-request/get-approval-inbox',
+    { method: 'POST', body: request, auth: true },
+  );
+  if (!result.Data) throw new Error('پاسخ کارتابل تأیید نامعتبر است');
+  return result.Data;
+}
+
 export async function createLeaveRequest(request: CreateLeaveRequestRequest): Promise<{ Id: string }> {
   const result = await apiRequest<{ Id: string }>('/api/v1/admin/leave-request/create', {
     method: 'POST',
@@ -46,18 +59,18 @@ export async function updateLeaveRequest(request: UpdateLeaveRequestRequest): Pr
   });
 }
 
-export async function approveLeaveRequest(id: string): Promise<void> {
+export async function approveLeaveRequest(id: string, comment?: string): Promise<void> {
   await apiRequest('/api/v1/admin/leave-request/approve', {
     method: 'PUT',
-    body: { Id: id },
+    body: { Id: id, Comment: comment ?? null },
     auth: true,
   });
 }
 
-export async function rejectLeaveRequest(id: string): Promise<void> {
+export async function rejectLeaveRequest(id: string, comment?: string): Promise<void> {
   await apiRequest('/api/v1/admin/leave-request/reject', {
     method: 'PUT',
-    body: { Id: id },
+    body: { Id: id, Comment: comment ?? null },
     auth: true,
   });
 }

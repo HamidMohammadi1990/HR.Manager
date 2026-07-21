@@ -55,8 +55,6 @@ export interface UserDto {
   IsActive: boolean;
   LastLoginDateOnUtc?: string | null;
   AccessFailedCount: number;
-  CityId?: string | null;
-  CityName?: string | null;
 }
 
 export interface GetAllUsersRequest {
@@ -78,18 +76,11 @@ export interface DepartmentDto {
   Id: string;
   Name: string;
   Code: string;
-  CityId: string;
-  CityName: string;
+  ParentDepartmentId?: string | null;
+  ParentDepartmentName?: string | null;
+  DefaultWorkShiftId?: string | null;
+  DefaultWorkShiftName?: string | null;
   IsActive: boolean;
-  Address: string;
-  Email?: string | null;
-  PhoneNumber: string;
-  PostalCode: string;
-  ProvinceId: string;
-  ProvinceName: string;
-  UserId: string;
-  UserFirstName?: string | null;
-  UserLastName?: string | null;
   Description?: string | null;
   CreatedOnUtc: string;
 }
@@ -131,21 +122,7 @@ export interface GetAllPermissionsRequest {
   Pagination: PagedRequest;
 }
 
-export interface CityDto {
-  Id: string;
-  ProvinceId: string;
-  ProvinceName: string;
-  Name: string;
-  Slug: string;
-}
-
-export interface SearchCitiesRequest {
-  Name?: string;
-  Pagination: PagedRequest;
-}
-
 export interface CreateUserRequest {
-  CityId: string;
   UserName: string;
   FirstName: string;
   LastName: string;
@@ -161,7 +138,6 @@ export interface CreateUserResponse {
 
 export interface UpdateUserRequest {
   Id: string;
-  CityId: string;
   UserName: string;
   FirstName: string;
   LastName: string;
@@ -177,7 +153,6 @@ export interface UpdateCurrentUserProfileRequest {
   FirstName: string;
   LastName: string;
   PhoneNumber: string;
-  CityId: string;
   Gender: number;
 }
 
@@ -201,6 +176,8 @@ export interface EmployeeDto {
   ManagerId?: string | null;
   ManagerFirstName?: string | null;
   ManagerLastName?: string | null;
+  WorkShiftId?: string | null;
+  WorkShiftName?: string | null;
   EmployeeCode: string;
   JobTitle: string;
   HireDate: string;
@@ -224,6 +201,7 @@ export interface CreateEmployeeRequest {
   UserId: string;
   DepartmentId: string;
   ManagerId?: string | null;
+  WorkShiftId?: string | null;
   EmployeeCode: string;
   JobTitle: string;
   HireDate: string;
@@ -238,6 +216,7 @@ export interface UpdateEmployeeRequest {
   Id: string;
   DepartmentId: string;
   ManagerId?: string | null;
+  WorkShiftId?: string | null;
   EmployeeCode: string;
   JobTitle: string;
   HireDate: string;
@@ -249,16 +228,11 @@ export interface GetEmployeeRequest {
 }
 
 export interface CreateDepartmentRequest {
-  CityId: string;
   Name: string;
   Code: string;
-  PhoneNumber: string;
-  Email?: string | null;
-  PostalCode: string;
-  Address: string;
   Description?: string | null;
-  Latitude?: number;
-  Longitude?: number;
+  ParentDepartmentId?: string | null;
+  DefaultWorkShiftId?: string | null;
   IsActive?: boolean;
 }
 
@@ -268,16 +242,11 @@ export interface CreateDepartmentResponse {
 
 export interface UpdateDepartmentRequest {
   Id: string;
-  CityId: string;
   Name: string;
   Code: string;
-  PhoneNumber: string;
-  Email: string;
-  PostalCode: string;
-  Address: string;
-  Description: string;
-  Latitude?: number;
-  Longitude?: number;
+  Description?: string | null;
+  ParentDepartmentId?: string | null;
+  DefaultWorkShiftId?: string | null;
   IsActive: boolean;
 }
 
@@ -344,6 +313,12 @@ export interface AttendanceRecordDto {
   CheckInUtc?: string | null;
   CheckOutUtc?: string | null;
   Status: number;
+  WorkShiftId?: string | null;
+  WorkShiftName?: string | null;
+  LateMinutes: number;
+  EarlyLeaveMinutes: number;
+  OvertimeMinutes: number;
+  WorkedMinutes: number;
   CreatedOnUtc: string;
 }
 
@@ -382,25 +357,70 @@ export interface LeaveRequestDto {
   UserName?: string | null;
   DepartmentId: string;
   DepartmentName: string;
-  LeaveType: number;
+  LeaveTypeDefinitionId: string;
+  LeaveTypeName: string;
+  LeaveTypeUnit: number;
+  LeaveTypeCode: string;
   StartDate: string;
   EndDate: string;
   Status: number;
   Reason?: string | null;
   CreatedOnUtc: string;
+  CurrentApprovalStepOrder?: number | null;
+  TotalApprovalSteps?: number | null;
+  CanCurrentUserAct?: boolean;
+  ApprovalSteps?: LeaveRequestApprovalStepDto[];
+}
+
+export interface LeaveRequestApprovalStepDto {
+  StepOrder: number;
+  ApproverEmployeeId?: string | null;
+  ApproverFirstName?: string | null;
+  ApproverLastName?: string | null;
+  ApproverJobTitle?: string | null;
+  IsHrPool: boolean;
+  Status: number;
+  Comment?: string | null;
+  ActionedAtUtc?: string | null;
+  IsCurrent: boolean;
+}
+
+export interface LeaveApprovalInboxItemDto {
+  LeaveRequestId: string;
+  StepOrder: number;
+  EmployeeId: string;
+  EmployeeCode: string;
+  UserFirstName?: string | null;
+  UserLastName?: string | null;
+  DepartmentId: string;
+  DepartmentName: string;
+  LeaveTypeDefinitionId: string;
+  LeaveTypeName: string;
+  LeaveTypeUnit: number;
+  StartDate: string;
+  EndDate: string;
+  Reason: string;
+  CreatedOnUtc: string;
+  CurrentApprovalStepOrder?: number | null;
+  TotalApprovalSteps?: number | null;
+  IsHrPoolStep: boolean;
+}
+
+export interface GetLeaveApprovalInboxRequest {
+  Pagination: PagedRequest;
 }
 
 export interface GetAllLeaveRequestsRequest {
   EmployeeId?: string;
   DepartmentId?: string;
-  LeaveType?: number;
+  LeaveTypeDefinitionId?: string;
   Status?: number;
   Pagination: PagedRequest;
 }
 
 export interface CreateLeaveRequestRequest {
   EmployeeId: string;
-  LeaveType: number;
+  LeaveTypeDefinitionId: string;
   StartDate: string;
   EndDate: string;
   Reason?: string | null;
@@ -409,7 +429,7 @@ export interface CreateLeaveRequestRequest {
 export interface UpdateLeaveRequestRequest {
   Id: string;
   EmployeeId: string;
-  LeaveType: number;
+  LeaveTypeDefinitionId: string;
   StartDate: string;
   EndDate: string;
   Status: number;
@@ -772,8 +792,12 @@ export interface WorkShiftDto {
   StartTime: string;
   EndTime: string;
   BreakMinutes: number;
+  GraceMinutes: number;
+  EarlyLeaveGraceMinutes: number;
+  IsOvernight: boolean;
   IsActive: boolean;
   Description?: string | null;
+  Color?: string | null;
 }
 
 export interface GetAllWorkShiftsRequest {
@@ -787,8 +811,12 @@ export interface CreateWorkShiftRequest {
   StartTime: string;
   EndTime: string;
   BreakMinutes: number;
+  GraceMinutes?: number;
+  EarlyLeaveGraceMinutes?: number;
+  IsOvernight?: boolean;
   IsActive?: boolean;
   Description?: string | null;
+  Color?: string | null;
 }
 
 export interface UpdateWorkShiftRequest {
@@ -797,8 +825,46 @@ export interface UpdateWorkShiftRequest {
   StartTime: string;
   EndTime: string;
   BreakMinutes: number;
+  GraceMinutes: number;
+  EarlyLeaveGraceMinutes: number;
+  IsOvernight: boolean;
   IsActive: boolean;
   Description?: string | null;
+  Color?: string | null;
+}
+
+export interface EmployeeShiftScheduleDto {
+  Id: number;
+  EmployeeId: string;
+  WorkShiftId: string;
+  WorkShiftName: string;
+  WorkShiftStartTime: string;
+  WorkShiftEndTime: string;
+  WorkShiftIsOvernight: boolean;
+  EffectiveFrom: string;
+  EffectiveTo?: string | null;
+  Note?: string | null;
+  CreatedOnUtc: string;
+}
+
+export interface GetEmployeeShiftSchedulesRequest {
+  EmployeeId: string;
+}
+
+export interface CreateEmployeeShiftScheduleRequest {
+  EmployeeId: string;
+  WorkShiftId: string;
+  EffectiveFrom: string;
+  EffectiveTo?: string | null;
+  Note?: string | null;
+}
+
+export interface CreateEmployeeShiftScheduleResponse {
+  Id: number;
+}
+
+export interface DeleteEmployeeShiftScheduleRequest {
+  Id: number;
 }
 
 export interface LeaveBalanceDto {
@@ -810,7 +876,9 @@ export interface LeaveBalanceDto {
   DepartmentId: string;
   DepartmentName: string;
   EmployeeCode: string;
-  LeaveType: number;
+  LeaveTypeDefinitionId: string;
+  LeaveTypeName: string;
+  LeaveTypeCode: string;
   Year: number;
   TotalDays: number;
   UsedDays: number;
@@ -820,14 +888,14 @@ export interface LeaveBalanceDto {
 export interface GetAllLeaveBalancesRequest {
   EmployeeId?: string;
   DepartmentId?: string;
-  LeaveType?: number;
+  LeaveTypeDefinitionId?: string;
   Year?: number;
   Pagination: PagedRequest;
 }
 
 export interface CreateLeaveBalanceRequest {
   EmployeeId: string;
-  LeaveType: number;
+  LeaveTypeDefinitionId: string;
   Year: number;
   TotalDays: number;
   UsedDays: number;
@@ -836,10 +904,90 @@ export interface CreateLeaveBalanceRequest {
 export interface UpdateLeaveBalanceRequest {
   Id: string;
   EmployeeId: string;
-  LeaveType: number;
+  LeaveTypeDefinitionId: string;
   Year: number;
   TotalDays: number;
   UsedDays: number;
+}
+
+export interface EmployeeLeaveBalanceDto {
+  Id?: string | null;
+  EmployeeId: string;
+  LeaveTypeDefinitionId: string;
+  LeaveTypeName: string;
+  AffectsLeaveBalance: boolean;
+  Year: number;
+  TotalDays: number;
+  UsedDays: number;
+  RemainingDays: number;
+}
+
+export interface GetEmployeeLeaveBalanceRequest {
+  EmployeeId: string;
+  LeaveTypeDefinitionId: string;
+  Year?: number;
+}
+
+export interface LeaveTypeDefinitionDto {
+  Id: string;
+  Code: string;
+  Name: string;
+  Description?: string | null;
+  Category: number;
+  Unit: number;
+  IsPaid: boolean;
+  IsActive: boolean;
+  AffectsLeaveBalance: boolean;
+  RequiresApproval: boolean;
+  DefaultAnnualAllowance?: number | null;
+  MaxPerYear?: number | null;
+  MaxPerRequest?: number | null;
+  MinNoticeDays?: number | null;
+  AllowNegativeBalance: boolean;
+  CarryForwardEnabled: boolean;
+  MaxCarryForwardDays?: number | null;
+  IncludeWeekends: boolean;
+  IncludeHolidays: boolean;
+  SortOrder: number;
+  Color?: string | null;
+  CreatedOnUtc: string;
+}
+
+export interface GetAllLeaveTypeDefinitionsRequest {
+  Code?: string;
+  Name?: string;
+  Category?: number;
+  Unit?: number;
+  IsPaid?: boolean;
+  IsActive?: boolean;
+  Pagination: PagedRequest;
+}
+
+export interface CreateLeaveTypeDefinitionRequest {
+  Code: string;
+  Name: string;
+  Description?: string | null;
+  Category: number;
+  Unit: number;
+  IsPaid: boolean;
+  AffectsLeaveBalance: boolean;
+  RequiresApproval: boolean;
+  DefaultAnnualAllowance?: number | null;
+  MaxPerYear?: number | null;
+  MaxPerRequest?: number | null;
+  MinNoticeDays?: number | null;
+  AllowNegativeBalance: boolean;
+  CarryForwardEnabled: boolean;
+  MaxCarryForwardDays?: number | null;
+  IncludeWeekends: boolean;
+  IncludeHolidays: boolean;
+  SortOrder: number;
+  Color?: string | null;
+}
+
+export interface UpdateLeaveTypeDefinitionRequest extends CreateLeaveTypeDefinitionRequest {
+  Id: string;
+  IsActive: boolean;
 }
 
 export interface PayslipPdfResponse {

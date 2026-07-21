@@ -7,14 +7,14 @@ namespace JavidHrm.Application.Features.Departments.Commands;
 
 public class UpdateDepartmentValidator : AbstractValidator<UpdateDepartmentRequest>
 {
-    public UpdateDepartmentValidator(IDepartmentRepository departmentRepository)
+    public UpdateDepartmentValidator(IDepartmentRepository departmentRepository, IWorkShiftRepository workShiftRepository)
     {
         RuleFor(x => x.Id).MustBeValidEntityId();
 
         RuleFor(x => x.Name)
             .NotEmpty()
             .WithMessage(MessageKeys.NameRequired)
-            .MaximumLength(EntityFieldLengths.Company.Name);
+            .MaximumLength(EntityFieldLengths.Department.Name);
 
         RuleFor(x => new { x.Id, x.Name })
             .MustAsync(async (x, cancellationToken)
@@ -24,22 +24,31 @@ public class UpdateDepartmentValidator : AbstractValidator<UpdateDepartmentReque
         RuleFor(x => x.Code)
             .NotEmpty()
             .WithMessage(MessageKeys.AccountCodeRequired)
-            .MaximumLength(EntityFieldLengths.Company.Code);
+            .MaximumLength(EntityFieldLengths.Department.Code);
 
         RuleFor(x => new { x.Id, x.Code })
             .MustAsync(async (x, cancellationToken)
                 => !await departmentRepository.AnyAsync(d => d.Id != x.Id && d.Code == x.Code.Trim(), cancellationToken))
             .WithMessage(MessageKeys.DuplicateRecord);
 
-        RuleFor(x => x.Address)
-            .NotEmpty()
-            .WithMessage(MessageKeys.AddressRequired)
-            .MaximumLength(EntityFieldLengths.Company.Address);
+        RuleFor(x => x.Description).MaximumLength(EntityFieldLengths.Department.Description);
 
-        RuleFor(x => x.CityId).MustBeValidEntityId();
-        RuleFor(x => x.PhoneNumber).MaximumLength(EntityFieldLengths.Company.PhoneNumber);
-        RuleFor(x => x.Email).MaximumLength(EntityFieldLengths.Company.Email);
-        RuleFor(x => x.PostalCode).MaximumLength(EntityFieldLengths.Company.PostalCode);
-        RuleFor(x => x.Description).MaximumLength(EntityFieldLengths.Company.Description);
+        RuleFor(x => x)
+            .Must(x => !x.ParentDepartmentId.HasValue || x.ParentDepartmentId.Value != x.Id)
+            .WithMessage(MessageKeys.InvalidParentId);
+
+        RuleFor(x => x.ParentDepartmentId)
+            .MustAsync(async (parentId, cancellationToken) =>
+                !parentId.HasValue
+                || await departmentRepository.AnyAsync(x => x.Id == parentId.Value, cancellationToken))
+            .WithMessage(MessageKeys.InvalidParentId);
+
+        RuleFor(x => x.DefaultWorkShiftId)
+            .MustAsync(async (workShiftId, cancellationToken) =>
+            {
+                if (workShiftId is null or <= 0) return true;
+                return await workShiftRepository.AnyAsync(x => x.Id == workShiftId && x.IsActive, cancellationToken);
+            })
+            .WithMessage(MessageKeys.InvalidId);
     }
 }

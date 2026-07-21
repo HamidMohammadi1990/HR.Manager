@@ -18,18 +18,14 @@ public class User : BaseEntity
     public DateTime? LastLoginDateOnUtc { get; private set; }
     public int AccessFailedCount { get; private set; }
     public string SecurityStamp { get; private set; } = null!;
-    public int? CityId { get; private set; }
 
-    public City City { get; private set; } = default!;
     public ICollection<Department> Departments { get; private set; } = default!;
     public ICollection<UserRole> UserRoles { get; private set; } = default!;
-    public ICollection<UserAddress> UserAddresses { get; private set; } = default!;
     public ICollection<RefreshToken> RefreshTokens { get; private set; } = default!;
     public ICollection<UserSession> UserSessions { get; private set; } = default!;
 
     public static User Create(
         string email,
-        int cityId,
         GenderType gender,
         string username,
         string firstName,
@@ -40,7 +36,6 @@ public class User : BaseEntity
         => new()
         {
             Email = email,
-            CityId = cityId,
             Gender = gender,
             UserName = username,
             LastName = lastName,
@@ -86,7 +81,6 @@ public class User : BaseEntity
         string lastName,
         string? email,
         string phoneNumber,
-        int cityId,
         GenderType gender,
         bool isActive,
         bool loginPermission)
@@ -96,7 +90,6 @@ public class User : BaseEntity
         LastName = lastName;
         Email = email;
         PhoneNumber = phoneNumber;
-        CityId = cityId;
         Gender = gender;
         IsActive = isActive;
         LoginPermission = loginPermission;

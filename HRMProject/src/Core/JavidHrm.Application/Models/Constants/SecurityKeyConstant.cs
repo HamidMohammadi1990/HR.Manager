@@ -20,6 +20,7 @@ public static class SecurityKeyConstant
     public static string TodoItem => SecurityKeyRegistry.Get(nameof(TodoItem));
     public static string BackupJob => SecurityKeyRegistry.Get(nameof(BackupJob));
     public static string WorkShift => SecurityKeyRegistry.Get(nameof(WorkShift));
+    public static string LeaveTypeDefinition => SecurityKeyRegistry.Get(nameof(LeaveTypeDefinition));
     public static string LeaveBalance => SecurityKeyRegistry.Get(nameof(LeaveBalance));
     public static string Company => Department;
     public static string Province => SecurityKeyRegistry.Get(nameof(Province));

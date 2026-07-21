@@ -13,13 +13,11 @@ import {
   deleteUser,
   getApiErrorMessage,
   getUser,
-  searchCities,
   updateUser,
   getAllUserRoles,
   getAllRoles,
   createUserRole,
   deleteUserRole,
-  type CityDto,
   type UserDto,
   type UserRoleDto,
   type RoleDto,
@@ -40,7 +38,6 @@ export default function UserDetailPage() {
   const { toast } = useToast();
   const deleteDialog = useDisclosure();
   const [user, setUser] = useState<UserDto | null>(null);
-  const [cities, setCities] = useState<CityDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
@@ -51,7 +48,6 @@ export default function UserDetailPage() {
   const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [cityId, setCityId] = useState('');
   const [gender, setGender] = useState(String(GENDER_MALE));
   const [isActive, setIsActive] = useState(true);
   const [loginPermission, setLoginPermission] = useState(true);
@@ -71,16 +67,14 @@ export default function UserDetailPage() {
       setIsLoading(true);
       setError('');
       try {
-        const [userData, cityData, rolesData, allRolesData] = await Promise.all([
+        const [userData, rolesData, allRolesData] = await Promise.all([
           getUser({ Id: decodeURIComponent(id) }),
-          searchCities({ Pagination: { PageNumber: 1, PageSize: 100 } }),
           getAllUserRoles({ UserId: decodeURIComponent(id), Pagination: { PageNumber: 1, PageSize: 50 } }),
           getAllRoles({ IsActive: true, Pagination: { PageNumber: 1, PageSize: 100 } }),
         ]);
         if (cancelled) return;
 
         setUser(userData);
-        setCities(cityData.Items ?? []);
         setUserRoles(rolesData.Items ?? []);
         setAllRoles(allRolesData.Items ?? []);
         setFirstName(userData.FirstName ?? '');
@@ -88,7 +82,6 @@ export default function UserDetailPage() {
         setUserName(userData.UserName);
         setEmail(userData.Email ?? '');
         setPhoneNumber(userData.PhoneNumber ?? '');
-        setCityId(userData.CityId ?? '');
         setGender(genderSelectValue(userData.Gender));
         setIsActive(userData.IsActive);
         setLoginPermission(userData.LoginPermission);
@@ -114,7 +107,6 @@ export default function UserDetailPage() {
     try {
       await updateUser({
         Id: user.Id,
-        CityId: cityId,
         UserName: userName.trim(),
         FirstName: firstName.trim(),
         LastName: lastName.trim(),
@@ -275,17 +267,6 @@ export default function UserDetailPage() {
               <div className="space-y-2">
                 <label className="text-sm font-medium">ایمیل</label>
                 <Input type="email" dir="ltr" value={email} onChange={(e) => setEmail(e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">شهر</label>
-                <Select className="w-full" value={cityId} onChange={(e) => setCityId(e.target.value)} required>
-                  <option value="">انتخاب شهر</option>
-                  {cities.map((city) => (
-                    <option key={city.Id} value={city.Id}>
-                      {city.Name} ({city.ProvinceName})
-                    </option>
-                  ))}
-                </Select>
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">جنسیت</label>

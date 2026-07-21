@@ -23,8 +23,5 @@ public record GetAllUserRequest : IRequest<OperationResult<PagedResult<GetAllUse
 
     public string? Search { get; init; }
 
-    [JsonConverter(typeof(CityNullableEncryptor))]
-    public int? CityId { get; init; }
-
     public PagedRequest Pagination { get; init; } = default!;
 }

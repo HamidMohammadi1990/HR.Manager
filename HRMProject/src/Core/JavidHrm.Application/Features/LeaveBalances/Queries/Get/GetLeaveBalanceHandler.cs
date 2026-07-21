@@ -5,7 +5,12 @@ using JavidHrm.Application.Contracts.Mapping;
 namespace JavidHrm.Application.Features.LeaveBalances.Queries;
 
 public class GetLeaveBalanceHandler
-    (ILeaveBalanceRepository leaveBalanceRepository, IEmployeeRepository employeeRepository, IUserRepository userRepository, IDepartmentRepository departmentRepository, ILeaveBalanceMapperService mapper)
+    (ILeaveBalanceRepository leaveBalanceRepository,
+     IEmployeeRepository employeeRepository,
+     IUserRepository userRepository,
+     IDepartmentRepository departmentRepository,
+     ILeaveTypeDefinitionRepository leaveTypeDefinitionRepository,
+     ILeaveBalanceMapperService mapper)
     : IRequestHandler<GetLeaveBalanceRequest, OperationResult<GetLeaveBalanceResponse?>>
 {
     public async Task<OperationResult<GetLeaveBalanceResponse?>> Handle(GetLeaveBalanceRequest request, CancellationToken cancellationToken)
@@ -26,6 +31,12 @@ public class GetLeaveBalanceHandler
         if (department is null)
             return ErrorModel.Create("InvalidId");
 
-        return mapper.Map(leaveBalance, employee, user, department);
+        var leaveTypeDefinition = await leaveTypeDefinitionRepository.GetAsNoTrackingAsync(
+            leaveBalance.LeaveTypeDefinitionId,
+            cancellationToken);
+        if (leaveTypeDefinition is null)
+            return ErrorModel.Create("InvalidId");
+
+        return mapper.Map(leaveBalance, employee, user, department, leaveTypeDefinition);
     }
 }

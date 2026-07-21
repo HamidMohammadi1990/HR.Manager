@@ -2,12 +2,10 @@
 using JavidHrm.Domain.Entities;
 using JavidHrm.Common.Security;
 using JavidHrm.Domain.Dtos.Others;
-using JavidHrm.Infrastructure.Persistence.Models;
 using JavidHrm.Infrastructure.Persistence.Contracts;
 using JavidHrm.Infrastructure.Persistence.Configurations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 
 namespace JavidHrm.Infrastructure.Persistence.SeedData;
 
@@ -24,7 +22,6 @@ public class SeedService(
         if (!settings.Enabled)
             return;
 
-        await SeedLocationsAsync();
         await SeedDefaultRolesAsync();
 
         if (dynamicPermissions.Count > 0)
@@ -32,69 +29,8 @@ public class SeedService(
 
         await SeedAdminUserAsync();
         await SeedContentPoliciesAsync();
-    }
-
-    private async Task SeedLocationsAsync()
-    {
-        if (!await context.Province.AnyAsync())
-            await SeedProvincesAsync();
-
-        if (!await context.City.AnyAsync())
-            await SeedCitiesAsync();
-    }
-
-    private async Task SeedProvincesAsync()
-    {
-        var filePath = Path.Combine(AppContext.BaseDirectory, "SeedData", "Data", "provinces.json");
-        if (!File.Exists(filePath))
-            return;
-
-        var json = await File.ReadAllTextAsync(filePath);
-        var provinces = JsonConvert.DeserializeObject<List<ProvinceSeedDataDto>>(json) ?? [];
-        if (provinces.Count == 0)
-            return;
-
-        await using var transaction = await context.Database.BeginTransactionAsync();
-        await context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT [Province] ON");
-
-        foreach (var item in provinces)
-        {
-            var province = SeedEntityHelper.WithId(
-                Province.Create(item.Name, item.Slug, item.TelPrefix, null, 0, null, null),
-                item.Id);
-            context.Province.Add(province);
-        }
-
-        await context.SaveChangesAsync();
-        await context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT [Province] OFF");
-        await transaction.CommitAsync();
-    }
-
-    private async Task SeedCitiesAsync()
-    {
-        var filePath = Path.Combine(AppContext.BaseDirectory, "SeedData", "Data", "cities.json");
-        if (!File.Exists(filePath))
-            return;
-
-        var json = await File.ReadAllTextAsync(filePath);
-        var cities = JsonConvert.DeserializeObject<List<CitySeedDataDto>>(json) ?? [];
-        if (cities.Count == 0)
-            return;
-
-        await using var transaction = await context.Database.BeginTransactionAsync();
-        await context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT [City] ON");
-
-        foreach (var item in cities)
-        {
-            var city = SeedEntityHelper.WithId(
-                City.Create(item.ProvinceId, item.Name, item.Slug, null, 0, null, null),
-                item.Id);
-            context.City.Add(city);
-        }
-
-        await context.SaveChangesAsync();
-        await context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT [City] OFF");
-        await transaction.CommitAsync();
+        await SeedWorkShiftsAsync();
+        await SeedLeaveTypeDefinitionsAsync();
     }
 
     private async Task SeedDefaultRolesAsync()
@@ -144,7 +80,6 @@ public class SeedService(
         var passwordHash = passwordHasher.HashPassword(settings.AdminPassword);
         var user = User.Create(
             settings.AdminEmail,
-            settings.AdminCityId,
             GenderType.Male,
             settings.AdminUserName,
             settings.AdminFirstName,
@@ -266,6 +201,196 @@ public class SeedService(
             priority++;
         }        
 
+        await context.SaveChangesAsync();
+    }
+
+    private async Task SeedLeaveTypeDefinitionsAsync()
+    {
+        if (await context.LeaveTypeDefinition.AnyAsync())
+            return;
+
+        var leaveTypeDefinitions = new[]
+        {
+            LeaveTypeDefinition.Create(
+                "ANNUAL",
+                "مرخصی استحقاقی",
+                null,
+                LeaveTypeCategory.Leave,
+                LeaveTypeUnit.Day,
+                isPaid: true,
+                affectsLeaveBalance: true,
+                requiresApproval: true,
+                defaultAnnualAllowance: 20,
+                maxPerYear: null,
+                maxPerRequest: null,
+                minNoticeDays: null,
+                allowNegativeBalance: false,
+                carryForwardEnabled: false,
+                maxCarryForwardDays: null,
+                includeWeekends: false,
+                includeHolidays: false,
+                sortOrder: 1,
+                color: null),
+            LeaveTypeDefinition.Create(
+                "SICK",
+                "مرخصی استعلاجی",
+                null,
+                LeaveTypeCategory.Leave,
+                LeaveTypeUnit.Day,
+                isPaid: true,
+                affectsLeaveBalance: true,
+                requiresApproval: true,
+                defaultAnnualAllowance: 10,
+                maxPerYear: null,
+                maxPerRequest: null,
+                minNoticeDays: null,
+                allowNegativeBalance: false,
+                carryForwardEnabled: false,
+                maxCarryForwardDays: null,
+                includeWeekends: false,
+                includeHolidays: false,
+                sortOrder: 2,
+                color: null),
+            LeaveTypeDefinition.Create(
+                "UNPAID",
+                "مرخصی بدون حقوق",
+                null,
+                LeaveTypeCategory.Leave,
+                LeaveTypeUnit.Day,
+                isPaid: false,
+                affectsLeaveBalance: false,
+                requiresApproval: true,
+                defaultAnnualAllowance: 0,
+                maxPerYear: null,
+                maxPerRequest: null,
+                minNoticeDays: null,
+                allowNegativeBalance: false,
+                carryForwardEnabled: false,
+                maxCarryForwardDays: null,
+                includeWeekends: false,
+                includeHolidays: false,
+                sortOrder: 3,
+                color: null),
+            LeaveTypeDefinition.Create(
+                "HOURLY",
+                "مرخصی ساعتی",
+                null,
+                LeaveTypeCategory.Leave,
+                LeaveTypeUnit.Hour,
+                isPaid: true,
+                affectsLeaveBalance: true,
+                requiresApproval: true,
+                defaultAnnualAllowance: null,
+                maxPerYear: null,
+                maxPerRequest: null,
+                minNoticeDays: null,
+                allowNegativeBalance: false,
+                carryForwardEnabled: false,
+                maxCarryForwardDays: null,
+                includeWeekends: false,
+                includeHolidays: false,
+                sortOrder: 5,
+                color: null),
+            LeaveTypeDefinition.Create(
+                "MISSION",
+                "ماموریت",
+                null,
+                LeaveTypeCategory.Mission,
+                LeaveTypeUnit.Day,
+                isPaid: true,
+                affectsLeaveBalance: false,
+                requiresApproval: true,
+                defaultAnnualAllowance: null,
+                maxPerYear: null,
+                maxPerRequest: null,
+                minNoticeDays: null,
+                allowNegativeBalance: false,
+                carryForwardEnabled: false,
+                maxCarryForwardDays: null,
+                includeWeekends: false,
+                includeHolidays: false,
+                sortOrder: 4,
+                color: null),
+            LeaveTypeDefinition.Create(
+                "OTHER",
+                "سایر",
+                null,
+                LeaveTypeCategory.Leave,
+                LeaveTypeUnit.Day,
+                isPaid: true,
+                affectsLeaveBalance: true,
+                requiresApproval: true,
+                defaultAnnualAllowance: null,
+                maxPerYear: null,
+                maxPerRequest: null,
+                minNoticeDays: null,
+                allowNegativeBalance: false,
+                carryForwardEnabled: false,
+                maxCarryForwardDays: null,
+                includeWeekends: false,
+                includeHolidays: false,
+                sortOrder: 6,
+                color: null)
+        };
+
+        context.LeaveTypeDefinition.AddRange(leaveTypeDefinitions);
+        await context.SaveChangesAsync();
+    }
+
+    private async Task SeedWorkShiftsAsync()
+    {
+        if (await context.WorkShift.AnyAsync())
+            return;
+
+        var shifts = new[]
+        {
+            WorkShift.Create(
+                "شیفت اداری",
+                new TimeOnly(8, 0),
+                new TimeOnly(17, 0),
+                breakMinutes: 60,
+                graceMinutes: 15,
+                earlyLeaveGraceMinutes: 10,
+                isOvernight: false,
+                isActive: true,
+                description: "شیفت پیش‌فرض اداری",
+                color: "#3B82F6"),
+            WorkShift.Create(
+                "شیفت صبح",
+                new TimeOnly(6, 0),
+                new TimeOnly(14, 0),
+                breakMinutes: 30,
+                graceMinutes: 10,
+                earlyLeaveGraceMinutes: 5,
+                isOvernight: false,
+                isActive: true,
+                description: "شیفت صبح",
+                color: "#10B981"),
+            WorkShift.Create(
+                "شیفت عصر",
+                new TimeOnly(14, 0),
+                new TimeOnly(22, 0),
+                breakMinutes: 30,
+                graceMinutes: 10,
+                earlyLeaveGraceMinutes: 5,
+                isOvernight: false,
+                isActive: true,
+                description: "شیفت عصر",
+                color: "#F59E0B"),
+            WorkShift.Create(
+                "شیفت شب",
+                new TimeOnly(22, 0),
+                new TimeOnly(6, 0),
+                breakMinutes: 30,
+                graceMinutes: 10,
+                earlyLeaveGraceMinutes: 5,
+                isOvernight: true,
+                isActive: true,
+                description: "شیفت شبانه",
+                color: "#6366F1")
+        };
+
+        context.WorkShift.AddRange(shifts);
         await context.SaveChangesAsync();
     }
 

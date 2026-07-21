@@ -24,7 +24,12 @@ public class AttendanceRecordMapperService : IAttendanceRecordMapperService
             Pagination = model.Pagination
         };
 
-    public GetAttendanceRecordResponse Map(AttendanceRecord model, Employee employee, User user, Department department)
+    public GetAttendanceRecordResponse Map(
+        AttendanceRecord model,
+        Employee employee,
+        User user,
+        Department department,
+        string? workShiftName = null)
         => new()
         {
             Id = model.Id,
@@ -39,6 +44,12 @@ public class AttendanceRecordMapperService : IAttendanceRecordMapperService
             CheckInUtc = model.CheckInUtc,
             CheckOutUtc = model.CheckOutUtc,
             Status = model.Status,
+            WorkShiftId = model.WorkShiftId,
+            WorkShiftName = workShiftName,
+            LateMinutes = model.LateMinutes,
+            EarlyLeaveMinutes = model.EarlyLeaveMinutes,
+            OvertimeMinutes = model.OvertimeMinutes,
+            WorkedMinutes = model.WorkedMinutes,
             CreatedOnUtc = model.CreatedOnUtc
         };
 
@@ -58,6 +69,12 @@ public class AttendanceRecordMapperService : IAttendanceRecordMapperService
             CheckInUtc = x.CheckInUtc,
             CheckOutUtc = x.CheckOutUtc,
             Status = x.Status,
+            WorkShiftId = x.WorkShiftId,
+            WorkShiftName = x.WorkShiftName,
+            LateMinutes = x.LateMinutes,
+            EarlyLeaveMinutes = x.EarlyLeaveMinutes,
+            OvertimeMinutes = x.OvertimeMinutes,
+            WorkedMinutes = x.WorkedMinutes,
             CreatedOnUtc = x.CreatedOnUtc
         }).ToList();
 

@@ -7,7 +7,7 @@ namespace JavidHrm.Application.Features.Employees.Commands;
 
 public class CreateEmployeeValidator : AbstractValidator<CreateEmployeeRequest>
 {
-    public CreateEmployeeValidator(IEmployeeRepository employeeRepository)
+    public CreateEmployeeValidator(IEmployeeRepository employeeRepository, IWorkShiftRepository workShiftRepository)
     {
         RuleFor(x => x.UserId).MustBeValidEntityId();
         RuleFor(x => x.DepartmentId).MustBeValidEntityId();
@@ -37,6 +37,14 @@ public class CreateEmployeeValidator : AbstractValidator<CreateEmployeeRequest>
             {
                 if (managerId is null or <= 0) return true;
                 return await employeeRepository.AnyAsync(x => x.Id == managerId, cancellationToken);
+            })
+            .WithMessage(MessageKeys.InvalidId);
+
+        RuleFor(x => x.WorkShiftId)
+            .MustAsync(async (workShiftId, cancellationToken) =>
+            {
+                if (workShiftId is null or <= 0) return true;
+                return await workShiftRepository.AnyAsync(x => x.Id == workShiftId && x.IsActive, cancellationToken);
             })
             .WithMessage(MessageKeys.InvalidId);
     }

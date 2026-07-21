@@ -18,9 +18,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import {
   getApiErrorMessage,
   getCurrentUser,
-  searchCities,
   updateUser,
-  type CityDto,
   type UserDto,
 } from '@/services/api';
 
@@ -28,7 +26,6 @@ export default function AccountSettingsPage() {
   const { toast } = useToast();
   const { refreshCurrentUser } = useAuth();
   const [user, setUser] = useState<UserDto | null>(null);
-  const [cities, setCities] = useState<CityDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -38,7 +35,6 @@ export default function AccountSettingsPage() {
   const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [cityId, setCityId] = useState('');
   const [gender, setGender] = useState(String(GENDER_MALE));
   const [password, setPassword] = useState('');
 
@@ -46,18 +42,13 @@ export default function AccountSettingsPage() {
     setLoading(true);
     setError('');
     try {
-      const [userData, cityData] = await Promise.all([
-        getCurrentUser(),
-        searchCities({ Pagination: { PageNumber: 1, PageSize: 100 } }),
-      ]);
+      const userData = await getCurrentUser();
       setUser(userData);
-      setCities(cityData.Items ?? []);
       setFirstName(userData.FirstName ?? '');
       setLastName(userData.LastName ?? '');
       setUserName(userData.UserName);
       setEmail(userData.Email ?? '');
       setPhoneNumber(userData.PhoneNumber ?? '');
-      setCityId(userData.CityId ?? '');
       setGender(genderSelectValue(userData.Gender));
     } catch (err) {
       setError(getApiErrorMessage(err));
@@ -78,7 +69,6 @@ export default function AccountSettingsPage() {
     try {
       await updateUser({
         Id: user.Id,
-        CityId: cityId,
         UserName: userName.trim(),
         FirstName: firstName.trim(),
         LastName: lastName.trim(),
@@ -158,15 +148,6 @@ export default function AccountSettingsPage() {
                   <div className="space-y-2">
                     <label htmlFor="f-phone" className="text-sm font-medium">شماره تماس</label>
                     <Input id="f-phone" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} required />
-                  </div>
-                  <div className="space-y-2">
-                    <label htmlFor="f-city" className="text-sm font-medium">شهر</label>
-                    <Select id="f-city" value={cityId} onChange={(e) => setCityId(e.target.value)} required>
-                      <option value="">انتخاب شهر</option>
-                      {cities.map((city) => (
-                        <option key={city.Id} value={city.Id}>{city.Name}</option>
-                      ))}
-                    </Select>
                   </div>
                   <div className="space-y-2">
                     <label htmlFor="f-gender" className="text-sm font-medium">جنسیت</label>

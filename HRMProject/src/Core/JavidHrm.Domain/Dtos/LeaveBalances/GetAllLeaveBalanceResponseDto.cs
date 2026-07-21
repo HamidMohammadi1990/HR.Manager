@@ -1,5 +1,3 @@
-using JavidHrm.Domain.Enums;
-
 namespace JavidHrm.Domain.Dtos.LeaveBalances;
 
 public class GetAllLeaveBalanceResponseDto
@@ -12,7 +10,9 @@ public class GetAllLeaveBalanceResponseDto
     public int DepartmentId { get; set; }
     public string DepartmentName { get; set; } = default!;
     public string EmployeeCode { get; set; } = default!;
-    public LeaveType LeaveType { get; set; }
+    public int LeaveTypeDefinitionId { get; set; }
+    public string LeaveTypeName { get; set; } = default!;
+    public string LeaveTypeCode { get; set; } = default!;
     public int Year { get; set; }
     public decimal TotalDays { get; set; }
     public decimal UsedDays { get; set; }

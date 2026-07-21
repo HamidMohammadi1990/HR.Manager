@@ -10,24 +10,36 @@ public class UpdateLeaveRequestValidator : AbstractValidator<UpdateLeaveRequestR
 {
     public UpdateLeaveRequestValidator(
         IEmployeeRepository employeeRepository,
-        ILeaveRequestRepository leaveRequestRepository)
+        ILeaveRequestRepository leaveRequestRepository,
+        ILeaveTypeDefinitionRepository leaveTypeDefinitionRepository)
     {
         RuleFor(x => x.Id).MustBeValidEntityId();
         RuleFor(x => x.EmployeeId).MustBeValidEntityId();
+        RuleFor(x => x.LeaveTypeDefinitionId).MustBeValidEntityId();
 
-        RuleFor(x => x.LeaveType)
-            .IsInEnum()
-            .Must(leaveType => leaveType != default)
+        RuleFor(x => x.LeaveTypeDefinitionId)
+            .MustAsync(async (leaveTypeDefinitionId, cancellationToken)
+                => await leaveTypeDefinitionRepository.AnyAsync(
+                    x => x.Id == leaveTypeDefinitionId && x.IsActive,
+                    cancellationToken))
             .WithMessage(MessageKeys.InvalidId);
 
         RuleFor(x => x.StartDate).NotEmpty();
         RuleFor(x => x.EndDate).NotEmpty();
 
         RuleFor(x => x)
-            .Must(request =>
-                request.LeaveType == LeaveType.Hourly
+            .MustAsync(async (request, cancellationToken) =>
+            {
+                var leaveTypeDefinition = await leaveTypeDefinitionRepository.FindAsync(
+                    request.LeaveTypeDefinitionId,
+                    cancellationToken);
+                if (leaveTypeDefinition is null)
+                    return false;
+
+                return leaveTypeDefinition.Unit == LeaveTypeUnit.Hour
                     ? request.EndDate > request.StartDate
-                    : request.EndDate.Date >= request.StartDate.Date)
+                    : request.EndDate.Date >= request.StartDate.Date;
+            })
             .WithMessage(MessageKeys.StartDateMustBeBeforeEndDate);
 
         RuleFor(x => x.Status)
@@ -35,7 +47,10 @@ public class UpdateLeaveRequestValidator : AbstractValidator<UpdateLeaveRequestR
             .Must(status => status != default)
             .WithMessage(MessageKeys.InvalidId);
 
-        RuleFor(x => x.Reason).NotEmpty().MaximumLength(500);
+        RuleFor(x => x.Reason)
+            .NotEmpty()
+            .WithMessage(MessageKeys.NameRequired)
+            .MaximumLength(500);
 
         RuleFor(x => x.EmployeeId)
             .MustAsync(async (employeeId, cancellationToken)

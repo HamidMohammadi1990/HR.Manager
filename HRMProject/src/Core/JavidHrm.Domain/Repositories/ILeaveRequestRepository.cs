@@ -18,6 +18,7 @@ public interface ILeaveRequestRepository
         DateTime endDate,
         int? excludeLeaveRequestId = null,
         CancellationToken cancellationToken = default);
+    Task<LeaveRequest?> FindWithApprovalStepsAsync(int id, CancellationToken cancellationToken = default);
     Task<PagedResult<GetAllLeaveRequestResponseDto>> GetAllAsync(
         GetAllLeaveRequestRequestDto request,
         Expression<Func<LeaveRequest, bool>>? contentFilter = null);

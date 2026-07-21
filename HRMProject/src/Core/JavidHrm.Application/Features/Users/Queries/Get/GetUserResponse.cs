@@ -19,9 +19,4 @@ public record GetUserResponse
     public DateTime? LastLoginDateOnUtc { get; init; }
     public bool EmailConfirmed { get; init; }
     public bool PhoneNumberConfirmed { get; init; }
-
-    [JsonConverter(typeof(CityNullableEncryptor))]
-    public int? CityId { get; init; }
-
-    public string? CityName { get; init; }
 }

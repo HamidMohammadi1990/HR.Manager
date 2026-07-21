@@ -10,7 +10,7 @@ public class GetDepartmentHandler
 {
     public async Task<OperationResult<GetDepartmentResponse?>> Handle(GetDepartmentRequest request, CancellationToken cancellationToken)
     {
-        var department = await departmentRepository.GetAsNoTrackingAsync(request.Id, cancellationToken);
+        var department = await departmentRepository.GetDetailAsync(request.Id, cancellationToken);
         if (department is null)
             return ErrorModel.Create("InvalidId");
 

@@ -8,10 +8,12 @@ const EmployeesPage = lazy(() => import('@/features/employees/EmployeesPage'));
 const AddEmployeePage = lazy(() => import('@/features/employees/AddEmployeePage'));
 const EmployeeDetailPage = lazy(() => import('@/features/employees/EmployeeDetailPage'));
 const DepartmentsPage = lazy(() => import('@/features/departments/DepartmentsPage'));
+const DepartmentTreePage = lazy(() => import('@/features/departments/DepartmentTreePage'));
 const AddDepartmentPage = lazy(() => import('@/features/departments/AddDepartmentPage'));
 const DepartmentDetailPage = lazy(() => import('@/features/departments/DepartmentDetailPage'));
 const AttendancePage = lazy(() => import('@/features/attendance/AttendancePage'));
 const LeavesPage = lazy(() => import('@/features/leaves/LeavesPage'));
+const LeaveApprovalInboxPage = lazy(() => import('@/features/leaves/LeaveApprovalInboxPage'));
 const PayrollPage = lazy(() => import('@/features/payroll/PayrollPage'));
 const UsersPage = lazy(() => import('@/features/users/UsersPage'));
 const AddUserPage = lazy(() => import('@/features/users/AddUserPage'));
@@ -27,6 +29,7 @@ const AnnouncementsPage = lazy(() => import('@/features/announcements/Announceme
 const TodoPage = lazy(() => import('@/features/todo/TodoPage'));
 const BackupPage = lazy(() => import('@/features/backup/BackupPage'));
 const WorkShiftsPage = lazy(() => import('@/features/work-shifts/WorkShiftsPage'));
+const LeaveTypeDefinitionsPage = lazy(() => import('@/features/leave-type-definitions/LeaveTypeDefinitionsPage'));
 const LeaveBalancesPage = lazy(() => import('@/features/leave-balances/LeaveBalancesPage'));
 const LoginPage = lazy(() => import('@/features/auth/LoginPage'));
 const RegisterPage = lazy(() => import('@/features/auth/RegisterPage'));
@@ -69,10 +72,13 @@ export const router = createBrowserRouter([
       { path: 'employees/new', element: <SuspensePage><AddEmployeePage /></SuspensePage> },
       { path: 'employees/:id', element: <SuspensePage><EmployeeDetailPage /></SuspensePage> },
       { path: 'departments', element: <SuspensePage><DepartmentsPage /></SuspensePage> },
+      { path: 'departments/tree', element: <SuspensePage><DepartmentTreePage /></SuspensePage> },
       { path: 'departments/new', element: <SuspensePage><AddDepartmentPage /></SuspensePage> },
       { path: 'departments/:id', element: <SuspensePage><DepartmentDetailPage /></SuspensePage> },
       { path: 'attendance', element: <SuspensePage><AttendancePage /></SuspensePage> },
       { path: 'leaves', element: <SuspensePage><LeavesPage /></SuspensePage> },
+      { path: 'leaves/inbox', element: <SuspensePage><LeaveApprovalInboxPage /></SuspensePage> },
+      { path: 'leave-types', element: <SuspensePage><LeaveTypeDefinitionsPage /></SuspensePage> },
       { path: 'payroll', element: <SuspensePage><PayrollPage /></SuspensePage> },
       { path: 'work-shifts', element: <SuspensePage><WorkShiftsPage /></SuspensePage> },
       { path: 'leave-balances', element: <SuspensePage><LeaveBalancesPage /></SuspensePage> },

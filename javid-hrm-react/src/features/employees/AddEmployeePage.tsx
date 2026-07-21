@@ -10,10 +10,12 @@ import {
   getAllDepartments,
   getAllEmployees,
   getAllUsers,
+  getAllWorkShifts,
   getApiErrorMessage,
   type DepartmentDto,
   type EmployeeDto,
   type UserDto,
+  type WorkShiftDto,
 } from '@/services/api';
 import { todayGregorianDateString } from '@/lib/persianDateTime';
 
@@ -22,9 +24,11 @@ export default function AddEmployeePage() {
   const [users, setUsers] = useState<UserDto[]>([]);
   const [departments, setDepartments] = useState<DepartmentDto[]>([]);
   const [managers, setManagers] = useState<EmployeeDto[]>([]);
+  const [workShifts, setWorkShifts] = useState<WorkShiftDto[]>([]);
   const [userId, setUserId] = useState('');
   const [departmentId, setDepartmentId] = useState('');
   const [managerId, setManagerId] = useState('');
+  const [workShiftId, setWorkShiftId] = useState('');
   const [employeeCode, setEmployeeCode] = useState('');
   const [jobTitle, setJobTitle] = useState('');
   const [hireDate, setHireDate] = useState(todayGregorianDateString());
@@ -36,11 +40,13 @@ export default function AddEmployeePage() {
       getAllUsers({ Pagination: { PageNumber: 1, PageSize: 100 } }),
       getAllDepartments({ IsActive: true, Pagination: { PageNumber: 1, PageSize: 100 } }),
       getAllEmployees({ IsActive: true, Pagination: { PageNumber: 1, PageSize: 100 } }),
+      getAllWorkShifts({ IsActive: true, Pagination: { PageNumber: 1, PageSize: 100 } }),
     ])
-      .then(([usersRes, deptRes, empRes]) => {
+      .then(([usersRes, deptRes, empRes, shiftRes]) => {
         setUsers(usersRes.Items ?? []);
         setDepartments(deptRes.Items ?? []);
         setManagers(empRes.Items ?? []);
+        setWorkShifts(shiftRes.Items ?? []);
       })
       .catch(() => {});
   }, []);
@@ -58,6 +64,7 @@ export default function AddEmployeePage() {
         UserId: userId,
         DepartmentId: departmentId,
         ManagerId: managerId || null,
+        WorkShiftId: workShiftId || null,
         EmployeeCode: employeeCode.trim(),
         JobTitle: jobTitle.trim(),
         HireDate: hireDate,
@@ -127,6 +134,15 @@ export default function AddEmployeePage() {
                       <option key={m.Id} value={m.Id}>
                         {[m.UserFirstName, m.UserLastName].filter(Boolean).join(' ') || m.EmployeeCode}
                       </option>
+                    ))}
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">شیفت کاری (اختیاری)</label>
+                  <Select className="w-full" value={workShiftId} onChange={(e) => setWorkShiftId(e.target.value)}>
+                    <option value="">پیش‌فرض بخش / برنامه زمانی</option>
+                    {workShifts.map((shift) => (
+                      <option key={shift.Id} value={shift.Id}>{shift.Name}</option>
                     ))}
                   </Select>
                 </div>

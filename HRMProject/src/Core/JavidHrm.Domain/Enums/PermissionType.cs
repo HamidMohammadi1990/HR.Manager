@@ -451,6 +451,9 @@ public enum PermissionType : int
     [Display(Name = "PermissionType_RejectLeave", ResourceType = typeof(EnumResources))]
     RejectLeave = 908,
 
+    [Display(Name = "PermissionType_GetLeaveApprovalInbox", ResourceType = typeof(EnumResources))]
+    GetLeaveApprovalInbox = 909,
+
     // Payroll
     [Display(Name = "PermissionType_ManagePayrollGroup", ResourceType = typeof(EnumResources))]
     ManagePayrollGroup = 1000,
@@ -613,6 +616,44 @@ public enum PermissionType : int
     [Display(Name = "PermissionType_DeleteWorkShift", ResourceType = typeof(EnumResources))]
     DeleteWorkShift = 1506,
 
+    // Employee shift schedules
+    [Display(Name = "PermissionType_ManageEmployeeShiftScheduleGroup", ResourceType = typeof(EnumResources))]
+    ManageEmployeeShiftScheduleGroup = 1507,
+
+    [Display(Name = "PermissionType_ManageEmployeeShiftSchedule", ResourceType = typeof(EnumResources))]
+    ManageEmployeeShiftSchedule = 1508,
+
+    [Display(Name = "PermissionType_ListEmployeeShiftSchedule", ResourceType = typeof(EnumResources))]
+    ListEmployeeShiftSchedule = 1509,
+
+    [Display(Name = "PermissionType_CreateEmployeeShiftSchedule", ResourceType = typeof(EnumResources))]
+    CreateEmployeeShiftSchedule = 1510,
+
+    [Display(Name = "PermissionType_DeleteEmployeeShiftSchedule", ResourceType = typeof(EnumResources))]
+    DeleteEmployeeShiftSchedule = 1511,
+
+    // Leave type definitions
+    [Display(Name = "PermissionType_ManageLeaveTypeDefinitionGroup", ResourceType = typeof(EnumResources))]
+    ManageLeaveTypeDefinitionGroup = 1550,
+
+    [Display(Name = "PermissionType_ManageLeaveTypeDefinition", ResourceType = typeof(EnumResources))]
+    ManageLeaveTypeDefinition = 1551,
+
+    [Display(Name = "PermissionType_ListLeaveTypeDefinition", ResourceType = typeof(EnumResources))]
+    ListLeaveTypeDefinition = 1552,
+
+    [Display(Name = "PermissionType_GetLeaveTypeDefinitionById", ResourceType = typeof(EnumResources))]
+    GetLeaveTypeDefinitionById = 1553,
+
+    [Display(Name = "PermissionType_CreateLeaveTypeDefinition", ResourceType = typeof(EnumResources))]
+    CreateLeaveTypeDefinition = 1554,
+
+    [Display(Name = "PermissionType_UpdateLeaveTypeDefinition", ResourceType = typeof(EnumResources))]
+    UpdateLeaveTypeDefinition = 1555,
+
+    [Display(Name = "PermissionType_DeleteLeaveTypeDefinition", ResourceType = typeof(EnumResources))]
+    DeleteLeaveTypeDefinition = 1556,
+
     // Leave balances
     [Display(Name = "PermissionType_ManageLeaveBalanceGroup", ResourceType = typeof(EnumResources))]
     ManageLeaveBalanceGroup = 1600,
@@ -634,6 +675,9 @@ public enum PermissionType : int
 
     [Display(Name = "PermissionType_DeleteLeaveBalance", ResourceType = typeof(EnumResources))]
     DeleteLeaveBalance = 1606,
+
+    [Display(Name = "PermissionType_GetEmployeeLeaveBalance", ResourceType = typeof(EnumResources))]
+    GetEmployeeLeaveBalance = 1607,
 
     // Backup jobs
     [Display(Name = "PermissionType_ManageBackupJobGroup", ResourceType = typeof(EnumResources))]

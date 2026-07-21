@@ -13,6 +13,7 @@ internal class WorkShiftConfig : IEntityTypeConfiguration<WorkShift>
         builder.Property(e => e.Description).HasNVarcharMaxLength(500);
         builder.Property(e => e.StartTime).IsRequired();
         builder.Property(e => e.EndTime).IsRequired();
+        builder.Property(e => e.Color).HasVarcharMaxLength(20);
 
         builder.HasIndex(e => e.IsActive);
     }

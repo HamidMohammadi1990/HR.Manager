@@ -52,21 +52,9 @@ internal class UserConfig : IEntityTypeConfiguration<User>
             .OnDelete(DeleteBehavior.Restrict);
 
         builder
-            .HasMany(x => x.UserAddresses)
-            .WithOne(x => x.User)
-            .HasForeignKey(x => x.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder
             .HasMany(x => x.RefreshTokens)
             .WithOne(x => x.User)
             .HasForeignKey(x => x.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder
-            .HasOne(x => x.City)
-            .WithMany(x => x.Users)
-            .HasForeignKey(x => x.CityId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder
@@ -74,6 +62,5 @@ internal class UserConfig : IEntityTypeConfiguration<User>
 
         builder.HasIndex(x => x.UserName).IsUnique();
         builder.HasIndex(x => x.Email).IsUnique();
-        builder.HasIndex(x => x.CityId);
     }
 }

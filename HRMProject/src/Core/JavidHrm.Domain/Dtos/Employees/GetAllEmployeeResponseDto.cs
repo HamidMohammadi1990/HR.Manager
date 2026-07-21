@@ -12,6 +12,8 @@ public class GetAllEmployeeResponseDto
     public int? ManagerId { get; set; }
     public string? ManagerFirstName { get; set; }
     public string? ManagerLastName { get; set; }
+    public int? WorkShiftId { get; set; }
+    public string? WorkShiftName { get; set; }
     public string EmployeeCode { get; set; } = default!;
     public string JobTitle { get; set; } = default!;
     public DateTime HireDate { get; set; }

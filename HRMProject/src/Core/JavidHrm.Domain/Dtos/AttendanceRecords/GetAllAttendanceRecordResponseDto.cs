@@ -16,5 +16,11 @@ public class GetAllAttendanceRecordResponseDto
     public DateTime? CheckInUtc { get; set; }
     public DateTime? CheckOutUtc { get; set; }
     public AttendanceStatus Status { get; set; }
+    public int? WorkShiftId { get; set; }
+    public string? WorkShiftName { get; set; }
+    public int LateMinutes { get; set; }
+    public int EarlyLeaveMinutes { get; set; }
+    public int OvertimeMinutes { get; set; }
+    public int WorkedMinutes { get; set; }
     public DateTime CreatedOnUtc { get; set; }
 }

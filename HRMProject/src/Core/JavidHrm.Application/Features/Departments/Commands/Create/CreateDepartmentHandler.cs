@@ -13,16 +13,11 @@ public class CreateDepartmentHandler
     {
         var department = Domain.Entities.Department.Create(
             currentUser.UserId,
-            request.CityId,
-            request.Name,
-            request.Code,
-            request.PhoneNumber,
-            request.Email,
-            request.PostalCode,
-            request.Address,
-            request.Description,
-            request.Latitude,
-            request.Longitude);
+            request.Name.Trim(),
+            request.Code.Trim(),
+            request.Description?.Trim(),
+            request.ParentDepartmentId,
+            request.DefaultWorkShiftId);
 
         if (request.IsActive)
             department.Active();

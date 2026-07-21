@@ -8,6 +8,7 @@ export const ATTENDANCE_STATUS_LABELS: Record<number, string> = {
   2: 'غایب',
   3: 'تأخیر',
   4: 'مرخصی',
+  5: 'خروج زودهنگام',
 };
 
 export const LEAVE_TYPE_HOURLY = 5;
@@ -19,6 +20,21 @@ export const LEAVE_TYPE_LABELS: Record<number, string> = {
   4: 'سایر',
   5: 'ساعتی',
 };
+
+export const LEAVE_TYPE_CATEGORY_LABELS: Record<number, string> = {
+  1: 'مرخصی',
+  2: 'ماموریت',
+};
+
+export const LEAVE_TYPE_UNIT_LABELS: Record<number, string> = {
+  1: 'روز',
+  2: 'ساعت',
+};
+
+export const LEAVE_TYPE_CATEGORY_LEAVE = 1;
+export const LEAVE_TYPE_CATEGORY_MISSION = 2;
+export const LEAVE_TYPE_UNIT_DAY = 1;
+export const LEAVE_TYPE_UNIT_HOUR = 2;
 
 export const LEAVE_STATUS_LABELS: Record<number, string> = {
   1: 'در انتظار',

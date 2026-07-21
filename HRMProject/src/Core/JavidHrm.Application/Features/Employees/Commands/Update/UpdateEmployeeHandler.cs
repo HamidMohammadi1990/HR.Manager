@@ -20,6 +20,7 @@ public class UpdateEmployeeHandler
         employee.Update(
             request.DepartmentId,
             request.ManagerId,
+            request.WorkShiftId,
             request.EmployeeCode.Trim(),
             request.JobTitle.Trim(),
             request.HireDate);

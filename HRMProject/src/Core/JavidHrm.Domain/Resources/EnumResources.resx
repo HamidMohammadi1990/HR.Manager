@@ -577,4 +577,11 @@
   <data name="PermissionType_ToggleCompleteTodoItem" xml:space="preserve"><value>Toggle Complete Todo Item</value></data>
   <data name="PermissionType_RunBackupJob" xml:space="preserve"><value>Run Backup Job</value></data>
   <data name="PermissionType_DownloadBackupJob" xml:space="preserve"><value>Download Backup Job</value></data>
+  <data name="PermissionType_GetLeaveApprovalInbox" xml:space="preserve"><value>Get Leave Approval Inbox</value></data>
+  <data name="PermissionType_ManageEmployeeShiftScheduleGroup" xml:space="preserve"><value>Manage Employee Shift Schedule Group</value></data>
+  <data name="PermissionType_ManageEmployeeShiftSchedule" xml:space="preserve"><value>Manage Employee Shift Schedule</value></data>
+  <data name="PermissionType_ListEmployeeShiftSchedule" xml:space="preserve"><value>List Employee Shift Schedule</value></data>
+  <data name="PermissionType_CreateEmployeeShiftSchedule" xml:space="preserve"><value>Create Employee Shift Schedule</value></data>
+  <data name="PermissionType_DeleteEmployeeShiftSchedule" xml:space="preserve"><value>Delete Employee Shift Schedule</value></data>
+  <data name="PermissionType_GetEmployeeLeaveBalance" xml:space="preserve"><value>Get Employee Leave Balance</value></data>
 </root>

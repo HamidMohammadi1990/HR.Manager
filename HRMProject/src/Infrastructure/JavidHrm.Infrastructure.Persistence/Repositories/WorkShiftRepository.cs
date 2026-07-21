@@ -32,10 +32,27 @@ public class WorkShiftRepository(JavidHrmDbContext context)
                 StartTime = x.workShift.StartTime,
                 EndTime = x.workShift.EndTime,
                 BreakMinutes = x.workShift.BreakMinutes,
+                GraceMinutes = x.workShift.GraceMinutes,
+                EarlyLeaveGraceMinutes = x.workShift.EarlyLeaveGraceMinutes,
+                IsOvernight = x.workShift.IsOvernight,
                 IsActive = x.workShift.IsActive,
-                Description = x.workShift.Description
+                Description = x.workShift.Description,
+                Color = x.workShift.Color
             })
             .AsNoTracking()
             .ToPagedAsync(request.Pagination);
+    }
+
+    public async Task<bool> IsInUseAsync(int workShiftId, CancellationToken cancellationToken = default)
+    {
+        if (await Context.Employee.AnyAsync(x => x.WorkShiftId == workShiftId, cancellationToken))
+            return true;
+        if (await Context.Department.AnyAsync(x => x.DefaultWorkShiftId == workShiftId, cancellationToken))
+            return true;
+        if (await Context.EmployeeShiftSchedule.AnyAsync(x => x.WorkShiftId == workShiftId, cancellationToken))
+            return true;
+        if (await Context.AttendanceRecord.AnyAsync(x => x.WorkShiftId == workShiftId, cancellationToken))
+            return true;
+        return false;
     }
 }

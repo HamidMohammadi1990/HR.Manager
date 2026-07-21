@@ -161,7 +161,11 @@
   <data name="IpRequired" xml:space="preserve"><value>ای پی الزامی است</value></data>
   <data name="StartDateMustBeBeforeEndDate" xml:space="preserve"><value>تاریخ شروع باید قبل از تاریخ پایان باشد</value></data>
   <data name="OverlappingLeavePeriod" xml:space="preserve"><value>بازه مرخصی با درخواست دیگری تداخل دارد</value></data>
+  <data name="WorkShiftInUse" xml:space="preserve"><value>این شیفت به کارمند یا بخش اختصاص داده شده و قابل حذف نیست</value></data>
+  <data name="OverlappingShiftSchedule" xml:space="preserve"><value>برنامه شیفت با بازه دیگری برای این کارمند تداخل دارد</value></data>
   <data name="LeaveRequestNotPending" xml:space="preserve"><value>فقط درخواست‌های در انتظار قابل تأیید یا رد هستند</value></data>
+  <data name="LeaveApprovalUnauthorized" xml:space="preserve"><value>شما مجاز به اقدام در این مرحله تأیید نیستید</value></data>
+  <data name="LeaveApprovalStepNotFound" xml:space="preserve"><value>مرحله تأیید فعالی برای این درخواست یافت نشد</value></data>
   <data name="CheckOutMustBeAfterCheckIn" xml:space="preserve"><value>زمان خروج باید بعد از زمان ورود باشد</value></data>
   <data name="AttendanceAlreadyCheckedIn" xml:space="preserve"><value>ورود این کارمند برای این روز قبلاً ثبت شده است</value></data>
   <data name="AttendanceNotCheckedIn" xml:space="preserve"><value>ورود این کارمند برای این روز ثبت نشده است</value></data>

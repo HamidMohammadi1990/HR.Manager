@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -6,13 +6,11 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { useToast } from '@/contexts/ToastContext';
 import { GENDER_FEMALE, GENDER_MALE, normalizeGender } from '@/lib/userDisplay';
-import { createUser, getApiErrorMessage, searchCities, type CityDto } from '@/services/api';
+import { createUser, getApiErrorMessage } from '@/services/api';
 
 export default function AddUserPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [cities, setCities] = useState<CityDto[]>([]);
-  const [cityId, setCityId] = useState('');
   const [userName, setUserName] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -23,31 +21,13 @@ export default function AddUserPage() {
   const [error, setError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
-  useEffect(() => {
-    void searchCities({ Name: 'تهران', Pagination: { PageNumber: 1, PageSize: 20 } })
-      .then((result) => {
-        setCities(result.Items ?? []);
-        const tehran = result.Items?.find((c) => c.Name === 'تهران');
-        if (tehran) setCityId(tehran.Id);
-      })
-      .catch(() => {
-        // cities optional for form display
-      });
-  }, []);
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
 
-    if (!cityId) {
-      setError('لطفاً شهر را انتخاب کنید');
-      return;
-    }
-
     setIsSaving(true);
     try {
       const created = await createUser({
-        CityId: cityId,
         UserName: userName.trim(),
         FirstName: firstName.trim(),
         LastName: lastName.trim(),
@@ -117,17 +97,6 @@ export default function AddUserPage() {
                 <Select id="gender" className="w-full" value={gender} onChange={(e) => setGender(e.target.value)}>
                   <option value={String(GENDER_MALE)}>مرد</option>
                   <option value={String(GENDER_FEMALE)}>زن</option>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="cityId" className="text-sm font-medium">شهر</label>
-                <Select id="cityId" className="w-full" value={cityId} onChange={(e) => setCityId(e.target.value)} required>
-                  <option value="">انتخاب شهر</option>
-                  {cities.map((city) => (
-                    <option key={city.Id} value={city.Id}>
-                      {city.Name} ({city.ProvinceName})
-                    </option>
-                  ))}
                 </Select>
               </div>
               <div className="space-y-2">

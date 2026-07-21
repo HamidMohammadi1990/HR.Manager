@@ -1,3 +1,4 @@
+using JavidHrm.Common.Localization;
 using JavidHrm.Common.Models;
 using JavidHrm.Domain.Repositories;
 using JavidHrm.Application.Contracts.Persistence;
@@ -12,7 +13,10 @@ public class DeleteWorkShiftHandler
     {
         var workShift = await workShiftRepository.FindAsync(request.Id, cancellationToken);
         if (workShift is null)
-            return ErrorModel.Create("InvalidId");
+            return ErrorModel.Create(MessageKeys.InvalidId);
+
+        if (await workShiftRepository.IsInUseAsync(request.Id, cancellationToken))
+            return ErrorModel.Create(MessageKeys.WorkShiftInUse);
 
         workShiftRepository.Remove(workShift);
 

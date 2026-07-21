@@ -10,16 +10,22 @@ import { Select } from '@/components/ui/Select';
 import { Dialog } from '@/components/layout/Dialog';
 import { useDisclosure } from '@/hooks';
 import {
+  createEmployeeShiftSchedule,
   deleteEmployee,
+  deleteEmployeeShiftSchedule,
   getAllDepartments,
   getAllEmployees,
+  getAllWorkShifts,
   getApiErrorMessage,
   getEmployee,
+  getEmployeeShiftSchedules,
   updateEmployee,
   type DepartmentDto,
   type EmployeeDto,
+  type EmployeeShiftScheduleDto,
+  type WorkShiftDto,
 } from '@/services/api';
-import { isoToGregorianDateString } from '@/lib/persianDateTime';
+import { isoToGregorianDateString, todayGregorianDateString } from '@/lib/persianDateTime';
 
 function getName(emp: EmployeeDto) {
   return [emp.UserFirstName, emp.UserLastName].filter(Boolean).join(' ') || emp.UserName || emp.EmployeeCode;
@@ -29,11 +35,15 @@ export default function EmployeeDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const deleteDialog = useDisclosure();
+  const scheduleDialog = useDisclosure();
   const [employee, setEmployee] = useState<EmployeeDto | null>(null);
   const [departments, setDepartments] = useState<DepartmentDto[]>([]);
   const [managers, setManagers] = useState<EmployeeDto[]>([]);
+  const [workShifts, setWorkShifts] = useState<WorkShiftDto[]>([]);
+  const [shiftSchedules, setShiftSchedules] = useState<EmployeeShiftScheduleDto[]>([]);
   const [departmentId, setDepartmentId] = useState('');
   const [managerId, setManagerId] = useState('');
+  const [workShiftId, setWorkShiftId] = useState('');
   const [employeeCode, setEmployeeCode] = useState('');
   const [jobTitle, setJobTitle] = useState('');
   const [hireDate, setHireDate] = useState('');
@@ -42,6 +52,17 @@ export default function EmployeeDetailPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
   const [formError, setFormError] = useState('');
+  const [scheduleError, setScheduleError] = useState('');
+  const [scheduleWorkShiftId, setScheduleWorkShiftId] = useState('');
+  const [scheduleEffectiveFrom, setScheduleEffectiveFrom] = useState(todayGregorianDateString());
+  const [scheduleEffectiveTo, setScheduleEffectiveTo] = useState('');
+  const [scheduleNote, setScheduleNote] = useState('');
+  const [isScheduleSubmitting, setIsScheduleSubmitting] = useState(false);
+
+  const loadShiftSchedules = async (employeeId: string) => {
+    const schedules = await getEmployeeShiftSchedules({ EmployeeId: employeeId });
+    setShiftSchedules(schedules);
+  };
 
   useEffect(() => {
     if (!id) return;
@@ -51,21 +72,25 @@ export default function EmployeeDetailPage() {
       setIsLoading(true);
       setError('');
       try {
-        const [emp, deptRes, empRes] = await Promise.all([
+        const [emp, deptRes, empRes, shiftRes] = await Promise.all([
           getEmployee({ Id: decodeURIComponent(id) }),
           getAllDepartments({ Pagination: { PageNumber: 1, PageSize: 100 } }),
           getAllEmployees({ IsActive: true, Pagination: { PageNumber: 1, PageSize: 100 } }),
+          getAllWorkShifts({ IsActive: true, Pagination: { PageNumber: 1, PageSize: 100 } }),
         ]);
         if (cancelled) return;
         setEmployee(emp);
         setDepartments(deptRes.Items ?? []);
         setManagers((empRes.Items ?? []).filter((m) => m.Id !== emp.Id));
+        setWorkShifts(shiftRes.Items ?? []);
         setDepartmentId(emp.DepartmentId);
         setManagerId(emp.ManagerId ?? '');
+        setWorkShiftId(emp.WorkShiftId ?? '');
         setEmployeeCode(emp.EmployeeCode);
         setJobTitle(emp.JobTitle);
         setHireDate(isoToGregorianDateString(emp.HireDate));
         setIsActive(emp.IsActive);
+        await loadShiftSchedules(emp.Id);
       } catch (err) {
         if (!cancelled) setError(getApiErrorMessage(err));
       } finally {
@@ -87,6 +112,7 @@ export default function EmployeeDetailPage() {
         Id: employee.Id,
         DepartmentId: departmentId,
         ManagerId: managerId || null,
+        WorkShiftId: workShiftId || null,
         EmployeeCode: employeeCode.trim(),
         JobTitle: jobTitle.trim(),
         HireDate: hireDate,
@@ -112,6 +138,48 @@ export default function EmployeeDetailPage() {
       deleteDialog.close();
     }
   };
+
+  const handleCreateSchedule = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!employee || !scheduleWorkShiftId) {
+      setScheduleError('شیفت و تاریخ شروع الزامی است');
+      return;
+    }
+    setScheduleError('');
+    setIsScheduleSubmitting(true);
+    try {
+      await createEmployeeShiftSchedule({
+        EmployeeId: employee.Id,
+        WorkShiftId: scheduleWorkShiftId,
+        EffectiveFrom: scheduleEffectiveFrom,
+        EffectiveTo: scheduleEffectiveTo || null,
+        Note: scheduleNote.trim() || null,
+      });
+      setScheduleWorkShiftId('');
+      setScheduleEffectiveTo('');
+      setScheduleNote('');
+      scheduleDialog.close();
+      await loadShiftSchedules(employee.Id);
+    } catch (err) {
+      setScheduleError(getApiErrorMessage(err));
+    } finally {
+      setIsScheduleSubmitting(false);
+    }
+  };
+
+  const handleDeleteSchedule = async (scheduleId: number) => {
+    if (!employee) return;
+    try {
+      await deleteEmployeeShiftSchedule({ Id: scheduleId });
+      await loadShiftSchedules(employee.Id);
+    } catch (err) {
+      setFormError(getApiErrorMessage(err));
+    }
+  };
+
+  function formatShiftTime(value: string) {
+    return value?.slice(0, 5) ?? '—';
+  }
 
   if (isLoading) {
     return <div className="flex flex-1 items-center justify-center p-12"><p className="text-muted-foreground text-sm">در حال بارگذاری...</p></div>;
@@ -184,6 +252,18 @@ export default function EmployeeDetailPage() {
                 </Select>
               </div>
               <div className="space-y-2">
+                <label className="text-sm font-medium">شیفت کاری</label>
+                <Select className="w-full" value={workShiftId} onChange={(e) => setWorkShiftId(e.target.value)}>
+                  <option value="">پیش‌فرض بخش / برنامه زمانی</option>
+                  {workShifts.map((shift) => (
+                    <option key={shift.Id} value={shift.Id}>{shift.Name}</option>
+                  ))}
+                </Select>
+                {employee.WorkShiftName && (
+                  <p className="text-muted-foreground text-xs">شیفت فعلی: {employee.WorkShiftName}</p>
+                )}
+              </div>
+              <div className="space-y-2">
                 <label className="text-sm font-medium">تاریخ استخدام</label>
                 <PersianDateInput value={hireDate} onChange={setHireDate} required />
               </div>
@@ -200,6 +280,103 @@ export default function EmployeeDetailPage() {
           </CardContent>
         </Card>
       </form>
+
+      <Card className="mt-6">
+        <CardHeader className="flex flex-row items-center justify-between gap-4">
+          <div>
+            <CardTitle>برنامه زمانی شیفت</CardTitle>
+            <CardDescription>اولویت بالاتر از شیفت ثابت پرسنل — برای دوره‌های خاص</CardDescription>
+          </div>
+          <Button type="button" variant="outline" onClick={scheduleDialog.open}>
+            <Icon name="material-symbols:add" className="size-4" />
+            برنامه جدید
+          </Button>
+        </CardHeader>
+        <CardContent>
+          {shiftSchedules.length === 0 ? (
+            <p className="text-muted-foreground text-sm">برنامه زمانی ثبت نشده است.</p>
+          ) : (
+            <div className="table-wrapper">
+              <table className="table">
+                <thead className="table-header">
+                  <tr>
+                    <th className="table-head">شیفت</th>
+                    <th className="table-head">از تاریخ</th>
+                    <th className="table-head">تا تاریخ</th>
+                    <th className="table-head">یادداشت</th>
+                    <th className="table-head">عملیات</th>
+                  </tr>
+                </thead>
+                <tbody className="table-body">
+                  {shiftSchedules.map((schedule) => (
+                    <tr key={schedule.Id} className="table-row">
+                      <td className="table-cell">
+                        {schedule.WorkShiftName}
+                        <span className="text-muted-foreground block text-xs" dir="ltr">
+                          {formatShiftTime(schedule.WorkShiftStartTime)} - {formatShiftTime(schedule.WorkShiftEndTime)}
+                          {schedule.WorkShiftIsOvernight ? ' (شبانه)' : ''}
+                        </span>
+                      </td>
+                      <td className="table-cell">{new Date(schedule.EffectiveFrom).toLocaleDateString('fa-IR')}</td>
+                      <td className="table-cell">
+                        {schedule.EffectiveTo ? new Date(schedule.EffectiveTo).toLocaleDateString('fa-IR') : 'نامحدود'}
+                      </td>
+                      <td className="table-cell">{schedule.Note || '—'}</td>
+                      <td className="table-cell">
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          className="text-destructive"
+                          onClick={() => void handleDeleteSchedule(schedule.Id)}
+                        >
+                          <Icon name="material-symbols:delete" className="size-4" />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Dialog open={scheduleDialog.isOpen} onClose={scheduleDialog.close} className="max-w-lg">
+        <form onSubmit={(e) => void handleCreateSchedule(e)}>
+          <div className="dialog-header">
+            <h3 className="dialog-title">برنامه شیفت جدید</h3>
+          </div>
+          <div className="dialog-body space-y-4">
+            {scheduleError && <p className="text-destructive text-sm">{scheduleError}</p>}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">شیفت</label>
+              <Select className="w-full" value={scheduleWorkShiftId} onChange={(e) => setScheduleWorkShiftId(e.target.value)} required>
+                <option value="">انتخاب شیفت</option>
+                {workShifts.map((shift) => (
+                  <option key={shift.Id} value={shift.Id}>{shift.Name}</option>
+                ))}
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">از تاریخ</label>
+                <PersianDateInput value={scheduleEffectiveFrom} onChange={setScheduleEffectiveFrom} required />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">تا تاریخ (اختیاری)</label>
+                <PersianDateInput value={scheduleEffectiveTo} onChange={setScheduleEffectiveTo} />
+              </div>
+            </div>
+            <Input placeholder="یادداشت" value={scheduleNote} onChange={(e) => setScheduleNote(e.target.value)} />
+          </div>
+          <div className="dialog-footer">
+            <Button type="button" variant="outline" onClick={scheduleDialog.close}>انصراف</Button>
+            <Button type="submit" disabled={isScheduleSubmitting}>
+              {isScheduleSubmitting ? 'در حال ذخیره...' : 'ثبت'}
+            </Button>
+          </div>
+        </form>
+      </Dialog>
 
       <Dialog open={deleteDialog.isOpen} onClose={deleteDialog.close} className="max-w-md">
         <button type="button" className="dialog-close" onClick={deleteDialog.close}>

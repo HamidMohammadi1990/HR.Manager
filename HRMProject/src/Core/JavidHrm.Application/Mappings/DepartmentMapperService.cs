@@ -14,10 +14,8 @@ public class DepartmentMapperService : IDepartmentMapperService
             Code = model.Code,
             Name = model.Name,
             UserId = model.UserId,
-            CityId = model.CityId,
+            ParentDepartmentId = model.ParentDepartmentId,
             IsActive = model.IsActive,
-            PostalCode = model.PostalCode,
-            ProvinceId = model.ProvinceId,
             Pagination = model.Pagination
         };
 
@@ -27,9 +25,7 @@ public class DepartmentMapperService : IDepartmentMapperService
             Code = model.Code,
             Name = model.Name,
             UserId = model.UserId,
-            CityId = model.CityId,
-            PostalCode = model.PostalCode,
-            ProvinceId = model.ProvinceId,
+            ParentDepartmentId = model.ParentDepartmentId,
             Pagination = model.Pagination
         };
 
@@ -39,15 +35,11 @@ public class DepartmentMapperService : IDepartmentMapperService
             Id = model.Id,
             Code = model.Code,
             Name = model.Name,
-            Email = model.Email,
-            UserId = model.UserId,
-            CityId = model.CityId,
-            Address = model.Address,
+            ParentDepartmentId = model.ParentDepartmentId,
+            ParentDepartmentName = model.ParentDepartment?.Name,
+            DefaultWorkShiftId = model.DefaultWorkShiftId,
+            DefaultWorkShiftName = model.DefaultWorkShift?.Name,
             IsActive = model.IsActive,
-            Latitude = model.Latitude,
-            Longitude = model.Longitude,
-            PostalCode = model.PostalCode,
-            PhoneNumber = model.PhoneNumber,
             Description = model.Description,
             CreatedOnUtc = model.CreatedOnUtc
         };
@@ -59,22 +51,11 @@ public class DepartmentMapperService : IDepartmentMapperService
             Id = x.Id,
             Code = x.Code,
             Name = x.Name,
-            Email = x.Email,
-            CityId = x.CityId,
-            UserId = x.UserId,
-            Address = x.Address,
-            CityName = x.CityName,
+            ParentDepartmentId = x.ParentDepartmentId,
+            ParentDepartmentName = x.ParentDepartmentName,
             IsActive = x.IsActive,
-            Latitude = x.Latitude,
-            Longitude = x.Longitude,
-            ProvinceId = x.ProvinceId,
-            PostalCode = x.PostalCode,
-            PhoneNumber = x.PhoneNumber,
             Description = x.Description,
-            ProvinceName = x.ProvinceName,
             CreatedOnUtc = x.CreatedOnUtc,
-            UserFirstName = x.UserFirstName,
-            UserLastName = x.UserLastName,
         }).ToList();
 
         return PagedResult<GetAllDepartmentResponse>.Create(items, model);
@@ -87,21 +68,10 @@ public class DepartmentMapperService : IDepartmentMapperService
             Id = x.Id,
             Code = x.Code,
             Name = x.Name,
-            Email = x.Email,
-            CityId = x.CityId,
-            UserId = x.UserId,
-            Address = x.Address,
-            CityName = x.CityName,
-            Latitude = x.Latitude,
-            Longitude = x.Longitude,
-            ProvinceId = x.ProvinceId,
-            PostalCode = x.PostalCode,
-            PhoneNumber = x.PhoneNumber,
+            ParentDepartmentId = x.ParentDepartmentId,
+            ParentDepartmentName = x.ParentDepartmentName,
             Description = x.Description,
-            ProvinceName = x.ProvinceName,
             CreatedOnUtc = x.CreatedOnUtc,
-            UserFirstName = x.UserFirstName,
-            UserLastName = x.UserLastName,
         }).ToList();
 
         return PagedResult<SearchDepartmentResponse>.Create(items, model);

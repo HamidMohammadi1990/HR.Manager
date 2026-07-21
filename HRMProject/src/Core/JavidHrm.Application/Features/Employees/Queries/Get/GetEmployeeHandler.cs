@@ -5,7 +5,11 @@ using JavidHrm.Application.Contracts.Mapping;
 namespace JavidHrm.Application.Features.Employees.Queries;
 
 public class GetEmployeeHandler
-    (IEmployeeRepository employeeRepository, IUserRepository userRepository, IDepartmentRepository departmentRepository, IEmployeeMapperService mapper)
+    (IEmployeeRepository employeeRepository,
+     IUserRepository userRepository,
+     IDepartmentRepository departmentRepository,
+     IWorkShiftRepository workShiftRepository,
+     IEmployeeMapperService mapper)
     : IRequestHandler<GetEmployeeRequest, OperationResult<GetEmployeeResponse?>>
 {
     public async Task<OperationResult<GetEmployeeResponse?>> Handle(GetEmployeeRequest request, CancellationToken cancellationToken)
@@ -30,6 +34,10 @@ public class GetEmployeeHandler
                 managerUser = await userRepository.GetAsNoTrackingAsync(manager.UserId, cancellationToken);
         }
 
-        return mapper.Map(employee, user, department, managerUser);
+        Domain.Entities.WorkShift? workShift = null;
+        if (employee.WorkShiftId is not null)
+            workShift = await workShiftRepository.GetAsNoTrackingAsync(employee.WorkShiftId.Value, cancellationToken);
+
+        return mapper.Map(employee, user, department, managerUser, workShift);
     }
 }

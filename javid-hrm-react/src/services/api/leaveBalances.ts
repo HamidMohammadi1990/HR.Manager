@@ -1,7 +1,9 @@
 import { apiRequest } from './client';
 import type {
   CreateLeaveBalanceRequest,
+  EmployeeLeaveBalanceDto,
   GetAllLeaveBalancesRequest,
+  GetEmployeeLeaveBalanceRequest,
   LeaveBalanceDto,
   PagedResult,
   UpdateLeaveBalanceRequest,
@@ -54,4 +56,15 @@ export async function deleteLeaveBalance(id: string): Promise<void> {
     body: { Id: id },
     auth: true,
   });
+}
+
+export async function getEmployeeLeaveBalance(
+  request: GetEmployeeLeaveBalanceRequest,
+): Promise<EmployeeLeaveBalanceDto> {
+  const result = await apiRequest<EmployeeLeaveBalanceDto>(
+    '/api/v1/admin/leave-balance/get-for-employee',
+    { method: 'POST', body: request, auth: true },
+  );
+  if (!result.Data) throw new Error('مانده مرخصی یافت نشد');
+  return result.Data;
 }

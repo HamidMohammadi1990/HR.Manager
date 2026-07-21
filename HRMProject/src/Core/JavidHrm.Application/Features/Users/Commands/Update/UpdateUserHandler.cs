@@ -34,7 +34,6 @@ public class UpdateUserHandler
             request.LastName,
             request.Email,
             request.PhoneNumber,
-            request.CityId,
             request.Gender,
             request.IsActive,
             request.LoginPermission);
