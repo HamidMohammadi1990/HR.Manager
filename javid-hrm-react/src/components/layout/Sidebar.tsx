@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Icon } from '@/components/ui/Icon';
 import {
   accountNavItems,
@@ -9,6 +9,8 @@ import {
   usersNavItems,
   type NavItem,
 } from '@/data/navigation';
+import { usePermissions } from '@/contexts/PermissionContext';
+import { filterNavItems } from '@/lib/navPermissions';
 import { cn } from '@/lib/utils';
 import styles from './Sidebar.module.css';
 
@@ -87,6 +89,8 @@ function AccordionGroup({ icon, label, items }: AccordionGroupProps) {
     }
   }, [isChildActive]);
 
+  if (items.length === 0) return null;
+
   return (
     <div data-accordion data-accordion-open={isOpen ? '' : undefined}>
       <button
@@ -134,43 +138,74 @@ interface SidebarProps {
 }
 
 export function Sidebar({ id = 'mobile-sidebar', className }: SidebarProps) {
+  const { hasAnyPermission, isLoading: isPermissionsLoading } = usePermissions();
+
+  const visibleMainNavItems = useMemo(
+    () => filterNavItems(mainNavItems, hasAnyPermission, isPermissionsLoading),
+    [hasAnyPermission, isPermissionsLoading],
+  );
+  const visibleUsersNavItems = useMemo(
+    () => filterNavItems(usersNavItems, hasAnyPermission, isPermissionsLoading),
+    [hasAnyPermission, isPermissionsLoading],
+  );
+  const visibleHrNavItems = useMemo(
+    () => filterNavItems(hrNavItems, hasAnyPermission, isPermissionsLoading),
+    [hasAnyPermission, isPermissionsLoading],
+  );
+  const visibleToolsNavItems = useMemo(
+    () => filterNavItems(toolsNavItems, hasAnyPermission, isPermissionsLoading),
+    [hasAnyPermission, isPermissionsLoading],
+  );
+
+  const showUsersHrGroup = visibleUsersNavItems.length > 0 || visibleHrNavItems.length > 0;
+
   return (
     <aside id={id} className={cn('sidebar', className)}>
       <nav className="sidebar-content scrollbar-thin flex flex-col">
         <div className="flex-1 space-y-1">
-          <div className="sidebar-group">
-            <div className={styles.groupTitle}>منوی اصلی</div>
-            <div className="sidebar-menu">
-              {mainNavItems.map((item) => (
-                <SidebarNavLink key={item.path} item={item} />
-              ))}
+          {visibleMainNavItems.length > 0 && (
+            <div className="sidebar-group">
+              <div className={styles.groupTitle}>منوی اصلی</div>
+              <div className="sidebar-menu">
+                {visibleMainNavItems.map((item) => (
+                  <SidebarNavLink key={item.path} item={item} />
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
-          <div className="sidebar-group">
-            <div className={styles.groupTitle}>کاربران و منابع انسانی</div>
-            <div className="sidebar-menu">
-              <AccordionGroup
-                icon="material-symbols:manage-accounts"
-                label="کاربران"
-                items={usersNavItems}
-              />
-              <AccordionGroup
-                icon="material-symbols:groups"
-                label="پرسنل"
-                items={hrNavItems}
-              />
+          {showUsersHrGroup && (
+            <div className="sidebar-group">
+              <div className={styles.groupTitle}>کاربران و منابع انسانی</div>
+              <div className="sidebar-menu">
+                {visibleUsersNavItems.length > 0 && (
+                  <AccordionGroup
+                    icon="material-symbols:manage-accounts"
+                    label="کاربران"
+                    items={visibleUsersNavItems}
+                  />
+                )}
+                {visibleHrNavItems.length > 0 && (
+                  <AccordionGroup
+                    icon="material-symbols:groups"
+                    label="پرسنل"
+                    items={visibleHrNavItems}
+                  />
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
-          <div className="sidebar-group">
-            <div className={styles.groupTitle}>ابزارها</div>
-            <div className="sidebar-menu">
-              {toolsNavItems.map((item) => (
-                <SidebarNavLink key={item.path} item={item} />
-              ))}
+          {visibleToolsNavItems.length > 0 && (
+            <div className="sidebar-group">
+              <div className={styles.groupTitle}>ابزارها</div>
+              <div className="sidebar-menu">
+                {visibleToolsNavItems.map((item) => (
+                  <SidebarNavLink key={item.path} item={item} />
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <div className={styles.sidebarFooter}>

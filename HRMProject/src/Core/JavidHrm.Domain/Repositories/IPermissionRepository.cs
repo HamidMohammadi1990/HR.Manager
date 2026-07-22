@@ -13,5 +13,6 @@ public interface IPermissionRepository
     Task<Permission?> GetAsNoTrackingAsync(PermissionType id, CancellationToken cancellationToken = default);
     Task<PagedResult<Permission>> GetAllAsync(GetAllPermissionRequestDto request, Expression<Func<Permission, bool>>? contentFilter = null);
     Task<bool> HasPermissionAsync(int UserId, PermissionType PermissionType);
+    Task<List<PermissionType>> GetUserPermissionTypesAsync(int userId, CancellationToken cancellationToken = default);
     Task<bool> AnyAsync(Expression<Func<Permission, bool>> expression, CancellationToken cancellationToken = default);
 }

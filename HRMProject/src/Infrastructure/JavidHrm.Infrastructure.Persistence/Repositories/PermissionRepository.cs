@@ -37,4 +37,16 @@ public class PermissionRepository
                       select RolePermission.PermissionId)
                    .AnyAsync();
     }
+
+    public async Task<List<PermissionType>> GetUserPermissionTypesAsync(
+        int userId,
+        CancellationToken cancellationToken = default)
+    {
+        return await (from userRole in Context.UserRole
+                      join rolePermission in Context.RolePermission on userRole.RoleId equals rolePermission.RoleId
+                      where userRole.UserId == userId
+                      select rolePermission.PermissionId)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+    }
 }

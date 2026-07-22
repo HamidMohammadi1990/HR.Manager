@@ -2,6 +2,7 @@ import { lazy, ReactNode, Suspense } from 'react';
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ProtectedRoute, GuestRoute } from '@/components/auth/ProtectedRoute';
+import { PermissionGuard } from '@/components/auth/PermissionGuard';
 
 const DashboardPage = lazy(() => import('@/features/dashboard/DashboardPage'));
 const EmployeesPage = lazy(() => import('@/features/employees/EmployeesPage'));
@@ -38,6 +39,7 @@ const ResetPasswordPage = lazy(() => import('@/features/auth/ResetPasswordPage')
 const LoginOtpPage = lazy(() => import('@/features/auth/LoginOtpPage'));
 const TwoFactorPage = lazy(() => import('@/features/auth/TwoFactorPage'));
 const HelpSupportPage = lazy(() => import('@/features/help/HelpSupportPage'));
+const AccessDeniedPage = lazy(() => import('@/features/auth/AccessDeniedPage'));
 const MaintenancePage = lazy(() => import('@/features/auth/MaintenancePage'));
 
 function PageLoader() {
@@ -61,6 +63,9 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [
+      {
+        element: <PermissionGuard />,
+        children: [
       { index: true, element: <SuspensePage><DashboardPage /></SuspensePage> },
       { path: 'calendar', element: <SuspensePage><CalendarPage /></SuspensePage> },
       { path: 'users', element: <SuspensePage><UsersPage /></SuspensePage> },
@@ -90,6 +95,9 @@ export const router = createBrowserRouter([
       { path: 'todo', element: <SuspensePage><TodoPage /></SuspensePage> },
       { path: 'backup', element: <SuspensePage><BackupPage /></SuspensePage> },
       { path: 'help', element: <SuspensePage><HelpSupportPage /></SuspensePage> },
+      { path: 'access-denied', element: <SuspensePage><AccessDeniedPage /></SuspensePage> },
+        ],
+      },
     ],
   },
   {

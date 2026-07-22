@@ -54,6 +54,22 @@ public class ContentPolicyRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<List<int>> GetUserDepartmentIdsAsync(int userId, CancellationToken cancellationToken = default)
+    {
+        var ownedDepartmentIds = await GetDepartmentIdsByOwnerUserIdAsync(userId, cancellationToken);
+
+        var memberDepartmentIds = await Context.Employee
+            .AsNoTracking()
+            .Where(x => x.UserId == userId && x.IsActive)
+            .Select(x => x.DepartmentId)
+            .ToListAsync(cancellationToken);
+
+        return ownedDepartmentIds
+            .Concat(memberDepartmentIds)
+            .Distinct()
+            .ToList();
+    }
+
     public async Task<UserContentPolicyContextData?> GetUserContentPolicyContextAsync(int userId, CancellationToken cancellationToken = default)
     {
         var userExists = await Context.User
@@ -63,7 +79,7 @@ public class ContentPolicyRepository
             return null;
 
         var roles = await GetUserRolesAsync(userId, cancellationToken);
-        var departmentIds = await GetDepartmentIdsByOwnerUserIdAsync(userId, cancellationToken);
+        var departmentIds = await GetUserDepartmentIdsAsync(userId, cancellationToken);
         return new UserContentPolicyContextData(roles, departmentIds);
     }
 
@@ -118,7 +134,7 @@ public class ContentPolicyRepository
         return Context.ContentPolicy
             .AsNoTracking()
             .Where(x => x.IsActive && x.EntityType == entityType)
-            .Where(x => ContentPolicyQueryActionExtensions.Matches(x.QueryAction, queryAction));
+            .Where(x => x.QueryAction == ContentPolicyQueryAction.All || x.QueryAction == queryAction);
     }
 
     private static ContentPolicyWithRulesDto MapPolicy(ContentPolicy x)

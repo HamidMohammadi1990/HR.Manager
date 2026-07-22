@@ -1,42 +1,139 @@
-import { ReactNode } from 'react';
+import { PermissionType } from '@/lib/permissionTypes';
 
 export interface NavItem {
   label: string;
   path?: string;
   icon?: string;
   children?: NavItem[];
+  /** User must have at least one of these permissions. Omit for all authenticated users. */
+  permissions?: number[];
 }
 
 export const mainNavItems: NavItem[] = [
   { label: 'داشبورد', path: '/', icon: 'material-symbols:space-dashboard' },
-  { label: 'تقویم', path: '/calendar', icon: 'material-symbols:calendar-month' },
+  {
+    label: 'تقویم',
+    path: '/calendar',
+    icon: 'material-symbols:calendar-month',
+    permissions: [PermissionType.ListCalendarEvent],
+  },
 ];
 
 export const usersNavItems: NavItem[] = [
-  { label: 'لیست کاربران', path: '/users', icon: 'material-symbols:groups' },
-  { label: 'کاربر جدید', path: '/users/new', icon: 'material-symbols:person-add' },
-  { label: 'نقش‌ها', path: '/roles', icon: 'material-symbols:shield-person' },
-  { label: 'دسترسی‌ها', path: '/permissions', icon: 'material-symbols:lock-person' },
+  {
+    label: 'لیست کاربران',
+    path: '/users',
+    icon: 'material-symbols:groups',
+    permissions: [PermissionType.ListUser],
+  },
+  {
+    label: 'کاربر جدید',
+    path: '/users/new',
+    icon: 'material-symbols:person-add',
+    permissions: [PermissionType.CreateUser],
+  },
+  {
+    label: 'نقش‌ها',
+    path: '/roles',
+    icon: 'material-symbols:shield-person',
+    permissions: [PermissionType.ListRole],
+  },
+  {
+    label: 'دسترسی‌ها',
+    path: '/permissions',
+    icon: 'material-symbols:lock-person',
+    permissions: [PermissionType.ListPermission],
+  },
 ];
 
 export const hrNavItems: NavItem[] = [
-  { label: 'کارمندان', path: '/employees', icon: 'material-symbols:badge' },
-  { label: 'دپارتمان‌ها', path: '/departments', icon: 'material-symbols:corporate-fare' },
-  { label: 'چارت سازمانی', path: '/departments/tree', icon: 'material-symbols:account-tree' },
-  { label: 'حضور و غیاب', path: '/attendance', icon: 'material-symbols:fingerprint' },
-  { label: 'مرخصی‌ها', path: '/leaves', icon: 'material-symbols:beach-access' },
-  { label: 'کارتابل تأیید', path: '/leaves/inbox', icon: 'material-symbols:inbox' },
-  { label: 'انواع مرخصی', path: '/leave-types', icon: 'material-symbols:category' },
-  { label: 'موجودی مرخصی', path: '/leave-balances', icon: 'material-symbols:hourglass-top' },
-  { label: 'حقوق و دستمزد', path: '/payroll', icon: 'material-symbols:payments' },
-  { label: 'شیفت کاری', path: '/work-shifts', icon: 'material-symbols:work-history' },
+  {
+    label: 'کارمندان',
+    path: '/employees',
+    icon: 'material-symbols:badge',
+    permissions: [PermissionType.ListEmployee],
+  },
+  {
+    label: 'دپارتمان‌ها',
+    path: '/departments',
+    icon: 'material-symbols:corporate-fare',
+    permissions: [PermissionType.ListDepartment],
+  },
+  {
+    label: 'چارت سازمانی',
+    path: '/departments/tree',
+    icon: 'material-symbols:account-tree',
+    permissions: [PermissionType.ListDepartment],
+  },
+  {
+    label: 'حضور و غیاب',
+    path: '/attendance',
+    icon: 'material-symbols:fingerprint',
+    permissions: [PermissionType.ListAttendance],
+  },
+  {
+    label: 'مرخصی‌ها',
+    path: '/leaves',
+    icon: 'material-symbols:beach-access',
+    permissions: [PermissionType.ListLeave],
+  },
+  {
+    label: 'کارتابل تأیید',
+    path: '/leaves/inbox',
+    icon: 'material-symbols:inbox',
+    permissions: [PermissionType.GetLeaveApprovalInbox],
+  },
+  {
+    label: 'انواع مرخصی',
+    path: '/leave-types',
+    icon: 'material-symbols:category',
+    permissions: [PermissionType.ManageLeaveTypeDefinition],
+  },
+  {
+    label: 'موجودی مرخصی',
+    path: '/leave-balances',
+    icon: 'material-symbols:hourglass-top',
+    permissions: [PermissionType.ListLeaveBalance],
+  },
+  {
+    label: 'حقوق و دستمزد',
+    path: '/payroll',
+    icon: 'material-symbols:payments',
+    permissions: [PermissionType.ListPayroll],
+  },
+  {
+    label: 'شیفت کاری',
+    path: '/work-shifts',
+    icon: 'material-symbols:work-history',
+    permissions: [PermissionType.ManageWorkShift],
+  },
 ];
 
 export const toolsNavItems: NavItem[] = [
-  { label: 'لیست کارها', path: '/todo', icon: 'material-symbols:checklist' },
-  { label: 'اطلاعیه‌ها', path: '/announcements', icon: 'material-symbols:campaign' },
-  { label: 'اعلان‌ها', path: '/notifications', icon: 'material-symbols:notifications' },
-  { label: 'پشتیبان‌گیری', path: '/backup', icon: 'material-symbols:cloud-upload' },
+  {
+    label: 'لیست کارها',
+    path: '/todo',
+    icon: 'material-symbols:checklist',
+    permissions: [PermissionType.ListTodoItem],
+  },
+  {
+    label: 'اطلاعیه‌ها',
+    path: '/announcements',
+    icon: 'material-symbols:campaign',
+    permissions: [PermissionType.ListAnnouncement],
+  },
+  {
+    label: 'اعلان‌ها',
+    path: '/notifications',
+    icon: 'material-symbols:notifications',
+    permissions: [PermissionType.ListNotification],
+  },
+  {
+    label: 'پشتیبان‌گیری',
+    path: '/backup',
+    icon: 'material-symbols:cloud-upload',
+    permissions: [PermissionType.ListBackupJob],
+  },
 ];
 
 export const accountNavItems: NavItem[] = [
@@ -54,6 +151,7 @@ export const quickAccessActions = [
     color: 'text-primary',
     bg: 'bg-primary/10',
     shortcut: ['Alt', 'N'],
+    permissions: [PermissionType.CreateUser],
   },
   {
     label: 'درخواست مرخصی',
@@ -63,6 +161,7 @@ export const quickAccessActions = [
     color: 'text-emerald-500',
     bg: 'bg-emerald-500/10',
     shortcut: ['Alt', 'L'],
+    permissions: [PermissionType.ListLeave],
   },
   {
     label: 'کاربران',
@@ -72,6 +171,7 @@ export const quickAccessActions = [
     color: 'text-sky-500',
     bg: 'bg-sky-500/10',
     shortcut: ['Alt', 'U'],
+    permissions: [PermissionType.ListUser],
   },
   {
     label: 'گزارش حضور',
@@ -81,16 +181,42 @@ export const quickAccessActions = [
     color: 'text-violet-500',
     bg: 'bg-violet-500/10',
     shortcut: ['Alt', 'A'],
+    permissions: [PermissionType.ListAttendance],
   },
 ];
 
 export const quickAccessPages = [
   { label: 'داشبورد', path: '/', icon: 'material-symbols:space-dashboard' },
-  { label: 'کارمندان', path: '/employees', icon: 'material-symbols:badge' },
-  { label: 'حضور و غیاب', path: '/attendance', icon: 'material-symbols:fingerprint' },
-  { label: 'مرخصی‌ها', path: '/leaves', icon: 'material-symbols:beach-access' },
-  { label: 'حقوق و دستمزد', path: '/payroll', icon: 'material-symbols:payments' },
-  { label: 'کاربران', path: '/users', icon: 'material-symbols:groups' },
+  {
+    label: 'کارمندان',
+    path: '/employees',
+    icon: 'material-symbols:badge',
+    permissions: [PermissionType.ListEmployee],
+  },
+  {
+    label: 'حضور و غیاب',
+    path: '/attendance',
+    icon: 'material-symbols:fingerprint',
+    permissions: [PermissionType.ListAttendance],
+  },
+  {
+    label: 'مرخصی‌ها',
+    path: '/leaves',
+    icon: 'material-symbols:beach-access',
+    permissions: [PermissionType.ListLeave],
+  },
+  {
+    label: 'حقوق و دستمزد',
+    path: '/payroll',
+    icon: 'material-symbols:payments',
+    permissions: [PermissionType.ListPayroll],
+  },
+  {
+    label: 'کاربران',
+    path: '/users',
+    icon: 'material-symbols:groups',
+    permissions: [PermissionType.ListUser],
+  },
   { label: 'تنظیمات', path: '/settings', icon: 'material-symbols:settings' },
   { label: 'راهنما', path: '/help', icon: 'material-symbols:support-agent' },
 ];
@@ -176,6 +302,7 @@ export function buildBreadcrumbs(path: string): BreadcrumbItem[] {
     '/profile': 'پروفایل',
     '/account-settings': 'تنظیمات حساب',
     '/help': 'راهنما و پشتیبانی',
+    '/access-denied': 'دسترسی مجاز نیست',
   };
   const label = map[path];
   return label ? [{ label }] : [];

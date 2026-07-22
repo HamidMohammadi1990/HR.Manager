@@ -90,6 +90,11 @@ public class AccountController
         => await mediator.Send(new GetCurrentUserRequest());
 
     [Authorize]
+    [HttpPost("my-permissions")]
+    public async Task<ApiResult<GetCurrentUserPermissionsResponse>> GetMyPermissions()
+        => await mediator.Send(new GetCurrentUserPermissionsRequest());
+
+    [Authorize]
     [HttpPut("update-profile")]
     public async Task<ApiResult<OperationResult>> UpdateProfile(UpdateCurrentUserProfileRequest request)
         => await mediator.Send(request);

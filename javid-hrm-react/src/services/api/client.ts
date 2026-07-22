@@ -102,6 +102,10 @@ export async function apiRequest<T>(
     throw new ApiError('نشست شما منقضی شده است. لطفاً دوباره وارد شوید.', 401);
   }
 
+  if (response.status === 403) {
+    throw new ApiError('دسترسی مجاز نیست', 403);
+  }
+
   const result = await parseApiResult<T>(response);
 
   if (!result.IsSuccess) {
@@ -116,6 +120,10 @@ export function getApiErrorMessage(error: unknown): string {
   if (error instanceof ApiError) return error.message;
   if (error instanceof Error) return error.message;
   return 'خطای ناشناخته';
+}
+
+export function isForbiddenError(error: unknown): boolean {
+  return error instanceof ApiError && error.statusCode === 403;
 }
 
 export interface BinaryDownloadResult {

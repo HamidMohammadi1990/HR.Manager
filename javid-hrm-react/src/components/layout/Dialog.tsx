@@ -12,6 +12,8 @@ import { Icon } from '@/components/ui/Icon';
 import { Input } from '@/components/ui/Input';
 import { useTheme } from '@/hooks';
 import { quickAccessActions, quickAccessPages } from '@/data/navigation';
+import { usePermissions } from '@/contexts/PermissionContext';
+import { canAccessNavItem } from '@/lib/navPermissions';
 import { cn } from '@/lib/utils';
 import styles from './Dialog.module.css';
 
@@ -87,6 +89,7 @@ interface QuickAccessDialogProps {
 export function QuickAccessDialog({ open, onClose }: QuickAccessDialogProps) {
   const [query, setQuery] = useState('');
   const { toggleTheme } = useTheme();
+  const { hasAnyPermission, isLoading: isPermissionsLoading } = usePermissions();
 
   useEffect(() => {
     if (!open) setQuery('');
@@ -96,13 +99,19 @@ export function QuickAccessDialog({ open, onClose }: QuickAccessDialogProps) {
     !query || text.toLowerCase().includes(query.toLowerCase());
 
   const filteredActions = useMemo(
-    () => quickAccessActions.filter((a) => filterText(a.label) || filterText(a.description)),
-    [query],
+    () => quickAccessActions.filter(
+      (action) =>
+        canAccessNavItem(action, hasAnyPermission, isPermissionsLoading)
+        && (filterText(action.label) || filterText(action.description)),
+    ),
+    [hasAnyPermission, isPermissionsLoading, query],
   );
 
   const filteredPages = useMemo(
-    () => quickAccessPages.filter((p) => filterText(p.label)),
-    [query],
+    () => quickAccessPages.filter(
+      (page) => canAccessNavItem(page, hasAnyPermission, isPermissionsLoading) && filterText(page.label),
+    ),
+    [hasAnyPermission, isPermissionsLoading, query],
   );
 
   return (

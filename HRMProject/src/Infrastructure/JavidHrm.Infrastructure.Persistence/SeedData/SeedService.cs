@@ -27,26 +27,104 @@ public class SeedService(
         if (dynamicPermissions.Count > 0)
             await SeedPermissionsAsync(dynamicPermissions);
 
+        await SeedRolePermissionAssignmentsAsync();
+
         await SeedAdminUserAsync();
         await SeedContentPoliciesAsync();
         await SeedWorkShiftsAsync();
         await SeedLeaveTypeDefinitionsAsync();
+
+        if (settings.SeedDemoUsers)
+            await SeedDemoUsersAsync();
     }
 
     private async Task SeedDefaultRolesAsync()
     {
-        var systemAdminRole = await EnsureRoleAsync(HrSeedDefaults.SystemAdminRole, bypassContentPolicy: true);
+        await EnsureRoleAsync(HrSeedDefaults.SystemAdminRole, bypassContentPolicy: true);
         await EnsureRoleAsync(HrSeedDefaults.HrManagerRole);
         await EnsureRoleAsync(HrSeedDefaults.EmployeeRole);
+    }
 
+    private async Task SeedRolePermissionAssignmentsAsync()
+    {
+        var systemAdminRole = await context.Role
+            .FirstOrDefaultAsync(x => x.Title == HrSeedDefaults.SystemAdminRole);
+        var hrManagerRole = await context.Role
+            .FirstOrDefaultAsync(x => x.Title == HrSeedDefaults.HrManagerRole);
+        var employeeRole = await context.Role
+            .FirstOrDefaultAsync(x => x.Title == HrSeedDefaults.EmployeeRole);
+
+        if (systemAdminRole is not null)
+            await EnsureRoleHasAllPermissionsAsync(systemAdminRole);
+
+        if (hrManagerRole is not null)
+            await EnsureRolePermissionsAsync(hrManagerRole, HrRolePermissionDefinitions.HrManager, exactMatch: true);
+
+        if (employeeRole is not null)
+            await EnsureRolePermissionsAsync(employeeRole, HrRolePermissionDefinitions.Employee, exactMatch: true);
+    }
+
+    private async Task EnsureRoleHasAllPermissionsAsync(Role role)
+    {
         var permissionIds = await context.Permission.Select(x => x.Id).ToListAsync();
         var assignedPermissionIds = await context.RolePermission
-            .Where(x => x.RoleId == systemAdminRole.Id)
+            .Where(x => x.RoleId == role.Id)
             .Select(x => x.PermissionId)
             .ToListAsync();
 
         foreach (var permissionId in permissionIds.Except(assignedPermissionIds))
-            context.RolePermission.Add(RolePermission.Create(systemAdminRole.Id, permissionId));
+            context.RolePermission.Add(RolePermission.Create(role.Id, permissionId));
+
+        await context.SaveChangesAsync();
+    }
+
+    private async Task EnsureRolePermissionsAsync(
+        Role role,
+        IReadOnlyCollection<PermissionType> permissionTypes,
+        bool exactMatch = false)
+    {
+        var desiredPermissionIds = permissionTypes
+            .Select(x => (PermissionType)x)
+            .Distinct()
+            .ToHashSet();
+
+        var availablePermissionIds = await context.Permission
+            .Select(x => x.Id)
+            .ToListAsync();
+
+        var existingAssignments = await context.RolePermission
+            .Where(x => x.RoleId == role.Id)
+            .ToListAsync();
+
+        if (exactMatch)
+        {
+            var staleAssignments = existingAssignments
+                .Where(x => !desiredPermissionIds.Contains(x.PermissionId))
+                .ToList();
+
+            if (staleAssignments.Count > 0)
+            {
+                context.RolePermission.RemoveRange(staleAssignments);
+                existingAssignments = existingAssignments
+                    .Except(staleAssignments)
+                    .ToList();
+            }
+        }
+
+        var existingPermissionIds = existingAssignments
+            .Select(x => x.PermissionId)
+            .ToHashSet();
+
+        foreach (var permissionType in desiredPermissionIds)
+        {
+            if (!availablePermissionIds.Contains(permissionType))
+                continue;
+
+            if (existingPermissionIds.Contains(permissionType))
+                continue;
+
+            context.RolePermission.Add(RolePermission.Create(role.Id, permissionType));
+        }
 
         await context.SaveChangesAsync();
     }
@@ -68,23 +146,95 @@ public class SeedService(
 
     private async Task SeedAdminUserAsync()
     {
-        if (await context.User.AnyAsync(x => x.UserName == settings.AdminUserName))
-            return;
-
         var systemAdminRole = await context.Role
             .FirstOrDefaultAsync(x => x.Title == HrSeedDefaults.SystemAdminRole);
 
         if (systemAdminRole is null)
             return;
 
-        var passwordHash = passwordHasher.HashPassword(settings.AdminPassword);
-        var user = User.Create(
-            settings.AdminEmail,
-            GenderType.Male,
+        await EnsureSeedUserAsync(
             settings.AdminUserName,
+            settings.AdminPassword,
+            settings.AdminEmail,
             settings.AdminFirstName,
             settings.AdminLastName,
-            settings.AdminUserName,
+            systemAdminRole);
+    }
+
+    private async Task SeedDemoUsersAsync()
+    {
+        var hrManagerRole = await context.Role
+            .FirstOrDefaultAsync(x => x.Title == HrSeedDefaults.HrManagerRole);
+        var employeeRole = await context.Role
+            .FirstOrDefaultAsync(x => x.Title == HrSeedDefaults.EmployeeRole);
+
+        if (hrManagerRole is not null)
+        {
+            var hrManagerUser = await EnsureSeedUserAsync(
+                settings.HrManagerUserName,
+                settings.HrManagerPassword,
+                settings.HrManagerEmail,
+                settings.HrManagerFirstName,
+                settings.HrManagerLastName,
+                hrManagerRole);
+
+            if (hrManagerUser is not null)
+            {
+                await EnsureDemoEmployeeRecordForUserAsync(
+                    hrManagerUser.Id,
+                    "HR-001",
+                    "مدیر منابع انسانی");
+            }
+        }
+
+        if (employeeRole is null)
+            return;
+
+        var employeeUser = await EnsureSeedUserAsync(
+            settings.EmployeeUserName,
+            settings.EmployeePassword,
+            settings.EmployeeEmail,
+            settings.EmployeeFirstName,
+            settings.EmployeeLastName,
+            employeeRole);
+
+        if (employeeUser is null)
+            return;
+
+        await EnsureDemoEmployeeRecordAsync(employeeUser.Id);
+    }
+
+    private async Task<User?> EnsureSeedUserAsync(
+        string userName,
+        string password,
+        string email,
+        string firstName,
+        string lastName,
+        Role role)
+    {
+        var existingUser = await context.User.FirstOrDefaultAsync(x => x.UserName == userName);
+        if (existingUser is not null)
+        {
+            var hasRole = await context.UserRole
+                .AnyAsync(x => x.UserId == existingUser.Id && x.RoleId == role.Id);
+
+            if (!hasRole)
+            {
+                context.UserRole.Add(UserRole.Create(existingUser.Id, role.Id));
+                await context.SaveChangesAsync();
+            }
+
+            return existingUser;
+        }
+
+        var passwordHash = passwordHasher.HashPassword(password);
+        var user = User.Create(
+            email,
+            GenderType.Male,
+            userName,
+            firstName,
+            lastName,
+            userName,
             passwordHash,
             Guid.NewGuid().ToString("N"));
 
@@ -92,21 +242,164 @@ public class SeedService(
         context.User.Add(user);
         await context.SaveChangesAsync();
 
-        context.UserRole.Add(UserRole.Create(user.Id, systemAdminRole.Id));
+        context.UserRole.Add(UserRole.Create(user.Id, role.Id));
         await context.SaveChangesAsync();
+
+        return user;
+    }
+
+    private async Task EnsureDemoEmployeeRecordAsync(int userId)
+        => await EnsureDemoEmployeeRecordForUserAsync(
+            userId,
+            settings.EmployeeCode,
+            settings.EmployeeJobTitle);
+
+    private async Task EnsureDemoEmployeeRecordForUserAsync(
+        int userId,
+        string employeeCode,
+        string jobTitle)
+    {
+        if (await context.Employee.AnyAsync(x => x.UserId == userId))
+            return;
+
+        var department = await EnsureDefaultDepartmentAsync();
+        if (department is null)
+            return;
+
+        var defaultShift = await context.WorkShift
+            .OrderBy(x => x.Id)
+            .FirstOrDefaultAsync();
+
+        var employee = Employee.Create(
+            userId,
+            department.Id,
+            managerId: null,
+            defaultShift?.Id,
+            employeeCode,
+            jobTitle,
+            DateTime.UtcNow.Date);
+
+        context.Employee.Add(employee);
+        await context.SaveChangesAsync();
+    }
+
+    private async Task<Department?> EnsureDefaultDepartmentAsync()
+    {
+        var existingDepartment = await context.Department.FirstOrDefaultAsync();
+        if (existingDepartment is not null)
+            return existingDepartment;
+
+        var owner = await context.User
+            .OrderBy(x => x.Id)
+            .FirstOrDefaultAsync();
+
+        if (owner is null)
+            return null;
+
+        var defaultShift = await context.WorkShift
+            .OrderBy(x => x.Id)
+            .FirstOrDefaultAsync();
+
+        var department = Department.Create(
+            owner.Id,
+            "منابع انسانی",
+            "HR",
+            "دپارتمان پیش‌فرض سیستم",
+            parentDepartmentId: null,
+            defaultWorkShiftId: defaultShift?.Id);
+        department.Active();
+
+        context.Department.Add(department);
+        await context.SaveChangesAsync();
+        return department;
     }
 
     private async Task SeedContentPoliciesAsync()
     {
-        var adminRoles = await context.Role
-            .Where(x => x.Title == HrSeedDefaults.SystemAdminRole || x.Title.Contains("مدیر"))
-            .ToListAsync();
+        await EnsureContentPolicyBypassForSystemAdminOnlyAsync();
+        await EnsureEmployeeDepartmentScopePoliciesAsync();
+    }
 
-        foreach (var adminRole in adminRoles)
-            adminRole.SetBypassContentPolicy(true);
+    private async Task EnsureContentPolicyBypassForSystemAdminOnlyAsync()
+    {
+        var roles = await context.Role.ToListAsync();
+
+        foreach (var role in roles)
+        {
+            var shouldBypass = role.Title == HrSeedDefaults.SystemAdminRole;
+            if (role.BypassContentPolicy == shouldBypass)
+                continue;
+
+            role.SetBypassContentPolicy(shouldBypass);
+        }
 
         await context.SaveChangesAsync();
     }
+
+    private async Task EnsureEmployeeDepartmentScopePoliciesAsync()
+    {
+        var scopedRoles = await context.Role
+            .Where(x => !x.BypassContentPolicy)
+            .ToListAsync();
+
+        foreach (var role in scopedRoles)
+            await EnsureEmployeeDepartmentScopePolicyForRoleAsync(role);
+    }
+
+    private async Task EnsureEmployeeDepartmentScopePolicyForRoleAsync(Role role)
+    {
+        var policy = await context.ContentPolicy
+            .Include(x => x.Rules)
+            .FirstOrDefaultAsync(x =>
+                x.RoleId == role.Id
+                && x.UserId == null
+                && x.EntityType == HrContentPolicyDefinitions.EmployeeEntityType
+                && x.Name == HrContentPolicyDefinitions.EmployeeDepartmentScopePolicyName);
+
+        if (policy is null)
+        {
+            policy = ContentPolicy.Create(
+                role.Id,
+                userId: null,
+                HrContentPolicyDefinitions.EmployeeEntityType,
+                HrContentPolicyDefinitions.EmployeeDepartmentScopePolicyName,
+                priority: 100);
+
+            policy.AddRules(CreateEmployeeDepartmentScopeRule());
+            context.ContentPolicy.Add(policy);
+            await context.SaveChangesAsync();
+            return;
+        }
+
+        if (!policy.IsActive)
+        {
+            policy.Update(
+                policy.Name,
+                policy.Effect,
+                isActive: true,
+                policy.Priority,
+                policy.QueryAction);
+        }
+
+        var expectedRule = CreateEmployeeDepartmentScopeRule();
+        var hasExpectedRule = policy.Rules.Any(x =>
+            x.FieldPath == expectedRule.FieldPath
+            && x.Operator == expectedRule.Operator
+            && x.ValueType == expectedRule.ValueType
+            && x.Value == expectedRule.Value);
+
+        if (!hasExpectedRule)
+            policy.ReplaceRules([expectedRule]);
+
+        await context.SaveChangesAsync();
+    }
+
+    private static ContentPolicyRule CreateEmployeeDepartmentScopeRule()
+        => ContentPolicyRule.Create(
+            HrContentPolicyDefinitions.EmployeeDepartmentFieldPath,
+            ContentPolicyOperator.In,
+            ContentPolicyValueType.Context,
+            HrContentPolicyDefinitions.DepartmentIdsContextValue);
 
     private async Task SeedPermissionsAsync(List<DynamicPermission> dynamicPermissions)
     {
