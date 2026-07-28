@@ -11,7 +11,7 @@ internal class RoleConfig : IEntityTypeConfiguration<Role>
     {
         builder
            .Property(x => x.Title)
-           .HasNVarcharMaxLength(20)
+           .HasNVarcharMaxLength(100)
            .IsRequired();
 
         builder
