@@ -318,6 +318,8 @@ public class SeedService(
     {
         await EnsureContentPolicyBypassForSystemAdminOnlyAsync();
         await EnsureEmployeeDepartmentScopePoliciesAsync();
+        await EnsureLeaveRequestScopePoliciesAsync();
+        await EnsurePayrollEntryScopePoliciesAsync();
     }
 
     private async Task EnsureContentPolicyBypassForSystemAdminOnlyAsync()
@@ -400,6 +402,186 @@ public class SeedService(
             ContentPolicyOperator.In,
             ContentPolicyValueType.Context,
             HrContentPolicyDefinitions.DepartmentIdsContextValue);
+
+    private async Task EnsureLeaveRequestScopePoliciesAsync()
+    {
+        var scopedRoles = await context.Role
+            .Where(x => !x.BypassContentPolicy)
+            .ToListAsync();
+
+        foreach (var role in scopedRoles)
+            await EnsureLeaveRequestScopePolicyForRoleAsync(role);
+    }
+
+    private async Task EnsureLeaveRequestScopePolicyForRoleAsync(Role role)
+    {
+        var isEmployeeRole = role.Title == HrSeedDefaults.EmployeeRole;
+
+        if (isEmployeeRole)
+        {
+            await RemoveRoleEntityPolicyAsync(
+                role.Id,
+                HrContentPolicyDefinitions.LeaveRequestEntityType,
+                HrContentPolicyDefinitions.LeaveRequestDepartmentScopePolicyName);
+
+            await EnsureRoleEntityPolicyAsync(
+                role,
+                HrContentPolicyDefinitions.LeaveRequestEntityType,
+                HrContentPolicyDefinitions.LeaveRequestSelfScopePolicyName,
+                CreateLeaveRequestSelfScopeRule);
+            return;
+        }
+
+        await RemoveRoleEntityPolicyAsync(
+            role.Id,
+            HrContentPolicyDefinitions.LeaveRequestEntityType,
+            HrContentPolicyDefinitions.LeaveRequestSelfScopePolicyName);
+
+        await EnsureRoleEntityPolicyAsync(
+            role,
+            HrContentPolicyDefinitions.LeaveRequestEntityType,
+            HrContentPolicyDefinitions.LeaveRequestDepartmentScopePolicyName,
+            CreateLeaveRequestDepartmentScopeRule);
+    }
+
+    private async Task EnsurePayrollEntryScopePoliciesAsync()
+    {
+        var scopedRoles = await context.Role
+            .Where(x => !x.BypassContentPolicy)
+            .ToListAsync();
+
+        foreach (var role in scopedRoles)
+            await EnsurePayrollEntryScopePolicyForRoleAsync(role);
+    }
+
+    private async Task EnsurePayrollEntryScopePolicyForRoleAsync(Role role)
+    {
+        var isEmployeeRole = role.Title == HrSeedDefaults.EmployeeRole;
+
+        if (isEmployeeRole)
+        {
+            await RemoveRoleEntityPolicyAsync(
+                role.Id,
+                HrContentPolicyDefinitions.PayrollEntryEntityType,
+                HrContentPolicyDefinitions.PayrollEntryDepartmentScopePolicyName);
+
+            await EnsureRoleEntityPolicyAsync(
+                role,
+                HrContentPolicyDefinitions.PayrollEntryEntityType,
+                HrContentPolicyDefinitions.PayrollEntrySelfScopePolicyName,
+                CreatePayrollEntrySelfScopeRule);
+            return;
+        }
+
+        await RemoveRoleEntityPolicyAsync(
+            role.Id,
+            HrContentPolicyDefinitions.PayrollEntryEntityType,
+            HrContentPolicyDefinitions.PayrollEntrySelfScopePolicyName);
+
+        await EnsureRoleEntityPolicyAsync(
+            role,
+            HrContentPolicyDefinitions.PayrollEntryEntityType,
+            HrContentPolicyDefinitions.PayrollEntryDepartmentScopePolicyName,
+            CreatePayrollEntryDepartmentScopeRule);
+    }
+
+    private async Task EnsureRoleEntityPolicyAsync(
+        Role role,
+        string entityType,
+        string policyName,
+        Func<ContentPolicyRule> createRule)
+    {
+        var policy = await context.ContentPolicy
+            .Include(x => x.Rules)
+            .FirstOrDefaultAsync(x =>
+                x.RoleId == role.Id
+                && x.UserId == null
+                && x.EntityType == entityType
+                && x.Name == policyName);
+
+        if (policy is null)
+        {
+            policy = ContentPolicy.Create(
+                role.Id,
+                userId: null,
+                entityType,
+                policyName,
+                priority: 100);
+
+            policy.AddRules(createRule());
+            context.ContentPolicy.Add(policy);
+            await context.SaveChangesAsync();
+            return;
+        }
+
+        if (!policy.IsActive)
+        {
+            policy.Update(
+                policy.Name,
+                policy.Effect,
+                isActive: true,
+                policy.Priority,
+                policy.QueryAction);
+        }
+
+        var expectedRule = createRule();
+        var hasExpectedRule = policy.Rules.Any(x =>
+            x.FieldPath == expectedRule.FieldPath
+            && x.Operator == expectedRule.Operator
+            && x.ValueType == expectedRule.ValueType
+            && x.Value == expectedRule.Value);
+
+        if (!hasExpectedRule)
+            policy.ReplaceRules([expectedRule]);
+
+        await context.SaveChangesAsync();
+    }
+
+    private async Task RemoveRoleEntityPolicyAsync(int roleId, string entityType, string policyName)
+    {
+        var policy = await context.ContentPolicy
+            .Include(x => x.Rules)
+            .Include(x => x.RecordAccesses)
+            .FirstOrDefaultAsync(x =>
+                x.RoleId == roleId
+                && x.UserId == null
+                && x.EntityType == entityType
+                && x.Name == policyName);
+
+        if (policy is null)
+            return;
+
+        context.ContentPolicy.Remove(policy);
+        await context.SaveChangesAsync();
+    }
+
+    private static ContentPolicyRule CreateLeaveRequestDepartmentScopeRule()
+        => ContentPolicyRule.Create(
+            HrContentPolicyDefinitions.LeaveRequestDepartmentFieldPath,
+            ContentPolicyOperator.In,
+            ContentPolicyValueType.Context,
+            HrContentPolicyDefinitions.DepartmentIdsContextValue);
+
+    private static ContentPolicyRule CreateLeaveRequestSelfScopeRule()
+        => ContentPolicyRule.Create(
+            HrContentPolicyDefinitions.LeaveRequestEmployeeUserFieldPath,
+            ContentPolicyOperator.Equals,
+            ContentPolicyValueType.Context,
+            HrContentPolicyDefinitions.UserIdContextValue);
+
+    private static ContentPolicyRule CreatePayrollEntryDepartmentScopeRule()
+        => ContentPolicyRule.Create(
+            HrContentPolicyDefinitions.PayrollEntryDepartmentFieldPath,
+            ContentPolicyOperator.In,
+            ContentPolicyValueType.Context,
+            HrContentPolicyDefinitions.DepartmentIdsContextValue);
+
+    private static ContentPolicyRule CreatePayrollEntrySelfScopeRule()
+        => ContentPolicyRule.Create(
+            HrContentPolicyDefinitions.PayrollEntryEmployeeUserFieldPath,
+            ContentPolicyOperator.Equals,
+            ContentPolicyValueType.Context,
+            HrContentPolicyDefinitions.UserIdContextValue);
 
     private async Task SeedPermissionsAsync(List<DynamicPermission> dynamicPermissions)
     {
