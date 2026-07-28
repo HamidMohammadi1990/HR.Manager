@@ -39,6 +39,7 @@ import {
   type LeaveTypeDefinitionDto,
 } from '@/services/api';
 import { LEAVE_STATUS_LABELS, LEAVE_TYPE_UNIT_HOUR, getPersonName } from '@/lib/hrLabels';
+import { canModifyLeaveRequest, LEAVE_STATUS } from '@/features/leaves/leaveRequestRules';
 import { formatApprovalProgress, LeaveApprovalTimeline } from '@/features/leaves/LeaveApprovalTimeline';
 import {
   combineGregorianDateAndTimeToIso,
@@ -46,7 +47,6 @@ import {
   isoToTimeString,
 } from '@/lib/persianDateTime';
 
-const LEAVE_STATUS = { Pending: 1, Approved: 2, Rejected: 3 } as const;
 const PAGE_SIZE = 10;
 
 function getLeavePersonName(request: LeaveRequestDto) {
@@ -381,6 +381,7 @@ export default function LeavesPage() {
   }
 
   function openEdit(request: LeaveRequestDto) {
+    if (!canModifyLeaveRequest(request)) return;
     setSelectedLeave(request);
     setEditForm({
       employeeId: request.EmployeeId,
@@ -416,13 +417,14 @@ export default function LeavesPage() {
   }
 
   function openDelete(request: LeaveRequestDto) {
+    if (!canModifyLeaveRequest(request)) return;
     setSelectedLeave(request);
     deleteDialog.open();
   }
 
   async function handleEdit(event: FormEvent) {
     event.preventDefault();
-    if (!selectedLeave) return;
+    if (!selectedLeave || !canModifyLeaveRequest(selectedLeave)) return;
 
     setFormError('');
     setIsSubmitting(true);
@@ -452,7 +454,7 @@ export default function LeavesPage() {
   }
 
   async function handleDelete() {
-    if (!selectedLeave) return;
+    if (!selectedLeave || !canModifyLeaveRequest(selectedLeave)) return;
 
     setIsSubmitting(true);
     setFormError('');
@@ -635,6 +637,7 @@ export default function LeavesPage() {
                 ) : (
                   requests.map((request) => {
                     const personName = getLeavePersonName(request);
+                    const canModify = canModifyLeaveRequest(request);
 
                     return (
                       <tr key={request.Id} className="table-row">
@@ -683,23 +686,27 @@ export default function LeavesPage() {
                             >
                               <Icon name="material-symbols:visibility" className="size-4" />
                             </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              onClick={() => openEdit(request)}
-                              title="ویرایش"
-                            >
-                              <Icon name="material-symbols:edit" className="size-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              className="text-destructive hover:bg-destructive/10"
-                              onClick={() => openDelete(request)}
-                              title="حذف"
-                            >
-                              <Icon name="material-symbols:delete" className="size-4" />
-                            </Button>
+                            {canModify && (
+                              <>
+                                <Button
+                                  variant="ghost"
+                                  size="icon-sm"
+                                  onClick={() => openEdit(request)}
+                                  title="ویرایش"
+                                >
+                                  <Icon name="material-symbols:edit" className="size-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon-sm"
+                                  className="text-destructive hover:bg-destructive/10"
+                                  onClick={() => openDelete(request)}
+                                  title="حذف"
+                                >
+                                  <Icon name="material-symbols:delete" className="size-4" />
+                                </Button>
+                              </>
+                            )}
                           </div>
                         </td>
                       </tr>

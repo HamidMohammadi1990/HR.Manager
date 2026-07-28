@@ -103,4 +103,18 @@ public class LeaveRequest : BaseEntity
         Status = LeaveRequestStatus.Rejected;
         CurrentApprovalStepOrder = null;
     }
+
+    public bool CanBeModified()
+    {
+        if (Status != LeaveRequestStatus.Pending)
+            return false;
+
+        if (ApprovalSteps.Any(step => step.Status == LeaveApprovalStepStatus.Approved))
+            return false;
+
+        if (TotalApprovalSteps is not null && CurrentApprovalStepOrder is not 1)
+            return false;
+
+        return true;
+    }
 }

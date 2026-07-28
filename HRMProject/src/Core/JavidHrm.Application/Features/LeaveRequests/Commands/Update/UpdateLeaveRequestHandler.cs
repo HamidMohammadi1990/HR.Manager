@@ -16,9 +16,12 @@ public class UpdateLeaveRequestHandler
 {
     public async Task<OperationResult> Handle(UpdateLeaveRequestRequest request, CancellationToken cancellationToken)
     {
-        var leaveRequest = await leaveRequestRepository.FindAsync(request.Id, cancellationToken);
+        var leaveRequest = await leaveRequestRepository.FindWithApprovalStepsAsync(request.Id, cancellationToken);
         if (leaveRequest is null)
             return ErrorModel.Create("InvalidId");
+
+        if (!leaveRequest.CanBeModified())
+            return ErrorModel.Create(MessageKeys.LeaveRequestCannotBeModified);
 
         var leaveTypeDefinition = await leaveTypeDefinitionRepository.FindAsync(request.LeaveTypeDefinitionId, cancellationToken);
         if (leaveTypeDefinition is null || !leaveTypeDefinition.IsActive)

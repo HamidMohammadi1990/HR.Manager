@@ -1,4 +1,5 @@
 using JavidHrm.Common.Models;
+using JavidHrm.Common.Localization;
 using JavidHrm.Domain.Repositories;
 using JavidHrm.Application.Contracts.Persistence;
 
@@ -10,9 +11,12 @@ public class DeleteLeaveRequestHandler
 {
     public async Task<OperationResult> Handle(DeleteLeaveRequestRequest request, CancellationToken cancellationToken)
     {
-        var leaveRequest = await leaveRequestRepository.FindAsync(request.Id, cancellationToken);
+        var leaveRequest = await leaveRequestRepository.FindWithApprovalStepsAsync(request.Id, cancellationToken);
         if (leaveRequest is null)
             return ErrorModel.Create("InvalidId");
+
+        if (!leaveRequest.CanBeModified())
+            return ErrorModel.Create(MessageKeys.LeaveRequestCannotBeModified);
 
         leaveRequestRepository.Remove(leaveRequest);
 
