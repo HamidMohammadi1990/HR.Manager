@@ -20,7 +20,7 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { Dialog } from '@/components/layout/Dialog';
-import { useDisclosure } from '@/hooks';
+import { useDisclosure, useEmployeeScope } from '@/hooks';
 import {
   approveLeaveRequest,
   createLeaveRequest,
@@ -180,6 +180,13 @@ export default function LeavesPage() {
   const deleteDialog = useDisclosure();
   const detailDialog = useDisclosure();
   const actionDialog = useDisclosure();
+  const {
+    canSelectEmployee,
+    selfEmployeeId,
+    selfEmployeeLabel,
+    selfEmployeeError,
+    isScopeReady,
+  } = useEmployeeScope();
 
   const [requests, setRequests] = useState<LeaveRequestDto[]>([]);
   const [statsItems, setStatsItems] = useState<LeaveRequestDto[]>([]);
@@ -269,9 +276,15 @@ export default function LeavesPage() {
   }, [pageNumber, search, statusFilter, typeFilter]);
 
   useEffect(() => {
+    if (!canSelectEmployee) return;
     void loadEmployees();
     void loadLeaveTypes();
-  }, [loadEmployees, loadLeaveTypes]);
+  }, [canSelectEmployee, loadEmployees, loadLeaveTypes]);
+
+  useEffect(() => {
+    if (canSelectEmployee) return;
+    void loadLeaveTypes();
+  }, [canSelectEmployee, loadLeaveTypes]);
 
   useEffect(() => {
     void loadData();
@@ -290,6 +303,13 @@ export default function LeavesPage() {
     }));
     return { total: statsItems.length, pending, approved, rejected, byType };
   }, [statsItems, leaveTypes]);
+
+  useEffect(() => {
+    if (!createDialog.isOpen || canSelectEmployee || !selfEmployeeId) return;
+    setCreateForm((prev) => (
+      prev.employeeId ? prev : { ...prev, employeeId: selfEmployeeId }
+    ));
+  }, [createDialog.isOpen, canSelectEmployee, selfEmployeeId]);
 
   useEffect(() => {
     if (!createDialog.isOpen || !createForm.employeeId || !createForm.leaveTypeDefinitionId) {
@@ -350,12 +370,23 @@ export default function LeavesPage() {
     [statsItems],
   );
 
+  function openCreateDialog() {
+    setFormError('');
+    setCreateForm({
+      ...emptyCreateForm(),
+      employeeId: canSelectEmployee ? '' : selfEmployeeId,
+    });
+    createDialog.open();
+  }
+
   async function handleCreate(event: FormEvent) {
     event.preventDefault();
     setFormError('');
     setIsSubmitting(true);
     try {
-      if (!createForm.employeeId) throw new Error('کارمند را انتخاب کنید');
+      if (!createForm.employeeId) {
+        throw new Error(canSelectEmployee ? 'کارمند را انتخاب کنید' : 'پروفایل پرسنلی شما یافت نشد');
+      }
       if (!createForm.reason.trim()) throw new Error('دلیل درخواست الزامی است');
       if (!createForm.leaveTypeDefinitionId) throw new Error('نوع درخواست را انتخاب کنید');
 
@@ -507,7 +538,7 @@ export default function LeavesPage() {
               <Icon name="material-symbols:inbox" className="size-4" />
               کارتابل تأیید
             </Link>
-            <Button variant="default" onClick={createDialog.open}>
+            <Button variant="default" onClick={openCreateDialog} disabled={!isScopeReady}>
               <Icon name="material-symbols:add" className="size-4" />
               ثبت درخواست
             </Button>
@@ -1009,29 +1040,41 @@ export default function LeavesPage() {
         <form onSubmit={(event) => void handleCreate(event)}>
           <div className="dialog-header">
             <h3 className="dialog-title">ثبت درخواست جدید</h3>
-            <p className="dialog-description">ثبت مرخصی یا ماموریت برای پرسنل</p>
+            <p className="dialog-description">
+              {canSelectEmployee ? 'ثبت مرخصی یا ماموریت برای پرسنل' : 'ثبت درخواست برای خودتان'}
+            </p>
           </div>
           {formError && (
             <p className="text-destructive px-6 text-sm">{formError}</p>
           )}
+          {!canSelectEmployee && selfEmployeeError && (
+            <p className="text-destructive px-6 text-sm">{selfEmployeeError}</p>
+          )}
           <div className="space-y-4 px-6 py-4">
-            <div className="space-y-2">
-              <label className="label">کارمند</label>
-              <Select
-                required
-                value={createForm.employeeId}
-                onChange={(event) =>
-                  setCreateForm((prev) => ({ ...prev, employeeId: event.target.value }))
-                }
-              >
-                <option value="">انتخاب کارمند...</option>
-                {employees.map((employee) => (
-                  <option key={employee.Id} value={employee.Id}>
-                    {getEmployeeLabel(employee)}
-                  </option>
-                ))}
-              </Select>
-            </div>
+            {canSelectEmployee ? (
+              <div className="space-y-2">
+                <label className="label">کارمند</label>
+                <Select
+                  required
+                  value={createForm.employeeId}
+                  onChange={(event) =>
+                    setCreateForm((prev) => ({ ...prev, employeeId: event.target.value }))
+                  }
+                >
+                  <option value="">انتخاب کارمند...</option>
+                  {employees.map((employee) => (
+                    <option key={employee.Id} value={employee.Id}>
+                      {getEmployeeLabel(employee)}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+            ) : (
+              <div className="bg-muted/20 space-y-1 rounded-xl border p-4">
+                <p className="text-muted-foreground text-xs">کارمند</p>
+                <p className="font-medium">{selfEmployeeLabel || '—'}</p>
+              </div>
+            )}
             <div className="space-y-2">
               <label className="label">نوع درخواست</label>
               <Select
@@ -1130,21 +1173,30 @@ export default function LeavesPage() {
             <p className="text-destructive px-6 text-sm">{formError}</p>
           )}
           <div className="space-y-4 px-6 py-4">
-            <div className="space-y-2">
-              <label className="label">کارمند</label>
-              <Select
-                value={editForm.employeeId}
-                onChange={(event) =>
-                  setEditForm((prev) => ({ ...prev, employeeId: event.target.value }))
-                }
-              >
-                {employees.map((employee) => (
-                  <option key={employee.Id} value={employee.Id}>
-                    {getEmployeeLabel(employee)}
-                  </option>
-                ))}
-              </Select>
-            </div>
+            {canSelectEmployee ? (
+              <div className="space-y-2">
+                <label className="label">کارمند</label>
+                <Select
+                  value={editForm.employeeId}
+                  onChange={(event) =>
+                    setEditForm((prev) => ({ ...prev, employeeId: event.target.value }))
+                  }
+                >
+                  {employees.map((employee) => (
+                    <option key={employee.Id} value={employee.Id}>
+                      {getEmployeeLabel(employee)}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+            ) : (
+              <div className="bg-muted/20 space-y-1 rounded-xl border p-4">
+                <p className="text-muted-foreground text-xs">کارمند</p>
+                <p className="font-medium">
+                  {selectedLeave ? getLeavePersonName(selectedLeave) : selfEmployeeLabel || '—'}
+                </p>
+              </div>
+            )}
             <div className="space-y-2">
               <label className="label">نوع درخواست</label>
               <Select

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using JavidHrm.Application.Features.Users.Queries;
 using JavidHrm.Application.Features.Users.Commands;
+using JavidHrm.Application.Features.Employees.Queries;
 using JavidHrm.Application.Features.RefreshTokens.Commands;
 using JavidHrm.Application.Features.UserSessions.Commands;
 using JavidHrm.Application.Features.UserSessions.Queries;
@@ -89,6 +90,11 @@ public class AccountController
     [HttpPost("current-user")]
     public async Task<ApiResult<GetUserResponse?>> GetCurrentUser()
         => await mediator.Send(new GetCurrentUserRequest());
+
+    [Authorize]
+    [HttpPost("current-employee")]
+    public async Task<ApiResult<GetCurrentEmployeeResponse?>> GetCurrentEmployee()
+        => await mediator.Send(new GetCurrentEmployeeRequest());
 
     [Authorize]
     [HttpPost("my-permissions")]

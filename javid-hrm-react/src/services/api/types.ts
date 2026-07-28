@@ -58,6 +58,13 @@ export interface UserDto {
   ProfileImageUrl?: string | null;
 }
 
+export interface CurrentEmployeeDto {
+  Id: string;
+  EmployeeCode: string;
+  UserFirstName?: string | null;
+  UserLastName?: string | null;
+}
+
 export interface GetAllUsersRequest {
   UserName?: string;
   FirstName?: string;

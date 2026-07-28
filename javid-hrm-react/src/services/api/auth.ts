@@ -1,6 +1,7 @@
 import { apiRequest, apiUploadForm } from './client';
 import type {
   ChangePasswordRequest,
+  CurrentEmployeeDto,
   SignInRequest,
   SignInResponse,
   UpdateCurrentUserProfileRequest,
@@ -16,6 +17,19 @@ export async function getCurrentUser(): Promise<UserDto> {
 
   if (!result.Data) {
     throw new Error('اطلاعات کاربر یافت نشد');
+  }
+
+  return result.Data;
+}
+
+export async function getCurrentEmployee(): Promise<CurrentEmployeeDto> {
+  const result = await apiRequest<CurrentEmployeeDto>('/api/v1/account/current-employee', {
+    method: 'POST',
+    auth: true,
+  });
+
+  if (!result.Data) {
+    throw new Error('پروفایل پرسنلی یافت نشد');
   }
 
   return result.Data;

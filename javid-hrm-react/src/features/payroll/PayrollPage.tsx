@@ -18,7 +18,7 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { Dialog } from '@/components/layout/Dialog';
-import { useDisclosure } from '@/hooks';
+import { useDisclosure, useEmployeeScope } from '@/hooks';
 import {
   approvePayrollEntry,
   createPayrollEntry,
@@ -149,6 +149,13 @@ export default function PayrollPage() {
   const editDialog = useDisclosure();
   const deleteDialog = useDisclosure();
   const detailDialog = useDisclosure();
+  const {
+    canSelectEmployee,
+    selfEmployeeId,
+    selfEmployeeLabel,
+    selfEmployeeError,
+    isScopeReady,
+  } = useEmployeeScope();
 
   const [entries, setEntries] = useState<PayrollEntryDto[]>([]);
   const [statsItems, setStatsItems] = useState<PayrollEntryDto[]>([]);
@@ -235,8 +242,16 @@ export default function PayrollPage() {
   }, [monthFilter, pageNumber, search, statusFilter, yearFilter]);
 
   useEffect(() => {
+    if (!canSelectEmployee) return;
     void loadEmployees();
-  }, [loadEmployees]);
+  }, [canSelectEmployee, loadEmployees]);
+
+  useEffect(() => {
+    if (!createDialog.isOpen || canSelectEmployee || !selfEmployeeId) return;
+    setCreateForm((prev) => (
+      prev.employeeId ? prev : { ...prev, employeeId: selfEmployeeId }
+    ));
+  }, [createDialog.isOpen, canSelectEmployee, selfEmployeeId]);
 
   useEffect(() => {
     void loadData();
@@ -325,15 +340,22 @@ export default function PayrollPage() {
     return { ...form, baseSalary, grossAmount: gross > 0 ? String(gross) : form.grossAmount };
   }
 
-  function openCreateFromCalculator() {
+  function openCreateDialog(prefill?: Partial<PayrollFormState>) {
+    setFormError('');
     setCreateForm({
       ...emptyCreateForm(),
+      ...prefill,
+      employeeId: canSelectEmployee ? (prefill?.employeeId ?? '') : selfEmployeeId,
+    });
+    createDialog.open();
+  }
+
+  function openCreateFromCalculator() {
+    openCreateDialog({
       baseSalary: calcBase,
       grossAmount: String(calcGross),
       deductions: calcDeductions,
     });
-    setFormError('');
-    createDialog.open();
   }
 
   async function handleCreate(event: FormEvent) {
@@ -341,7 +363,9 @@ export default function PayrollPage() {
     setFormError('');
     setIsSubmitting(true);
     try {
-      if (!createForm.employeeId) throw new Error('کارمند را انتخاب کنید');
+      if (!createForm.employeeId) {
+        throw new Error(canSelectEmployee ? 'کارمند را انتخاب کنید' : 'پروفایل پرسنلی شما یافت نشد');
+      }
       const payload = formToPayload(createForm);
       if (payload.NetAmount !== payload.GrossAmount - payload.Deductions) {
         throw new Error('مبلغ خالص باید برابر ناخالص منهای کسورات باشد');
@@ -463,27 +487,35 @@ export default function PayrollPage() {
     form: PayrollFormState,
     setForm: (updater: (prev: PayrollFormState) => PayrollFormState) => void,
     isPaid = false,
+    employeeDisplayName?: string,
   ) {
     const previewNet = computeNet(parseAmount(form.grossAmount), parseAmount(form.deductions));
 
     return (
       <div className="space-y-4 px-6 py-4">
-        <div className="space-y-2">
-          <label className="label">کارمند</label>
-          <Select
-            required
-            disabled={isPaid}
-            value={form.employeeId}
-            onChange={(event) => setForm((prev) => ({ ...prev, employeeId: event.target.value }))}
-          >
-            <option value="">انتخاب کارمند...</option>
-            {employees.map((employee) => (
-              <option key={employee.Id} value={employee.Id}>
-                {getEmployeeLabel(employee)}
-              </option>
-            ))}
-          </Select>
-        </div>
+        {canSelectEmployee ? (
+          <div className="space-y-2">
+            <label className="label">کارمند</label>
+            <Select
+              required
+              disabled={isPaid}
+              value={form.employeeId}
+              onChange={(event) => setForm((prev) => ({ ...prev, employeeId: event.target.value }))}
+            >
+              <option value="">انتخاب کارمند...</option>
+              {employees.map((employee) => (
+                <option key={employee.Id} value={employee.Id}>
+                  {getEmployeeLabel(employee)}
+                </option>
+              ))}
+            </Select>
+          </div>
+        ) : (
+          <div className="bg-muted/20 space-y-1 rounded-xl border p-4">
+            <p className="text-muted-foreground text-xs">کارمند</p>
+            <p className="font-medium">{employeeDisplayName || selfEmployeeLabel || '—'}</p>
+          </div>
+        )}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <label className="label">سال</label>
@@ -580,7 +612,7 @@ export default function PayrollPage() {
         title="مدیریت حقوق و دستمزد"
         description="محاسبه حقوق، فیش حقوقی و پرداخت‌های پرسنلی"
         actions={
-          <Button variant="default" onClick={createDialog.open}>
+          <Button variant="default" onClick={() => openCreateDialog()} disabled={!isScopeReady}>
             <Icon name="material-symbols:calculate" className="size-4" />
             ثبت فیش حقوقی
           </Button>
@@ -1105,9 +1137,14 @@ export default function PayrollPage() {
         <form onSubmit={(event) => void handleCreate(event)}>
           <div className="dialog-header">
             <h3 className="dialog-title">ثبت فیش حقوقی</h3>
-            <p className="dialog-description">ایجاد فیش جدید برای پرسنل</p>
+            <p className="dialog-description">
+              {canSelectEmployee ? 'ایجاد فیش جدید برای پرسنل' : 'ثبت فیش برای خودتان'}
+            </p>
           </div>
           {formError && <p className="text-destructive px-6 text-sm">{formError}</p>}
+          {!canSelectEmployee && selfEmployeeError && (
+            <p className="text-destructive px-6 text-sm">{selfEmployeeError}</p>
+          )}
           {renderPayrollForm(createForm, (updater) => setCreateForm(updater))}
           <div className="dialog-footer">
             <Button type="button" variant="outline" onClick={createDialog.close}>انصراف</Button>
@@ -1131,6 +1168,7 @@ export default function PayrollPage() {
             editForm,
             (updater) => setEditForm(updater),
             selectedEntry?.Status === PAYROLL_STATUS.Paid,
+            selectedEntry ? getEntryPersonName(selectedEntry) : undefined,
           )}
           <div className="dialog-footer">
             <Button type="button" variant="outline" onClick={editDialog.close}>انصراف</Button>
