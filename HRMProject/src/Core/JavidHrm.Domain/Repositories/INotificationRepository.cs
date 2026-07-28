@@ -14,10 +14,14 @@ public interface INotificationRepository
     ValueTask<Notification?> FindAsync(int id, CancellationToken cancellationToken = default);
     Task<Notification?> GetAsNoTrackingAsync(int id, CancellationToken cancellationToken = default);
     Task<bool> AnyAsync(Expression<Func<Notification, bool>> expression, CancellationToken cancellationToken = default);
-    Task<int> CountUnreadAsync(int? userId = null, CancellationToken cancellationToken = default);
     Task<PagedResult<GetAllNotificationResponseDto>> GetAllAsync(
         GetAllNotificationRequestDto request,
-        Expression<Func<Notification, bool>>? contentFilter = null);
-    Task MarkAllAsReadAsync(int? userId = null, CancellationToken cancellationToken = default);
-    Task DeleteReadAsync(int? userId = null, CancellationToken cancellationToken = default);
+        int? viewerUserId = null,
+        Expression<Func<Notification, bool>>? contentFilter = null,
+        CancellationToken cancellationToken = default);
+    Task MarkBroadcastAsReadAsync(int notificationId, int userId, CancellationToken cancellationToken = default);
+    Task MarkBroadcastAsUnreadAsync(int notificationId, int userId, CancellationToken cancellationToken = default);
+    Task MarkAllVisibleAsReadAsync(int viewerUserId, CancellationToken cancellationToken = default);
+    Task DeleteVisibleReadAsync(int viewerUserId, CancellationToken cancellationToken = default);
+    Task<int> CountUnreadAsync(int viewerUserId, CancellationToken cancellationToken = default);
 }

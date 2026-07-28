@@ -1,4 +1,5 @@
 using FluentValidation;
+using JavidHrm.Application.Common.Validation;
 using JavidHrm.Domain.Repositories;
 
 namespace JavidHrm.Application.Features.Notifications.Commands;
@@ -8,7 +9,7 @@ public class UpdateNotificationValidator : AbstractValidator<UpdateNotificationR
     public UpdateNotificationValidator(IUserRepository userRepository, INotificationRepository notificationRepository)
     {
         RuleFor(x => x.Id).GreaterThan(0);
-        RuleFor(x => x.UserId).GreaterThan(0);
+        RuleFor(x => x.UserId).MustBeValidOptionalEntityId();
         RuleFor(x => x.Title).NotEmpty().MaximumLength(200);
         RuleFor(x => x.Message).NotEmpty().MaximumLength(1000);
         RuleFor(x => x.LinkPath).MaximumLength(500);
@@ -22,7 +23,7 @@ public class UpdateNotificationValidator : AbstractValidator<UpdateNotificationR
 
         RuleFor(x => x.UserId)
             .MustAsync(async (userId, cancellationToken) =>
-                await userRepository.AnyAsync(u => u.Id == userId, cancellationToken))
+                !userId.HasValue || await userRepository.AnyAsync(u => u.Id == userId.Value, cancellationToken))
             .WithErrorCode("InvalidId");
     }
 }

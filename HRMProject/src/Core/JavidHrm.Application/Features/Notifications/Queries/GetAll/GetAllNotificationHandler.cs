@@ -1,3 +1,4 @@
+using JavidHrm.Application.Contracts;
 using JavidHrm.Common.Models;
 using JavidHrm.Domain.Repositories;
 using JavidHrm.Application.Contracts.Mapping;
@@ -8,14 +9,18 @@ using JavidHrm.Application.Common.Extensions;
 namespace JavidHrm.Application.Features.Notifications.Queries;
 
 public class GetAllNotificationHandler
-    (INotificationRepository notificationRepository, INotificationMapperService mapper, IContentPolicyFilterContext contentPolicyFilterContext)
+    (INotificationRepository notificationRepository, INotificationMapperService mapper, IContentPolicyFilterContext contentPolicyFilterContext, ICurrentUserContext currentUserContext)
     : IRequestHandler<GetAllNotificationRequest, OperationResult<PagedResult<GetAllNotificationResponse>>>
 {
     public async Task<OperationResult<PagedResult<GetAllNotificationResponse>>> Handle(GetAllNotificationRequest request, CancellationToken cancellationToken)
     {
         var requestModel = mapper.Map(request);
         var filter = contentPolicyFilterContext.GetContentFilter<Domain.Entities.Notification>();
-        var notifications = await notificationRepository.GetAllAsync(requestModel, filter);
+        var notifications = await notificationRepository.GetAllAsync(
+            requestModel,
+            currentUserContext.UserId,
+            filter,
+            cancellationToken);
         return mapper.Map(notifications);
     }
 }

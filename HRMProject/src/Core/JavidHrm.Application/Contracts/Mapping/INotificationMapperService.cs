@@ -9,6 +9,6 @@ namespace JavidHrm.Application.Contracts.Mapping;
 public interface INotificationMapperService : IMapper
 {
     GetAllNotificationRequestDto Map(GetAllNotificationRequest model);
-    GetNotificationResponse Map(Notification model, User user);
+    GetNotificationResponse Map(Notification model, User? user);
     PagedResult<GetAllNotificationResponse> Map(PagedResult<GetAllNotificationResponseDto> model);
 }

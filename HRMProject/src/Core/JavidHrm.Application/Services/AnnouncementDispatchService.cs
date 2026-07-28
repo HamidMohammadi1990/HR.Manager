@@ -7,7 +7,6 @@ using JavidHrm.Domain.Repositories;
 namespace JavidHrm.Application.Services;
 
 public class AnnouncementDispatchService(
-    IAnnouncementRepository announcementRepository,
     INotificationRepository notificationRepository)
     : IAnnouncementDispatchService
 {
@@ -18,27 +17,29 @@ public class AnnouncementDispatchService(
         if (!ShouldCreateInAppNotifications(announcement.Channel))
             return OperationResult.Success();
 
-        var recipientUserIds = await announcementRepository.GetAudienceUserIdsAsync(
-            announcement.Audience,
-            announcement.DepartmentId,
-            announcement.RoleId,
-            cancellationToken);
-
-        if (recipientUserIds.Count == 0)
+        if (await notificationRepository.AnyAsync(
+                n => n.AnnouncementId == announcement.Id,
+                cancellationToken))
             return OperationResult.Success();
 
         var message = BuildNotificationMessage(announcement.Content);
-        var notifications = recipientUserIds
-            .Select(userId => Notification.Create(
-                userId,
-                announcement.Title,
-                message,
-                NotificationType.Info,
-                "/announcements",
-                "material-symbols:campaign"))
-            .ToList();
+        var audienceDepartmentId = announcement.Audience == AnnouncementAudience.Department
+            ? announcement.DepartmentId
+            : null;
+        var audienceRoleId = announcement.Audience == AnnouncementAudience.Role
+            ? announcement.RoleId
+            : null;
 
-        notificationRepository.AddRange(notifications);
+        notificationRepository.Add(Notification.CreateBroadcast(
+            announcement.Id,
+            audienceDepartmentId,
+            audienceRoleId,
+            announcement.Title,
+            message,
+            NotificationType.Info,
+            "/announcements",
+            "material-symbols:campaign"));
+
         return OperationResult.Success();
     }
 

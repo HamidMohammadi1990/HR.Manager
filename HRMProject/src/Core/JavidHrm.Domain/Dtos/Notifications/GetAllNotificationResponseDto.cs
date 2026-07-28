@@ -5,7 +5,7 @@ namespace JavidHrm.Domain.Dtos.Notifications;
 public record GetAllNotificationResponseDto
 {
     public int Id { get; init; }
-    public int UserId { get; init; }
+    public int? UserId { get; init; }
     public string? UserFirstName { get; init; }
     public string? UserLastName { get; init; }
     public string? UserName { get; init; }
@@ -17,4 +17,5 @@ public record GetAllNotificationResponseDto
     public string? LinkPath { get; init; }
     public string? IconName { get; init; }
     public DateTime CreatedOnUtc { get; init; }
+    public bool IsBroadcast { get; init; }
 }

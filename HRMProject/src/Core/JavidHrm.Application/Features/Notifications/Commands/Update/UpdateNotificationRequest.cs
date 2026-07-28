@@ -10,8 +10,8 @@ public record UpdateNotificationRequest : IRequest<OperationResult>
     [JsonConverter(typeof(NotificationEncryptor))]
     public int Id { get; init; }
 
-    [JsonConverter(typeof(UserEncryptor))]
-    public int UserId { get; init; }
+    [JsonConverter(typeof(UserNullableEncryptor))]
+    public int? UserId { get; init; }
 
     public string Title { get; init; } = default!;
     public string Message { get; init; } = default!;

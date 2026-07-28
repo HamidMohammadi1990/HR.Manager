@@ -20,14 +20,14 @@ public class NotificationMapperService : INotificationMapperService
             Pagination = model.Pagination
         };
 
-    public GetNotificationResponse Map(Notification model, User user)
+    public GetNotificationResponse Map(Notification model, User? user)
         => new()
         {
             Id = model.Id,
             UserId = model.UserId,
-            UserFirstName = user.FirstName,
-            UserLastName = user.LastName,
-            UserName = user.UserName,
+            UserFirstName = user?.FirstName,
+            UserLastName = user?.LastName,
+            UserName = user?.UserName,
             Title = model.Title,
             Message = model.Message,
             Type = model.Type,

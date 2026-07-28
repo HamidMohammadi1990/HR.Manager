@@ -56,6 +56,62 @@ export const ANNOUNCEMENT_STATUS_LABELS: Record<number, string> = {
   5: 'خطا',
 };
 
+const ANNOUNCEMENT_STATUS_BY_NAME: Record<string, number> = {
+  Draft: 1,
+  Scheduled: 2,
+  Sent: 3,
+  Archived: 4,
+  Failed: 5,
+};
+
+const ANNOUNCEMENT_AUDIENCE_BY_NAME: Record<string, number> = {
+  AllUsers: 1,
+  Department: 2,
+  Role: 3,
+};
+
+const ANNOUNCEMENT_CHANNEL_BY_NAME: Record<string, number> = {
+  InApp: 1,
+  Email: 2,
+  Push: 3,
+  EmailAndPush: 4,
+};
+
+export function normalizeApiEnum(
+  value: number | string | undefined | null,
+  nameMap: Record<string, number>,
+): number | null {
+  if (value == null || value === '') return null;
+  if (typeof value === 'number') return value;
+  return nameMap[value] ?? null;
+}
+
+export function getAnnouncementStatusLabel(status: number | string): string {
+  const normalized = normalizeApiEnum(status, ANNOUNCEMENT_STATUS_BY_NAME);
+  return normalized != null ? (ANNOUNCEMENT_STATUS_LABELS[normalized] ?? String(status)) : String(status);
+}
+
+export function getAnnouncementStatusVariant(status: number | string) {
+  const normalized = normalizeApiEnum(status, ANNOUNCEMENT_STATUS_BY_NAME);
+  if (normalized === 3) return 'success' as const;
+  if (normalized === 2) return 'alert' as const;
+  if (normalized === 5) return 'destructive' as const;
+  if (normalized === 4) return 'secondary' as const;
+  return 'default' as const;
+}
+
+export function normalizeAnnouncementStatus(status: number | string): number | null {
+  return normalizeApiEnum(status, ANNOUNCEMENT_STATUS_BY_NAME);
+}
+
+export function normalizeAnnouncementAudience(audience: number | string): number | null {
+  return normalizeApiEnum(audience, ANNOUNCEMENT_AUDIENCE_BY_NAME);
+}
+
+export function normalizeAnnouncementChannel(channel: number | string): number | null {
+  return normalizeApiEnum(channel, ANNOUNCEMENT_CHANNEL_BY_NAME);
+}
+
 export const ANNOUNCEMENT_AUDIENCE_LABELS: Record<number, string> = {
   1: 'همه کاربران',
   2: 'بخش',

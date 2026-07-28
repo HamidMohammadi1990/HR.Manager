@@ -14,8 +14,11 @@ public class GetNotificationHandler
         if (notification is null)
             return ErrorModel.Create("InvalidId");
 
-        var user = await userRepository.GetAsNoTrackingAsync(notification.UserId, cancellationToken);
-        if (user is null)
+        var user = notification.UserId.HasValue
+            ? await userRepository.GetAsNoTrackingAsync(notification.UserId.Value, cancellationToken)
+            : null;
+
+        if (notification.UserId.HasValue && user is null)
             return ErrorModel.Create("InvalidId");
 
         return mapper.Map(notification, user);

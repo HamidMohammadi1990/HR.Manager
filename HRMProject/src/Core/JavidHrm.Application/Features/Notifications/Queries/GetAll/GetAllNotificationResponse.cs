@@ -9,8 +9,8 @@ public record GetAllNotificationResponse
     [JsonConverter(typeof(NotificationEncryptor))]
     public int Id { get; init; }
 
-    [JsonConverter(typeof(UserEncryptor))]
-    public int UserId { get; init; }
+    [JsonConverter(typeof(UserNullableEncryptor))]
+    public int? UserId { get; init; }
 
     public string? UserFirstName { get; init; }
     public string? UserLastName { get; init; }

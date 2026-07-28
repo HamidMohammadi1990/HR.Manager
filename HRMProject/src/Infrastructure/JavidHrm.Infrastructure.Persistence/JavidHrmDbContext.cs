@@ -14,6 +14,7 @@ public sealed class JavidHrmDbContext(DbContextOptions<JavidHrmDbContext> option
     public DbSet<LeaveRequestApprovalStep> LeaveRequestApprovalStep { get; set; }
     public DbSet<PayrollEntry> PayrollEntry { get; set; }
     public DbSet<Notification> Notification { get; set; }
+    public DbSet<NotificationReadReceipt> NotificationReadReceipt { get; set; }
     public DbSet<Announcement> Announcement { get; set; }
     public DbSet<CalendarEvent> CalendarEvent { get; set; }
     public DbSet<TodoItem> TodoItem { get; set; }

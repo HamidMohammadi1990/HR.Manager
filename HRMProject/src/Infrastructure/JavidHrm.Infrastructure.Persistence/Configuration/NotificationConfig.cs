@@ -35,9 +35,17 @@ internal class NotificationConfig : IEntityTypeConfiguration<Notification>
             .HasOne(e => e.User)
             .WithMany()
             .HasForeignKey(e => e.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Cascade)
+            .IsRequired(false);
+
+        builder.Property(e => e.AnnouncementId);
+        builder.Property(e => e.AudienceDepartmentId);
+        builder.Property(e => e.AudienceRoleId);
 
         builder.HasIndex(e => e.UserId);
+        builder.HasIndex(e => e.AnnouncementId);
+        builder.HasIndex(e => e.AudienceDepartmentId);
+        builder.HasIndex(e => e.AudienceRoleId);
         builder.HasIndex(e => e.IsRead);
         builder.HasIndex(e => e.Type);
         builder.HasIndex(e => e.CreatedOnUtc);

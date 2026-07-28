@@ -1,3 +1,4 @@
+using JavidHrm.Application.Contracts;
 using JavidHrm.Common.Models;
 using JavidHrm.Domain.Repositories;
 using JavidHrm.Application.Contracts.Persistence;
@@ -5,7 +6,7 @@ using JavidHrm.Application.Contracts.Persistence;
 namespace JavidHrm.Application.Features.Notifications.Commands;
 
 public class MarkNotificationReadHandler
-    (INotificationRepository notificationRepository, IUnitOfWork uow)
+    (INotificationRepository notificationRepository, ICurrentUserContext currentUserContext, IUnitOfWork uow)
     : IRequestHandler<MarkNotificationReadRequest, OperationResult>
 {
     public async Task<OperationResult> Handle(MarkNotificationReadRequest request, CancellationToken cancellationToken)
@@ -14,7 +15,14 @@ public class MarkNotificationReadHandler
         if (notification is null)
             return ErrorModel.Create("InvalidId");
 
-        if (request.IsRead)
+        if (notification.IsBroadcast)
+        {
+            if (request.IsRead)
+                await notificationRepository.MarkBroadcastAsReadAsync(notification.Id, currentUserContext.UserId, cancellationToken);
+            else
+                await notificationRepository.MarkBroadcastAsUnreadAsync(notification.Id, currentUserContext.UserId, cancellationToken);
+        }
+        else if (request.IsRead)
             notification.MarkAsRead();
         else
             notification.MarkAsUnread();

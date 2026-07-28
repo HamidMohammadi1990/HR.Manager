@@ -14,6 +14,11 @@ import {
   ANNOUNCEMENT_AUDIENCE_LABELS,
   ANNOUNCEMENT_CHANNEL_LABELS,
   ANNOUNCEMENT_STATUS_LABELS,
+  getAnnouncementStatusLabel,
+  getAnnouncementStatusVariant,
+  normalizeAnnouncementAudience,
+  normalizeAnnouncementChannel,
+  normalizeAnnouncementStatus,
 } from '@/lib/hrLabels';
 import {
   archiveAnnouncement,
@@ -38,27 +43,20 @@ import {
 
 const PAGE_SIZE = 10;
 
-function statusBadgeVariant(status: number) {
-  if (status === AnnouncementStatus.Sent) return 'success' as const;
-  if (status === AnnouncementStatus.Scheduled) return 'alert' as const;
-  if (status === AnnouncementStatus.Failed) return 'destructive' as const;
-  if (status === AnnouncementStatus.Archived) return 'secondary' as const;
-  return 'default' as const;
-}
-
-function formatDateTime(value?: string | null) {
-  if (!value) return '—';
-  return new Date(value).toLocaleString('fa-IR');
-}
-
 function audienceLabel(item: AnnouncementDto) {
-  if (item.Audience === AnnouncementAudience.Department) {
-    return item.DepartmentName ?? ANNOUNCEMENT_AUDIENCE_LABELS[item.Audience];
+  const audience = normalizeAnnouncementAudience(item.Audience);
+  if (audience === AnnouncementAudience.Department) {
+    return item.DepartmentName ?? ANNOUNCEMENT_AUDIENCE_LABELS[AnnouncementAudience.Department];
   }
-  if (item.Audience === AnnouncementAudience.Role) {
-    return item.RoleName ?? ANNOUNCEMENT_AUDIENCE_LABELS[item.Audience];
+  if (audience === AnnouncementAudience.Role) {
+    return item.RoleName ?? ANNOUNCEMENT_AUDIENCE_LABELS[AnnouncementAudience.Role];
   }
-  return ANNOUNCEMENT_AUDIENCE_LABELS[item.Audience];
+  return ANNOUNCEMENT_AUDIENCE_LABELS[AnnouncementAudience.AllUsers];
+}
+
+function channelLabel(channel: AnnouncementDto['Channel']) {
+  const normalized = normalizeAnnouncementChannel(channel);
+  return normalized != null ? (ANNOUNCEMENT_CHANNEL_LABELS[normalized] ?? String(channel)) : String(channel);
 }
 
 interface FormState {
@@ -83,8 +81,14 @@ const emptyForm = (): FormState => ({
   scheduledTime: '09:00',
 });
 
-function canPublishAnnouncement(status: number) {
-  return status === AnnouncementStatus.Draft || status === AnnouncementStatus.Scheduled;
+function canPublishAnnouncement(status: number | string) {
+  const normalized = normalizeAnnouncementStatus(status);
+  return normalized === AnnouncementStatus.Draft || normalized === AnnouncementStatus.Scheduled;
+}
+
+function formatDateTime(value?: string | null) {
+  if (!value) return '—';
+  return new Date(value).toLocaleString('fa-IR');
 }
 
 export default function AnnouncementsPage() {
@@ -155,10 +159,10 @@ export default function AnnouncementsPage() {
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
   const stats = useMemo(() => {
-    const sent = statsItems.filter((i) => i.Status === AnnouncementStatus.Sent).length;
-    const scheduled = statsItems.filter((i) => i.Status === AnnouncementStatus.Scheduled).length;
-    const draft = statsItems.filter((i) => i.Status === AnnouncementStatus.Draft).length;
-    const archived = statsItems.filter((i) => i.Status === AnnouncementStatus.Archived).length;
+    const sent = statsItems.filter((i) => normalizeAnnouncementStatus(i.Status) === AnnouncementStatus.Sent).length;
+    const scheduled = statsItems.filter((i) => normalizeAnnouncementStatus(i.Status) === AnnouncementStatus.Scheduled).length;
+    const draft = statsItems.filter((i) => normalizeAnnouncementStatus(i.Status) === AnnouncementStatus.Draft).length;
+    const archived = statsItems.filter((i) => normalizeAnnouncementStatus(i.Status) === AnnouncementStatus.Archived).length;
     return { total: statsItems.length, sent, scheduled, draft, archived };
   }, [statsItems]);
 
@@ -420,15 +424,17 @@ export default function AnnouncementsPage() {
                     items.map((a) => {
                       const isBusy = actionId === a.Id;
                       const canPublish = canPublishAnnouncement(a.Status);
-                      const canArchive = a.Status === AnnouncementStatus.Sent;
+                      const canArchive = normalizeAnnouncementStatus(a.Status) === AnnouncementStatus.Sent;
                       return (
                         <tr key={a.Id} className="table-row">
                           <td className="table-cell font-medium">{a.Title}</td>
                           <td className="table-cell">
-                            <Badge variant={statusBadgeVariant(a.Status)}>{ANNOUNCEMENT_STATUS_LABELS[a.Status]}</Badge>
+                            <Badge variant={getAnnouncementStatusVariant(a.Status)}>
+                              {getAnnouncementStatusLabel(a.Status)}
+                            </Badge>
                           </td>
                           <td className="table-cell">{audienceLabel(a)}</td>
-                          <td className="table-cell">{ANNOUNCEMENT_CHANNEL_LABELS[a.Channel]}</td>
+                          <td className="table-cell">{channelLabel(a.Channel)}</td>
                           <td className="text-muted-foreground table-cell text-sm">
                             {formatDateTime(a.PublishedAtUtc ?? a.ScheduledAtUtc)}
                           </td>
@@ -605,11 +611,11 @@ export default function AnnouncementsPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <div className="bg-card rounded-xl border p-3">
                     <p className="text-muted-foreground text-xs">وضعیت</p>
-                    <p className="mt-1 font-semibold">{ANNOUNCEMENT_STATUS_LABELS[selected.Status]}</p>
+                    <p className="mt-1 font-semibold">{getAnnouncementStatusLabel(selected.Status)}</p>
                   </div>
                   <div className="bg-card rounded-xl border p-3">
                     <p className="text-muted-foreground text-xs">کانال</p>
-                    <p className="mt-1 font-semibold">{ANNOUNCEMENT_CHANNEL_LABELS[selected.Channel]}</p>
+                    <p className="mt-1 font-semibold">{channelLabel(selected.Channel)}</p>
                   </div>
                   <div className="bg-card rounded-xl border p-3 sm:col-span-2">
                     <p className="text-muted-foreground text-xs">مخاطب</p>

@@ -505,7 +505,7 @@ export type NotificationTypeValue = (typeof NotificationType)[keyof typeof Notif
 
 export interface NotificationDto {
   Id: string;
-  UserId: string;
+  UserId?: string | null;
   UserFirstName?: string | null;
   UserLastName?: string | null;
   UserName?: string | null;
