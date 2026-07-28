@@ -120,7 +120,7 @@ const quickActions: {
   },
   {
     icon: 'material-symbols:event-note',
-    label: 'درخواست مرخصی',
+    label: 'ثبت مرخصی یا ماموریت',
     path: '/leaves',
     iconBg: 'bg-emerald-500/10',
     iconColor: 'text-emerald-500',

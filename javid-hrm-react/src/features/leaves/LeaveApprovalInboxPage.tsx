@@ -154,7 +154,7 @@ export default function LeaveApprovalInboxPage() {
   return (
     <div className="flex-1 p-4 lg:p-6">
       <PageHeader
-        title="کارتابل تأیید مرخصی"
+        title="کارتابل تأیید مرخصی و ماموریت"
         description="درخواست‌هایی که منتظر تأیید یا رد شما هستند"
         actions={
           <Link
@@ -162,7 +162,7 @@ export default function LeaveApprovalInboxPage() {
             className="border-input bg-background hover:bg-muted inline-flex h-9 items-center gap-2 rounded-md border px-4 text-sm font-medium"
           >
             <Icon name="material-symbols:beach-access" className="size-4" />
-            همه مرخصی‌ها
+            همه درخواست‌ها
           </Link>
         }
       />
@@ -329,7 +329,7 @@ export default function LeaveApprovalInboxPage() {
         <form onSubmit={(event) => void handleActionSubmit(event)}>
           <div className="dialog-header">
             <h3 className="dialog-title">
-              {actionType === 'approve' ? 'تأیید درخواست مرخصی' : 'رد درخواست مرخصی'}
+              {actionType === 'approve' ? 'تأیید درخواست' : 'رد درخواست'}
             </h3>
             <p className="dialog-description">
               {selectedItem ? getPersonLabel(selectedItem) : ''}

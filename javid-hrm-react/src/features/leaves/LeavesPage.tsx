@@ -356,9 +356,8 @@ export default function LeavesPage() {
     setIsSubmitting(true);
     try {
       if (!createForm.employeeId) throw new Error('کارمند را انتخاب کنید');
-      if (!createForm.reason.trim()) throw new Error('دلیل مرخصی الزامی است');
-
-      if (!createForm.leaveTypeDefinitionId) throw new Error('نوع مرخصی را انتخاب کنید');
+      if (!createForm.reason.trim()) throw new Error('دلیل درخواست الزامی است');
+      if (!createForm.leaveTypeDefinitionId) throw new Error('نوع درخواست را انتخاب کنید');
 
       const { startDate, endDate } = buildLeavePayloadDates(createForm, leaveTypes);
 
@@ -429,7 +428,7 @@ export default function LeavesPage() {
     setFormError('');
     setIsSubmitting(true);
     try {
-      if (!editForm.reason.trim()) throw new Error('دلیل مرخصی الزامی است');
+      if (!editForm.reason.trim()) throw new Error('دلیل درخواست الزامی است');
 
       const { startDate, endDate } = buildLeavePayloadDates(editForm, leaveTypes);
 
@@ -497,8 +496,8 @@ export default function LeavesPage() {
   return (
     <div className="flex-1 p-4 lg:p-6">
       <PageHeader
-        title="مدیریت مرخصی‌ها"
-        description="درخواست، تأیید و پیگیری مرخصی‌های پرسنل"
+        title="مرخصی و ماموریت"
+        description="درخواست، تأیید و پیگیری مرخصی و ماموریت پرسنل"
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <Link
@@ -510,7 +509,7 @@ export default function LeavesPage() {
             </Link>
             <Button variant="default" onClick={createDialog.open}>
               <Icon name="material-symbols:add" className="size-4" />
-              درخواست مرخصی
+              ثبت درخواست
             </Button>
           </div>
         }
@@ -604,8 +603,8 @@ export default function LeavesPage() {
 
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>لیست درخواست‌های مرخصی</CardTitle>
-          <CardDescription>مدیریت کامل درخواست‌ها از API</CardDescription>
+          <CardTitle>لیست درخواست‌ها</CardTitle>
+          <CardDescription>مرخصی و ماموریت ثبت‌شده از API</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <div className="table-wrapper">
@@ -754,7 +753,7 @@ export default function LeavesPage() {
                 <Icon name="material-symbols:pending" className="size-5 text-amber-500" />
                 درخواست‌های در انتظار تأیید
               </CardTitle>
-              <CardDescription>مرخصی‌هایی که نیاز به بررسی دارند</CardDescription>
+              <CardDescription>درخواست‌هایی که نیاز به بررسی دارند</CardDescription>
             </CardHeader>
             <CardContent>
               {pendingItems.length === 0 ? (
@@ -840,13 +839,13 @@ export default function LeavesPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Icon name="material-symbols:event-upcoming" className="size-5 text-blue-500" />
-                مرخصی‌های آینده
+                درخواست‌های آینده
               </CardTitle>
-              <CardDescription>مرخصی‌های تأییدشده با تاریخ شروع از امروز</CardDescription>
+              <CardDescription>درخواست‌های تأییدشده با تاریخ شروع از امروز</CardDescription>
             </CardHeader>
             <CardContent>
               {upcomingItems.length === 0 ? (
-                <p className="text-muted-foreground text-sm">مرخصی آینده‌ای ثبت نشده</p>
+                <p className="text-muted-foreground text-sm">درخواست آینده‌ای ثبت نشده</p>
               ) : (
                 <div className="space-y-3">
                   {upcomingItems.map((request) => {
@@ -941,9 +940,9 @@ export default function LeavesPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Icon name="material-symbols:history" className="size-5 text-gray-500" />
-            تاریخچه مرخصی‌ها
+            تاریخچه درخواست‌ها
           </CardTitle>
-          <CardDescription>مرخصی‌های تأیید شده و رد شده اخیر</CardDescription>
+          <CardDescription>درخواست‌های تأیید شده و رد شده اخیر</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <div className="table-wrapper">
@@ -1009,8 +1008,8 @@ export default function LeavesPage() {
         </button>
         <form onSubmit={(event) => void handleCreate(event)}>
           <div className="dialog-header">
-            <h3 className="dialog-title">درخواست مرخصی جدید</h3>
-            <p className="dialog-description">ثبت درخواست برای پرسنل</p>
+            <h3 className="dialog-title">ثبت درخواست جدید</h3>
+            <p className="dialog-description">ثبت مرخصی یا ماموریت برای پرسنل</p>
           </div>
           {formError && (
             <p className="text-destructive px-6 text-sm">{formError}</p>
@@ -1034,7 +1033,7 @@ export default function LeavesPage() {
               </Select>
             </div>
             <div className="space-y-2">
-              <label className="label">نوع مرخصی</label>
+              <label className="label">نوع درخواست</label>
               <Select
                 required
                 value={createForm.leaveTypeDefinitionId}
@@ -1044,7 +1043,7 @@ export default function LeavesPage() {
                   )
                 }
               >
-                <option value="">انتخاب نوع مرخصی...</option>
+                <option value="">انتخاب نوع درخواست...</option>
                 {leaveTypes.map((type) => (
                   <option key={type.Id} value={type.Id}>
                     {type.Name}
@@ -1091,7 +1090,7 @@ export default function LeavesPage() {
                 onChange={(startDate, endDate) =>
                   setCreateForm((prev) => ({ ...prev, startDate, endDate }))
                 }
-                label="بازه مرخصی"
+                label="بازه زمانی"
                 required
               />
             )}
@@ -1100,7 +1099,7 @@ export default function LeavesPage() {
               <Textarea
                 rows={3}
                 required
-                placeholder="دلیل مرخصی..."
+                placeholder="دلیل درخواست..."
                 value={createForm.reason}
                 onChange={(event) =>
                   setCreateForm((prev) => ({ ...prev, reason: event.target.value }))
@@ -1125,7 +1124,7 @@ export default function LeavesPage() {
         </button>
         <form onSubmit={(event) => void handleEdit(event)}>
           <div className="dialog-header">
-            <h3 className="dialog-title">ویرایش درخواست مرخصی</h3>
+            <h3 className="dialog-title">ویرایش درخواست</h3>
           </div>
           {formError && (
             <p className="text-destructive px-6 text-sm">{formError}</p>
@@ -1147,7 +1146,7 @@ export default function LeavesPage() {
               </Select>
             </div>
             <div className="space-y-2">
-              <label className="label">نوع مرخصی</label>
+              <label className="label">نوع درخواست</label>
               <Select
                 value={editForm.leaveTypeDefinitionId}
                 onChange={(event) =>
@@ -1189,7 +1188,7 @@ export default function LeavesPage() {
                 onChange={(startDate, endDate) =>
                   setEditForm((prev) => ({ ...prev, startDate, endDate }))
                 }
-                label="بازه مرخصی"
+                label="بازه زمانی"
                 required
               />
             )}
@@ -1238,7 +1237,7 @@ export default function LeavesPage() {
         {selectedLeave && (
           <>
             <div className="dialog-header">
-              <h3 className="dialog-title">جزئیات درخواست مرخصی</h3>
+              <h3 className="dialog-title">جزئیات درخواست</h3>
             </div>
             <div className="space-y-4 px-6 py-4 text-sm">
               <div className="flex justify-between gap-4">
@@ -1344,7 +1343,7 @@ export default function LeavesPage() {
         <form onSubmit={(event) => void handleActionSubmit(event)}>
           <div className="dialog-header">
             <h3 className="dialog-title">
-              {actionType === 'approve' ? 'تأیید درخواست مرخصی' : 'رد درخواست مرخصی'}
+              {actionType === 'approve' ? 'تأیید درخواست' : 'رد درخواست'}
             </h3>
           </div>
           {formError && <p className="text-destructive px-6 text-sm">{formError}</p>}
@@ -1386,7 +1385,7 @@ export default function LeavesPage() {
           <div className="bg-destructive/10 mx-auto mb-4 flex size-12 items-center justify-center rounded-full sm:mx-0">
             <Icon name="material-symbols:warning" className="text-destructive size-6" />
           </div>
-          <h3 className="dialog-title">حذف درخواست مرخصی</h3>
+          <h3 className="dialog-title">حذف درخواست</h3>
           <p className="dialog-description">
             آیا از حذف درخواست{' '}
             <strong>{selectedLeave ? getLeavePersonName(selectedLeave) : ''}</strong> مطمئن هستید؟
