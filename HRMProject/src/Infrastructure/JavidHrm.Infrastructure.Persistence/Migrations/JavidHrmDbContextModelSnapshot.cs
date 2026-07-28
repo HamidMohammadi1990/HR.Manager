@@ -1583,7 +1583,7 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
                     b.HasOne("JavidHrm.Domain.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Notification");

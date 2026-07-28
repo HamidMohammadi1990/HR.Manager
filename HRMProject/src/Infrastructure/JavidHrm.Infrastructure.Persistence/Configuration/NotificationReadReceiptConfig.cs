@@ -18,7 +18,7 @@ internal class NotificationReadReceiptConfig : IEntityTypeConfiguration<Notifica
             .HasOne(e => e.User)
             .WithMany()
             .HasForeignKey(e => e.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasIndex(e => new { e.NotificationId, e.UserId }).IsUnique();
         builder.HasIndex(e => e.UserId);

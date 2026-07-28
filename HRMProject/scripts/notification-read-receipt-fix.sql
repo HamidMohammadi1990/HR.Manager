@@ -1,28 +1,5 @@
--- Run this script on HRDb if dotnet ef database update is not available.
--- Adds broadcast notification columns and read-receipt table.
-
-IF NOT EXISTS (
-    SELECT 1 FROM sys.columns
-    WHERE object_id = OBJECT_ID(N'[dbo].[Notification]') AND name = N'AnnouncementId'
-)
-BEGIN
-    ALTER TABLE [dbo].[Notification] DROP CONSTRAINT [FK_Notification_User_UserId];
-
-    ALTER TABLE [dbo].[Notification] ALTER COLUMN [UserId] INT NULL;
-
-    ALTER TABLE [dbo].[Notification] ADD
-        [AnnouncementId] INT NULL,
-        [AudienceDepartmentId] INT NULL,
-        [AudienceRoleId] INT NULL;
-
-    CREATE INDEX [IX_Notification_AnnouncementId] ON [dbo].[Notification] ([AnnouncementId]);
-    CREATE INDEX [IX_Notification_AudienceDepartmentId] ON [dbo].[Notification] ([AudienceDepartmentId]);
-    CREATE INDEX [IX_Notification_AudienceRoleId] ON [dbo].[Notification] ([AudienceRoleId]);
-
-    ALTER TABLE [dbo].[Notification] WITH CHECK ADD CONSTRAINT [FK_Notification_User_UserId]
-        FOREIGN KEY([UserId]) REFERENCES [dbo].[User] ([Id]) ON DELETE CASCADE;
-END
-GO
+-- Fix: run this if notification-broadcast migration failed on NotificationReadReceipt table.
+-- SQL Server disallows CASCADE on both NotificationId and UserId (multiple cascade paths).
 
 IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = N'NotificationReadReceipt')
 BEGIN
