@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -7,7 +7,8 @@ import { Icon } from '@/components/ui/Icon';
 import { Input } from '@/components/ui/Input';
 import { Dialog } from '@/components/layout/Dialog';
 import { useDisclosure } from '@/hooks';
-import { getAllUsers, getApiErrorMessage, type UserDto } from '@/services/api';
+import { useToast } from '@/contexts/ToastContext';
+import { deleteUser, getAllUsers, getApiErrorMessage, type UserDto } from '@/services/api';
 import { formatDateTime, getUserDisplayName, getUserInitials } from '@/lib/userDisplay';
 import { UserListFiltersCard } from '@/features/users/UserListFiltersCard';
 import {
@@ -17,6 +18,7 @@ import {
 } from '@/features/users/userFilters';
 
 export default function UsersPage() {
+  const { toast } = useToast();
   const addUserDialog = useDisclosure();
   const deleteDialog = useDisclosure();
   const advancedFilters = useDisclosure();
@@ -26,7 +28,10 @@ export default function UsersPage() {
   const [filters, setFilters] = useState<UserListFilters>(EMPTY_USER_FILTERS);
   const [appliedFilters, setAppliedFilters] = useState<UserListFilters>(EMPTY_USER_FILTERS);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState('');
+  const [deleteError, setDeleteError] = useState('');
+  const [userToDelete, setUserToDelete] = useState<UserDto | null>(null);
   const pageSize = 10;
 
   useEffect(() => {
@@ -38,34 +43,56 @@ export default function UsersPage() {
     return () => window.clearTimeout(timer);
   }, [filters]);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadUsers() {
-      setIsLoading(true);
-      setError('');
-      try {
-        const result = await getAllUsers(buildGetAllUsersRequest(appliedFilters, pageNumber, pageSize));
-        if (!cancelled) {
-          setUsers(result.Items ?? []);
-          setTotalCount(result.TotalCount ?? result.Items?.length ?? 0);
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError(getApiErrorMessage(err));
-        }
-      } finally {
-        if (!cancelled) {
-          setIsLoading(false);
-        }
-      }
+  const loadUsers = useCallback(async () => {
+    setIsLoading(true);
+    setError('');
+    try {
+      const result = await getAllUsers(buildGetAllUsersRequest(appliedFilters, pageNumber, pageSize));
+      setUsers(result.Items ?? []);
+      setTotalCount(result.TotalCount ?? result.Items?.length ?? 0);
+    } catch (err) {
+      setError(getApiErrorMessage(err));
+    } finally {
+      setIsLoading(false);
     }
+  }, [appliedFilters, pageNumber, pageSize]);
 
+  useEffect(() => {
     void loadUsers();
-    return () => {
-      cancelled = true;
-    };
-  }, [pageNumber, appliedFilters]);
+  }, [loadUsers]);
+
+  function openDelete(user: UserDto) {
+    setDeleteError('');
+    setUserToDelete(user);
+    deleteDialog.open();
+  }
+
+  function closeDeleteDialog() {
+    if (isDeleting) return;
+    deleteDialog.close();
+    setUserToDelete(null);
+    setDeleteError('');
+  }
+
+  async function handleDelete() {
+    if (!userToDelete) return;
+
+    setIsDeleting(true);
+    setDeleteError('');
+    try {
+      await deleteUser(userToDelete.Id);
+      deleteDialog.close();
+      setUserToDelete(null);
+      toast.success('کاربر با موفقیت حذف شد');
+      await loadUsers();
+    } catch (err) {
+      const message = getApiErrorMessage(err);
+      setDeleteError(message);
+      toast.error(message);
+    } finally {
+      setIsDeleting(false);
+    }
+  }
 
   const activeCount = users.filter((u) => u.IsActive).length;
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
@@ -204,7 +231,7 @@ export default function UsersPage() {
                             variant="ghost"
                             size="icon-sm"
                             className="text-destructive hover:bg-destructive/10"
-                            onClick={deleteDialog.open}
+                            onClick={() => openDelete(user)}
                           >
                             <Icon name="material-symbols:delete" className="size-4" />
                           </Button>
@@ -282,22 +309,29 @@ export default function UsersPage() {
         </div>
       </Dialog>
 
-      <Dialog open={deleteDialog.isOpen} onClose={deleteDialog.close} className="max-w-md">
-        <button type="button" className="dialog-close" onClick={deleteDialog.close}>
+      <Dialog open={deleteDialog.isOpen} onClose={closeDeleteDialog} className="max-w-md">
+        <button type="button" className="dialog-close" onClick={closeDeleteDialog} disabled={isDeleting}>
           <Icon name="material-symbols:close" className="size-4" />
         </button>
         <div className="dialog-header">
           <div className="bg-destructive/10 mx-auto mb-4 flex size-12 items-center justify-center rounded-full sm:mx-0">
             <Icon name="material-symbols:warning" className="text-destructive size-6" />
           </div>
-          <h3 className="dialog-title">آیا مطمئن هستید؟</h3>
+          <h3 className="dialog-title">حذف کاربر</h3>
           <p className="dialog-description">
-            حذف کاربر از طریق API در مرحله بعدی پیاده‌سازی می‌شود.
+            {userToDelete
+              ? `کاربر «${getUserDisplayName(userToDelete)}» غیرفعال می‌شود. این عمل قابل بازگشت است.`
+              : 'آیا از حذف این کاربر مطمئن هستید؟'}
           </p>
+          {deleteError && (
+            <p className="text-destructive mt-3 text-sm">{deleteError}</p>
+          )}
         </div>
         <div className="dialog-footer">
-          <Button variant="outline" onClick={deleteDialog.close}>انصراف</Button>
-          <Button variant="destructive" onClick={deleteDialog.close}>بستن</Button>
+          <Button variant="outline" onClick={closeDeleteDialog} disabled={isDeleting}>انصراف</Button>
+          <Button variant="destructive" disabled={isDeleting} onClick={() => void handleDelete()}>
+            {isDeleting ? 'در حال حذف...' : 'تأیید حذف'}
+          </Button>
         </div>
       </Dialog>
     </div>
