@@ -108,7 +108,8 @@ public sealed class ContentPolicyResourceRequestResolver
             if (property.PropertyType != typeof(int))
                 continue;
 
-            if (property.Name is "Id" or "ResourceId" or $"{entityTypeName}Id")
+            if (property.Name is "Id" or "ResourceId"
+                || property.Name == $"{entityTypeName}Id")
                 continue;
 
             if (property.Name.EndsWith("Id", StringComparison.Ordinal))
