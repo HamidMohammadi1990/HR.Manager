@@ -164,40 +164,41 @@ export default function ProfilePage() {
           <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</div>
         )}
 
-        <section className="bg-card overflow-hidden rounded-2xl border">
-          <div className="relative">
+        <section className="bg-card rounded-2xl border">
+          <div className="relative overflow-hidden rounded-t-2xl">
             <div className="from-primary/15 via-background h-28 bg-linear-to-br to-emerald-500/15 sm:h-32" />
-            <div className="-mt-10 p-4 sm:-mt-12 sm:p-5">
-              <div className="flex flex-wrap items-end justify-between gap-4">
-                <div className="flex items-end gap-4">
-                  <div className="relative">
-                    <UserAvatar
-                      user={user}
-                      size="lg"
-                      className="bg-card ring-background rounded-2xl border shadow-xs ring-4"
+          </div>
+          <div className="-mt-10 p-4 sm:-mt-12 sm:p-5">
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div className="flex items-end gap-4">
+                <div className="relative shrink-0">
+                  <UserAvatar
+                    user={user}
+                    size="lg"
+                    className="bg-card ring-background rounded-2xl border shadow-xs ring-4"
+                  />
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    className="hidden"
+                    onChange={(event) => void handleAvatarChange(event)}
+                  />
+                  <Button
+                    type="button"
+                    size="icon-sm"
+                    variant="secondary"
+                    className="absolute bottom-1 left-1 z-10 rounded-full border shadow-sm"
+                    disabled={isUploadingAvatar}
+                    onClick={() => fileInputRef.current?.click()}
+                    title="تغییر تصویر پروفایل"
+                  >
+                    <Icon
+                      name={isUploadingAvatar ? 'material-symbols:progress-activity' : 'material-symbols:photo-camera'}
+                      className={isUploadingAvatar ? 'size-4 animate-spin' : 'size-4'}
                     />
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp,image/gif"
-                      className="hidden"
-                      onChange={(event) => void handleAvatarChange(event)}
-                    />
-                    <Button
-                      type="button"
-                      size="icon-sm"
-                      variant="secondary"
-                      className="absolute -bottom-1 -left-1 rounded-full shadow-sm"
-                      disabled={isUploadingAvatar}
-                      onClick={() => fileInputRef.current?.click()}
-                      title="تغییر تصویر پروفایل"
-                    >
-                      <Icon
-                        name={isUploadingAvatar ? 'material-symbols:progress-activity' : 'material-symbols:photo-camera'}
-                        className={isUploadingAvatar ? 'size-4 animate-spin' : 'size-4'}
-                      />
-                    </Button>
-                  </div>
+                  </Button>
+                </div>
                   <div className="pb-1">
                     <p className="text-xl font-bold">{displayName}</p>
                     <p className="text-muted-foreground text-sm">{user.Email || user.UserName}</p>
@@ -211,7 +212,6 @@ export default function ProfilePage() {
                 </div>
               </div>
             </div>
-          </div>
         </section>
 
         <section className="bg-card rounded-2xl border p-4 sm:p-5">
