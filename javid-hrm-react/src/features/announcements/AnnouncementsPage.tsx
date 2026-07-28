@@ -9,6 +9,7 @@ import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { Drawer } from '@/components/layout/Dialog';
 import { useDrawer } from '@/hooks';
+import { useToast } from '@/contexts/ToastContext';
 import {
   ANNOUNCEMENT_AUDIENCE_LABELS,
   ANNOUNCEMENT_CHANNEL_LABELS,
@@ -82,7 +83,12 @@ const emptyForm = (): FormState => ({
   scheduledTime: '09:00',
 });
 
+function canPublishAnnouncement(status: number) {
+  return status === AnnouncementStatus.Draft || status === AnnouncementStatus.Scheduled;
+}
+
 export default function AnnouncementsPage() {
+  const { toast } = useToast();
   const composeDrawer = useDrawer();
   const previewDrawer = useDrawer();
 
@@ -185,50 +191,64 @@ export default function AnnouncementsPage() {
     previewDrawer.open();
   }
 
-  async function handleSubmit(event: FormEvent) {
+  async function saveAnnouncement(publishAfterSave: boolean) {
+    if (!form.title.trim()) throw new Error('عنوان الزامی است');
+    if (!form.content.trim()) throw new Error('متن اطلاعیه الزامی است');
+    if (form.audience === AnnouncementAudience.Department && !form.departmentId) {
+      throw new Error('بخش را انتخاب کنید');
+    }
+    if (form.audience === AnnouncementAudience.Role && !form.roleId) {
+      throw new Error('نقش را انتخاب کنید');
+    }
+
+    const scheduledAtUtc =
+      !publishAfterSave && form.scheduledDate
+        ? combineGregorianDateAndTimeToIso(form.scheduledDate, form.scheduledTime)
+        : null;
+    const status = scheduledAtUtc ? AnnouncementStatus.Scheduled : AnnouncementStatus.Draft;
+
+    const payload = {
+      Title: form.title.trim(),
+      Content: form.content.trim(),
+      Status: status,
+      Audience: form.audience,
+      Channel: form.channel,
+      DepartmentId: form.audience === AnnouncementAudience.Department ? form.departmentId : null,
+      RoleId: form.audience === AnnouncementAudience.Role ? form.roleId : null,
+      ScheduledAtUtc: scheduledAtUtc,
+    };
+
+    let announcementId: string;
+    if (editMode && selected) {
+      await updateAnnouncement({ Id: selected.Id, ...payload });
+      announcementId = selected.Id;
+    } else {
+      const created = await createAnnouncement(payload);
+      announcementId = created.Id;
+    }
+
+    if (publishAfterSave) {
+      await publishAnnouncement(announcementId);
+      if (form.channel === AnnouncementChannel.InApp) {
+        toast.success('اطلاعیه منتشر شد و اعلان درون‌برنامه‌ای برای مخاطبان ارسال شد');
+      } else {
+        toast.success('اطلاعیه منتشر شد');
+      }
+    } else {
+      toast.success(
+        scheduledAtUtc
+          ? 'اطلاعیه زمان‌بندی شد. برای ارسال فوری، دکمه «انتشار» را بزنید'
+          : 'اطلاعیه به‌صورت پیش‌نویس ذخیره شد. برای نمایش به کاربران، «انتشار» را بزنید',
+      );
+    }
+  }
+
+  async function handleSubmit(event: FormEvent, publishAfterSave = false) {
     event.preventDefault();
     setFormError('');
     setIsSubmitting(true);
     try {
-      if (!form.title.trim()) throw new Error('عنوان الزامی است');
-      if (!form.content.trim()) throw new Error('متن اطلاعیه الزامی است');
-      if (form.audience === AnnouncementAudience.Department && !form.departmentId) {
-        throw new Error('بخش را انتخاب کنید');
-      }
-      if (form.audience === AnnouncementAudience.Role && !form.roleId) {
-        throw new Error('نقش را انتخاب کنید');
-      }
-
-      const scheduledAtUtc = form.scheduledDate
-        ? combineGregorianDateAndTimeToIso(form.scheduledDate, form.scheduledTime)
-        : null;
-      const status = scheduledAtUtc ? AnnouncementStatus.Scheduled : AnnouncementStatus.Draft;
-
-      if (editMode && selected) {
-        await updateAnnouncement({
-          Id: selected.Id,
-          Title: form.title.trim(),
-          Content: form.content.trim(),
-          Status: selected.Status,
-          Audience: form.audience,
-          Channel: form.channel,
-          DepartmentId: form.audience === AnnouncementAudience.Department ? form.departmentId : null,
-          RoleId: form.audience === AnnouncementAudience.Role ? form.roleId : null,
-          ScheduledAtUtc: scheduledAtUtc,
-        });
-      } else {
-        await createAnnouncement({
-          Title: form.title.trim(),
-          Content: form.content.trim(),
-          Status: status,
-          Audience: form.audience,
-          Channel: form.channel,
-          DepartmentId: form.audience === AnnouncementAudience.Department ? form.departmentId : null,
-          RoleId: form.audience === AnnouncementAudience.Role ? form.roleId : null,
-          ScheduledAtUtc: scheduledAtUtc,
-        });
-      }
-
+      await saveAnnouncement(publishAfterSave);
       composeDrawer.close();
       await loadData();
     } catch (err) {
@@ -244,8 +264,11 @@ export default function AnnouncementsPage() {
       await publishAnnouncement(id);
       previewDrawer.close();
       await loadData();
+      toast.success('اطلاعیه منتشر شد و برای مخاطبان ارسال شد');
     } catch (err) {
-      setError(getApiErrorMessage(err));
+      const message = getApiErrorMessage(err);
+      setError(message);
+      toast.error(message);
     } finally {
       setActionId(null);
     }
@@ -303,6 +326,22 @@ export default function AnnouncementsPage() {
           </div>
         </div>
 
+        {stats.draft > 0 && (
+          <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-900 dark:text-amber-100">
+            <div className="flex flex-wrap items-start gap-3">
+              <Icon name="material-symbols:info" className="mt-0.5 size-5 shrink-0" />
+              <div>
+                <p className="font-medium">
+                  {stats.draft.toLocaleString('fa-IR')} اطلاعیه پیش‌نویس دارید
+                </p>
+                <p className="mt-1 text-xs opacity-90">
+                  تا زمانی که «انتشار» نزنید، اطلاعیه برای کاربران نمایش داده نمی‌شود و اعلانی در زنگوله ارسال نمی‌شود.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {error && (
           <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
             {error}
@@ -351,7 +390,9 @@ export default function AnnouncementsPage() {
         <Card>
           <CardHeader>
             <CardTitle>لیست اطلاعیه‌ها</CardTitle>
-            <CardDescription>مدیریت و ویرایش اطلاعیه‌های ارسال شده و زمان‌بندی‌شده</CardDescription>
+            <CardDescription>
+              پس از ثبت، با دکمه «انتشار» اطلاعیه برای مخاطبان ارسال می‌شود
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="table-wrapper">
@@ -378,7 +419,7 @@ export default function AnnouncementsPage() {
                   ) : (
                     items.map((a) => {
                       const isBusy = actionId === a.Id;
-                      const canPublish = a.Status === AnnouncementStatus.Draft || a.Status === AnnouncementStatus.Scheduled;
+                      const canPublish = canPublishAnnouncement(a.Status);
                       const canArchive = a.Status === AnnouncementStatus.Sent;
                       return (
                         <tr key={a.Id} className="table-row">
@@ -400,8 +441,14 @@ export default function AnnouncementsPage() {
                                 <Icon name="material-symbols:edit" className="size-4" />
                               </Button>
                               {canPublish && (
-                                <Button variant="ghost" size="icon-sm" disabled={isBusy} onClick={() => void handlePublish(a.Id)} title="انتشار">
+                                <Button
+                                  variant="default"
+                                  size="sm"
+                                  disabled={isBusy}
+                                  onClick={() => void handlePublish(a.Id)}
+                                >
                                   <Icon name="material-symbols:send" className="size-4" />
+                                  انتشار
                                 </Button>
                               )}
                               {canArchive && (
@@ -444,7 +491,9 @@ export default function AnnouncementsPage() {
           <div className="drawer-header">
             <div>
               <p className="font-semibold">{editMode ? 'ویرایش اطلاعیه' : 'ساخت اطلاعیه'}</p>
-              <p className="text-muted-foreground text-xs">متن، مخاطب، زمان‌بندی</p>
+              <p className="text-muted-foreground text-xs">
+                {editMode ? 'ویرایش و انتشار' : 'ثبت پیش‌نویس یا انتشار فوری'}
+              </p>
             </div>
             <Button type="button" variant="ghost" size="icon-sm" onClick={composeDrawer.close}>
               <Icon name="material-symbols:close" className="size-5" />
@@ -494,7 +543,7 @@ export default function AnnouncementsPage() {
                 timeValue={form.scheduledTime}
                 onDateChange={(value) => setForm({ ...form, scheduledDate: value })}
                 onTimeChange={(value) => setForm({ ...form, scheduledTime: value })}
-                hint="در صورت خالی بودن، اطلاعیه به‌صورت پیش‌نویس ذخیره می‌شود"
+                hint="اختیاری — برای انتشار فوری، تاریخ را خالی بگذارید و «انتشار» را بزنید"
               />
               <div className="space-y-2">
                 <label className="label">کانال</label>
@@ -503,12 +552,34 @@ export default function AnnouncementsPage() {
                     <option key={value} value={value}>{label}</option>
                   ))}
                 </Select>
+                <p className="text-muted-foreground mt-2 text-xs">
+                  برای ارسال اعلان در زنگوله، کانال «درون‌برنامه» را انتخاب کنید.
+                </p>
               </div>
             </div>
+            <div className="rounded-xl border border-primary/20 bg-primary/5 px-3 py-2 text-xs leading-6">
+              «ذخیره پیش‌نویس» فقط در سیستم ذخیره می‌کند. «انتشار» اطلاعیه را برای مخاطبان ارسال می‌کند.
+            </div>
           </div>
-          <div className="drawer-footer">
+          <div className="drawer-footer flex-wrap gap-2">
             <Button type="button" variant="outline" className="flex-1" onClick={composeDrawer.close}>انصراف</Button>
-            <Button type="submit" className="flex-1" disabled={isSubmitting}>{isSubmitting ? 'در حال ذخیره...' : 'ثبت'}</Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1"
+              disabled={isSubmitting}
+              onClick={(e) => void handleSubmit(e, false)}
+            >
+              {isSubmitting ? 'در حال ذخیره...' : 'ذخیره پیش‌نویس'}
+            </Button>
+            <Button
+              type="button"
+              className="flex-1"
+              disabled={isSubmitting}
+              onClick={(e) => void handleSubmit(e, true)}
+            >
+              {isSubmitting ? 'در حال انتشار...' : 'انتشار'}
+            </Button>
           </div>
         </form>
       </Drawer>
@@ -533,22 +604,32 @@ export default function AnnouncementsPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="bg-card rounded-xl border p-3">
+                    <p className="text-muted-foreground text-xs">وضعیت</p>
+                    <p className="mt-1 font-semibold">{ANNOUNCEMENT_STATUS_LABELS[selected.Status]}</p>
+                  </div>
+                  <div className="bg-card rounded-xl border p-3">
                     <p className="text-muted-foreground text-xs">کانال</p>
                     <p className="mt-1 font-semibold">{ANNOUNCEMENT_CHANNEL_LABELS[selected.Channel]}</p>
                   </div>
-                  <div className="bg-card rounded-xl border p-3">
+                  <div className="bg-card rounded-xl border p-3 sm:col-span-2">
                     <p className="text-muted-foreground text-xs">مخاطب</p>
                     <p className="mt-1 font-semibold">{audienceLabel(selected)}</p>
                   </div>
                 </div>
+                {canPublishAnnouncement(selected.Status) && (
+                  <p className="text-muted-foreground text-sm">
+                    این اطلاعیه هنوز منتشر نشده است. با «انتشار الان» برای مخاطبان ارسال می‌شود.
+                  </p>
+                )}
               </>
             )}
           </div>
           <div className="drawer-footer">
             <Button variant="outline" className="flex-1" onClick={previewDrawer.close}>بستن</Button>
-            {selected && (selected.Status === AnnouncementStatus.Draft || selected.Status === AnnouncementStatus.Scheduled) && (
+            {selected && canPublishAnnouncement(selected.Status) && (
               <Button className="flex-1" disabled={actionId === selected.Id} onClick={() => void handlePublish(selected.Id)}>
-                ارسال
+                <Icon name="material-symbols:send" className="size-4" />
+                انتشار الان
               </Button>
             )}
           </div>
