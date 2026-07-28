@@ -46,3 +46,13 @@ export function formatDateTime(value?: string | null): string {
   if (Number.isNaN(date.getTime())) return '—';
   return date.toLocaleString('fa-IR');
 }
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '';
+
+export function resolveProfileImageUrl(url?: string | null): string | undefined {
+  if (!url) return undefined;
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('blob:')) {
+    return url;
+  }
+  return `${API_BASE}${url.startsWith('/') ? url : `/${url}`}`;
+}

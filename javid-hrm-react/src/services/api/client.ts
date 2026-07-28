@@ -116,6 +116,53 @@ export async function apiRequest<T>(
   return result;
 }
 
+export async function apiUploadForm<T>(
+  path: string,
+  formData: FormData,
+): Promise<ApiResult<T>> {
+  const requestHeaders = new Headers();
+  requestHeaders.set('Accept', 'application/json');
+  const token = getAccessToken();
+  if (token) requestHeaders.set('Authorization', `Bearer ${token}`);
+
+  const makeRequest = async (skipRefresh = false) =>
+    fetch(`${API_BASE}${path}`, {
+      method: 'POST',
+      headers: requestHeaders,
+      body: formData,
+    });
+
+  let response = await makeRequest();
+
+  if (response.status === 401) {
+    if (!skipRefresh) {
+      const refreshed = await ensureRefreshed();
+      if (refreshed) {
+        response = await makeRequest(true);
+      } else {
+        handleUnauthorized();
+        throw new ApiError('نشست شما منقضی شده است. لطفاً دوباره وارد شوید.', 401);
+      }
+    } else {
+      handleUnauthorized();
+      throw new ApiError('نشست شما منقضی شده است. لطفاً دوباره وارد شوید.', 401);
+    }
+  }
+
+  if (response.status === 403) {
+    throw new ApiError('دسترسی مجاز نیست', 403);
+  }
+
+  const result = await parseApiResult<T>(response);
+
+  if (!result.IsSuccess) {
+    const message = result.Messages?.[0]?.Message ?? 'درخواست با خطا مواجه شد';
+    throw new ApiError(message, result.StatusCode, result.Messages ?? []);
+  }
+
+  return result;
+}
+
 export function getApiErrorMessage(error: unknown): string {
   if (error instanceof ApiError) return error.message;
   if (error instanceof Error) return error.message;

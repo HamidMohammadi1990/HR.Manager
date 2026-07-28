@@ -1,4 +1,4 @@
-import { apiRequest } from './client';
+import { apiRequest, apiUploadForm } from './client';
 import type {
   ChangePasswordRequest,
   SignInRequest,
@@ -19,6 +19,22 @@ export async function getCurrentUser(): Promise<UserDto> {
   }
 
   return result.Data;
+}
+
+export async function uploadProfileImage(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const result = await apiUploadForm<{ ProfileImageUrl: string }>(
+    '/api/v1/account/upload-profile-image',
+    formData,
+  );
+
+  if (!result.Data?.ProfileImageUrl) {
+    throw new Error('آپلود تصویر ناموفق بود');
+  }
+
+  return result.Data.ProfileImageUrl;
 }
 
 export async function updateCurrentUserProfile(

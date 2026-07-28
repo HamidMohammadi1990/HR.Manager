@@ -5,6 +5,7 @@ using JavidHrm.Api.Extensions;
 using JavidHrm.WebFramework.Api;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using JavidHrm.Application.Features.Users.Queries;
 using JavidHrm.Application.Features.Users.Commands;
 using JavidHrm.Application.Features.RefreshTokens.Commands;
@@ -98,6 +99,12 @@ public class AccountController
     [HttpPut("update-profile")]
     public async Task<ApiResult<OperationResult>> UpdateProfile(UpdateCurrentUserProfileRequest request)
         => await mediator.Send(request);
+
+    [Authorize]
+    [HttpPost("upload-profile-image")]
+    [Consumes("multipart/form-data")]
+    public async Task<ApiResult<UploadProfileImageResponse>> UploadProfileImage(IFormFile file)
+        => await mediator.Send(new UploadCurrentUserProfileImageRequest(file));
 
     [HttpPost("forget-password-options")]
     public async Task<ApiResult<GetForgetPasswordOptionResponse>> GetForgetPasswordOptions(GetForgetPasswordOptionRequest request)

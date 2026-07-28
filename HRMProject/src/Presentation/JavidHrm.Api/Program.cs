@@ -65,6 +65,7 @@ app.UserCustomeForwardedHeaders();
 app.UseCustomExceptionHandler();
 app.UseCors("CustomCors");
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseSwaggerAndUI();
 app.UseRouting();
 app.UseAuthentication();

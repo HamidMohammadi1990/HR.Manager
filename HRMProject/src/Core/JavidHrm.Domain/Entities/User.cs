@@ -18,6 +18,7 @@ public class User : BaseEntity
     public DateTime? LastLoginDateOnUtc { get; private set; }
     public int AccessFailedCount { get; private set; }
     public string SecurityStamp { get; private set; } = null!;
+    public string? ProfileImageUrl { get; private set; }
 
     public ICollection<Department> Departments { get; private set; } = default!;
     public ICollection<UserRole> UserRoles { get; private set; } = default!;
@@ -98,4 +99,10 @@ public class User : BaseEntity
     public void GrantLoginPermission() => LoginPermission = true;
 
     public void Deactivate() => IsActive = false;
+
+    public void SetProfileImageUrl(string profileImageUrl)
+        => ProfileImageUrl = profileImageUrl;
+
+    public void ClearProfileImageUrl()
+        => ProfileImageUrl = null;
 }

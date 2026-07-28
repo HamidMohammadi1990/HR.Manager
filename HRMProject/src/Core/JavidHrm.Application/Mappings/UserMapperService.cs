@@ -44,6 +44,7 @@ public class UserMapperService : IUserMapperService
             LastLoginDateOnUtc = model.LastLoginDateOnUtc,
             EmailConfirmed = model.EmailConfirmed,
             PhoneNumberConfirmed = model.PhoneNumberConfirmed,
+            ProfileImageUrl = model.ProfileImageUrl,
         };
     }
 

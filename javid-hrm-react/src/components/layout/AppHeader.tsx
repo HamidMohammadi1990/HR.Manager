@@ -5,7 +5,8 @@ import { Dropdown } from '@/components/ui/Dropdown';
 import { Icon } from '@/components/ui/Icon';
 import { useTheme } from '@/hooks';
 import { useAuth } from '@/contexts/AuthContext';
-import { getUserDisplayName, getUserInitials } from '@/lib/userDisplay';
+import { UserAvatar } from '@/components/ui/UserAvatar';
+import { getUserDisplayName } from '@/lib/userDisplay';
 import {
   getAllNotifications,
   getUnreadNotificationCount,
@@ -65,7 +66,6 @@ export function AppHeader({
     navigate('/login', { replace: true });
   };
 
-  const displayInitials = currentUser ? getUserInitials(currentUser) : displayName.slice(0, 2);
   const profileSubtitle = currentUser?.Email || currentUser?.UserName || (isUserLoading ? 'در حال بارگذاری...' : '');
 
   const handleMenuChange = (menu: 'user' | 'notifications') => (open: boolean) => {
@@ -115,11 +115,15 @@ export function AppHeader({
                 type="button"
                 className="hover:bg-accent flex w-full items-center gap-2 rounded-lg p-1.5 transition-colors"
               >
-                <div className="avatar ring-primary/20 size-8 ring-2">
-                  <div className="avatar-fallback from-primary to-primary/70 text-primary-foreground bg-linear-to-br text-sm font-semibold">
-                    {displayInitials}
+                {currentUser ? (
+                  <UserAvatar user={currentUser} size="sm" className="ring-primary/20 ring-2" />
+                ) : (
+                  <div className="avatar ring-primary/20 size-8 ring-2">
+                    <div className="avatar-fallback from-primary to-primary/70 text-primary-foreground bg-linear-to-br text-sm font-semibold">
+                      {displayName.slice(0, 2)}
+                    </div>
                   </div>
-                </div>
+                )}
                 <div className="hidden text-start sm:block">
                   <p className="text-sm leading-none font-medium">{displayName}</p>
                   <p className="text-muted-foreground text-xs">{profileSubtitle}</p>

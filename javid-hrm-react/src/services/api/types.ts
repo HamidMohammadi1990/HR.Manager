@@ -55,6 +55,7 @@ export interface UserDto {
   IsActive: boolean;
   LastLoginDateOnUtc?: string | null;
   AccessFailedCount: number;
+  ProfileImageUrl?: string | null;
 }
 
 export interface GetAllUsersRequest {

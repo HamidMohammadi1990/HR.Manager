@@ -1121,6 +1121,9 @@ namespace JavidHrm.Infrastructure.Persistence.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<string>("ProfileImageUrl")
+                        .HasColumnType("NVARCHAR(500)");
+
                     b.Property<string>("SecurityStamp")
                         .IsRequired()
                         .HasColumnType("VARCHAR(40)");

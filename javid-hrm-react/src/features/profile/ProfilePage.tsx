@@ -1,5 +1,6 @@
-import { FormEvent, useCallback, useEffect, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { Link } from 'react-router-dom';
+import { UserAvatar } from '@/components/ui/UserAvatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
@@ -14,7 +15,6 @@ import {
   GENDER_MALE,
   genderSelectValue,
   getUserDisplayName,
-  getUserInitials,
   normalizeGender,
 } from '@/lib/userDisplay';
 import { useAuth } from '@/contexts/AuthContext';
@@ -22,6 +22,7 @@ import {
   getApiErrorMessage,
   getCurrentUser,
   updateUser,
+  uploadProfileImage,
   type UserDto,
 } from '@/services/api';
 
@@ -34,6 +35,8 @@ export default function ProfilePage() {
   const [error, setError] = useState('');
   const [formError, setFormError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -64,6 +67,30 @@ export default function ProfilePage() {
   useEffect(() => {
     void loadUser();
   }, [loadUser]);
+
+  async function handleAvatarChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('حجم تصویر نباید بیشتر از ۲ مگابایت باشد');
+      event.target.value = '';
+      return;
+    }
+
+    setIsUploadingAvatar(true);
+    try {
+      const profileImageUrl = await uploadProfileImage(file);
+      setUser((current) => (current ? { ...current, ProfileImageUrl: profileImageUrl } : current));
+      await refreshCurrentUser();
+      toast.success('تصویر پروفایل به‌روزرسانی شد');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err));
+    } finally {
+      setIsUploadingAvatar(false);
+      event.target.value = '';
+    }
+  }
 
   async function handleSave(event: FormEvent) {
     event.preventDefault();
@@ -112,7 +139,6 @@ export default function ProfilePage() {
   }
 
   const displayName = getUserDisplayName(user);
-  const initials = getUserInitials(user);
 
   return (
     <div className="flex-1 p-4 lg:p-6" dir="rtl">
@@ -144,8 +170,33 @@ export default function ProfilePage() {
             <div className="-mt-10 p-4 sm:-mt-12 sm:p-5">
               <div className="flex flex-wrap items-end justify-between gap-4">
                 <div className="flex items-end gap-4">
-                  <div className="bg-card ring-background flex size-20 items-center justify-center rounded-2xl border shadow-xs ring-4 sm:size-24">
-                    <span className="text-primary text-2xl font-bold">{initials}</span>
+                  <div className="relative">
+                    <UserAvatar
+                      user={user}
+                      size="lg"
+                      className="bg-card ring-background rounded-2xl border shadow-xs ring-4"
+                    />
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      className="hidden"
+                      onChange={(event) => void handleAvatarChange(event)}
+                    />
+                    <Button
+                      type="button"
+                      size="icon-sm"
+                      variant="secondary"
+                      className="absolute -bottom-1 -left-1 rounded-full shadow-sm"
+                      disabled={isUploadingAvatar}
+                      onClick={() => fileInputRef.current?.click()}
+                      title="تغییر تصویر پروفایل"
+                    >
+                      <Icon
+                        name={isUploadingAvatar ? 'material-symbols:progress-activity' : 'material-symbols:photo-camera'}
+                        className={isUploadingAvatar ? 'size-4 animate-spin' : 'size-4'}
+                      />
+                    </Button>
                   </div>
                   <div className="pb-1">
                     <p className="text-xl font-bold">{displayName}</p>

@@ -40,6 +40,10 @@ internal class UserConfig : IEntityTypeConfiguration<User>
             .HasVarcharMaxLength(40);
 
         builder
+            .Property(x => x.ProfileImageUrl)
+            .HasNVarcharMaxLength(500);
+
+        builder
             .HasMany(x => x.UserRoles)
             .WithOne(x => x.User)
             .HasForeignKey(x => x.UserId)

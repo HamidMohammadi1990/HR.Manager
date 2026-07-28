@@ -19,4 +19,5 @@ public record GetUserResponse
     public DateTime? LastLoginDateOnUtc { get; init; }
     public bool EmailConfirmed { get; init; }
     public bool PhoneNumberConfirmed { get; init; }
+    public string? ProfileImageUrl { get; init; }
 }
