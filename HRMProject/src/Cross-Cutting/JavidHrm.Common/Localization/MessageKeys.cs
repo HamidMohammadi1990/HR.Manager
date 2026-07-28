@@ -49,6 +49,7 @@ public static class MessageKeys
     public const string OverlappingLeavePeriod = nameof(OverlappingLeavePeriod);
     public const string LeaveRequestNotPending = nameof(LeaveRequestNotPending);
     public const string LeaveRequestCannotBeModified = nameof(LeaveRequestCannotBeModified);
+    public const string AnnouncementAlreadyPublished = nameof(AnnouncementAlreadyPublished);
     public const string LeaveApprovalUnauthorized = nameof(LeaveApprovalUnauthorized);
     public const string LeaveApprovalStepNotFound = nameof(LeaveApprovalStepNotFound);
     public const string InsufficientLeaveBalance = nameof(InsufficientLeaveBalance);

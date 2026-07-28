@@ -289,7 +289,7 @@ export default function AnnouncementsPage() {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold">اطلاعیه‌ها</h1>
-            <p className="text-muted-foreground">مدیریت اطلاعیه‌ها و پیام‌های عمومی</p>
+            <p className="text-muted-foreground">مدیریت اطلاعیه‌های عمومی؛ پس از انتشار، اعلان درون‌برنامه‌ای برای مخاطبان ارسال می‌شود</p>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={() => { setStatusFilter(String(AnnouncementStatus.Archived)); setPage(1); }}>

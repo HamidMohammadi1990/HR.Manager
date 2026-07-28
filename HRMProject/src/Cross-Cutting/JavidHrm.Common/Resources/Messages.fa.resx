@@ -165,6 +165,7 @@
   <data name="OverlappingShiftSchedule" xml:space="preserve"><value>برنامه شیفت با بازه دیگری برای این کارمند تداخل دارد</value></data>
   <data name="LeaveRequestNotPending" xml:space="preserve"><value>فقط درخواست‌های در انتظار قابل تأیید یا رد هستند</value></data>
   <data name="LeaveRequestCannotBeModified" xml:space="preserve"><value>پس از شروع فرآیند تأیید، امکان ویرایش یا حذف این درخواست وجود ندارد</value></data>
+  <data name="AnnouncementAlreadyPublished" xml:space="preserve"><value>این اطلاعیه قبلاً منتشر شده است</value></data>
   <data name="LeaveApprovalUnauthorized" xml:space="preserve"><value>شما مجاز به اقدام در این مرحله تأیید نیستید</value></data>
   <data name="LeaveApprovalStepNotFound" xml:space="preserve"><value>مرحله تأیید فعالی برای این درخواست یافت نشد</value></data>
   <data name="CheckOutMustBeAfterCheckIn" xml:space="preserve"><value>زمان خروج باید بعد از زمان ورود باشد</value></data>

@@ -8,6 +8,7 @@ namespace JavidHrm.Domain.Repositories;
 public interface INotificationRepository
 {
     void Add(Notification notification);
+    void AddRange(IEnumerable<Notification> notifications);
     void Remove(Notification notification);
     void RemoveRange(IEnumerable<Notification> notifications);
     ValueTask<Notification?> FindAsync(int id, CancellationToken cancellationToken = default);

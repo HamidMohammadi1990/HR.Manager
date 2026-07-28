@@ -31,6 +31,7 @@ public static class ConfigureServices
         services.AddScoped<ILocalFileService, LocalFileService>();
         services.AddScoped<ILeaveBalanceService, LeaveBalanceService>();
         services.AddScoped<ILeaveApprovalWorkflowService, LeaveApprovalWorkflowService>();
+        services.AddScoped<IAnnouncementDispatchService, AnnouncementDispatchService>();
         services.AddScoped<IWorkShiftResolutionService, WorkShiftResolutionService>();
         services.AddScoped<IAttendanceMetricsService, AttendanceMetricsService>();
 

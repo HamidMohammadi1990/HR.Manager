@@ -2,6 +2,7 @@ using System.Linq.Expressions;
 using JavidHrm.Domain.Dtos.Announcements;
 using JavidHrm.Domain.Dtos.Pagination;
 using JavidHrm.Domain.Entities;
+using JavidHrm.Domain.Enums;
 using JavidHrm.Domain.Repositories;
 using JavidHrm.Infrastructure.Persistence.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,38 @@ namespace JavidHrm.Infrastructure.Persistence.Repositories;
 public class AnnouncementRepository(JavidHrmDbContext context)
     : Repository<Announcement>(context), IAnnouncementRepository
 {
+    public async Task<IReadOnlyList<int>> GetAudienceUserIdsAsync(
+        AnnouncementAudience audience,
+        int? departmentId,
+        int? roleId,
+        CancellationToken cancellationToken = default)
+    {
+        IQueryable<int> userIdsQuery = audience switch
+        {
+            AnnouncementAudience.Department when departmentId.HasValue =>
+                Context.Employee
+                    .Where(employee => employee.IsActive && employee.DepartmentId == departmentId.Value)
+                    .Select(employee => employee.UserId),
+            AnnouncementAudience.Role when roleId.HasValue =>
+                Context.UserRole
+                    .Where(userRole => userRole.RoleId == roleId.Value)
+                    .Select(userRole => userRole.UserId),
+            _ =>
+                Context.User.Select(user => user.Id)
+        };
+
+        return await userIdsQuery
+            .Join(
+                Context.User,
+                userId => userId,
+                user => user.Id,
+                (_, user) => user)
+            .Where(user => user.IsActive && user.LoginPermission)
+            .Select(user => user.Id)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<PagedResult<GetAllAnnouncementResponseDto>> GetAllAsync(
         GetAllAnnouncementRequestDto request,
         Expression<Func<Announcement, bool>>? contentFilter = null)
