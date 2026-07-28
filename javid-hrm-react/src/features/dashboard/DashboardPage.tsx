@@ -59,6 +59,8 @@ import {
   type SectionState,
 } from '@/lib/sectionState';
 import { useAuth } from '@/contexts/AuthContext';
+import { usePermissions } from '@/contexts/PermissionContext';
+import { PermissionType } from '@/lib/permissionTypes';
 import { DashboardNoAccessState } from './DashboardNoAccessState';
 
 ChartJS.register(
@@ -237,6 +239,7 @@ function buildDepartmentChart(
 
 export default function DashboardPage() {
   const { displayName } = useAuth();
+  const { hasPermission } = usePermissions();
   const [employeesState, setEmployeesState] = useState<SectionState<EmployeesData>>(loadingSection);
   const [departmentsState, setDepartmentsState] = useState<SectionState<DepartmentsData>>(loadingSection);
   const [attendanceState, setAttendanceState] = useState<SectionState<AttendanceData>>(loadingSection);
@@ -574,13 +577,19 @@ export default function DashboardPage() {
     payroll: payrollState,
   };
 
-  const visibleQuickActions = quickActions.filter((action) =>
-    hasSectionAccess(accessStateByKey[action.accessKey]),
-  );
+  const visibleQuickActions = quickActions.filter((action) => {
+    if (action.accessKey === 'attendance') {
+      return hasPermission(PermissionType.ManageAttendance);
+    }
+    return hasSectionAccess(accessStateByKey[action.accessKey]);
+  });
 
-  const quickActionsLoading = quickActions.some((action) =>
-    isSectionLoading(accessStateByKey[action.accessKey]),
-  );
+  const quickActionsLoading = quickActions.some((action) => {
+    if (action.accessKey === 'attendance') {
+      return false;
+    }
+    return isSectionLoading(accessStateByKey[action.accessKey]);
+  });
 
   const chartColumns = [
     showAttendanceChart || isSectionLoading(attendanceState),

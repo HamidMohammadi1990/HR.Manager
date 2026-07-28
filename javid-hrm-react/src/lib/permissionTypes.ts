@@ -14,6 +14,7 @@ export const PermissionType = {
   ListEmployee: 702,
   GetEmployeeById: 703,
   CreateEmployee: 704,
+  ManageAttendance: 801,
   ListAttendance: 802,
   ListLeave: 902,
   GetLeaveApprovalInbox: 909,

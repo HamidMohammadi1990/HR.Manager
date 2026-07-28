@@ -69,7 +69,7 @@ export const hrNavItems: NavItem[] = [
     label: 'حضور و غیاب',
     path: '/attendance',
     icon: 'material-symbols:fingerprint',
-    permissions: [PermissionType.ListAttendance],
+    permissions: [PermissionType.ManageAttendance],
   },
   {
     label: 'مرخصی و ماموریت',
@@ -181,7 +181,7 @@ export const quickAccessActions = [
     color: 'text-violet-500',
     bg: 'bg-violet-500/10',
     shortcut: ['Alt', 'A'],
-    permissions: [PermissionType.ListAttendance],
+    permissions: [PermissionType.ManageAttendance],
   },
 ];
 
@@ -197,7 +197,7 @@ export const quickAccessPages = [
     label: 'حضور و غیاب',
     path: '/attendance',
     icon: 'material-symbols:fingerprint',
-    permissions: [PermissionType.ListAttendance],
+    permissions: [PermissionType.ManageAttendance],
   },
   {
     label: 'مرخصی و ماموریت',

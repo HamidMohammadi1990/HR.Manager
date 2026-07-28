@@ -23,7 +23,7 @@ export const routePermissionRules: RoutePermissionRule[] = [
   { path: '/departments/new', permissions: [PermissionType.CreateDepartment] },
   { path: '/departments/:id', permissions: [PermissionType.GetDepartmentById, PermissionType.ListDepartment] },
   { path: '/departments', permissions: [PermissionType.ListDepartment] },
-  { path: '/attendance', permissions: [PermissionType.ListAttendance] },
+  { path: '/attendance', permissions: [PermissionType.ManageAttendance] },
   { path: '/leaves/inbox', permissions: [PermissionType.GetLeaveApprovalInbox] },
   { path: '/leaves', permissions: [PermissionType.ListLeave] },
   { path: '/leave-types', permissions: [PermissionType.ManageLeaveTypeDefinition] },

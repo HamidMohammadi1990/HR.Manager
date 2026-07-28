@@ -75,11 +75,7 @@ internal static class HrRolePermissionDefinitions
         PermissionType.UpdateLeave,
         PermissionType.DeleteLeave,
         PermissionType.GetEmployeeLeaveBalance,
-        // Attendance self-service
-        PermissionType.ListAttendance,
-        PermissionType.GetAttendanceById,
-        PermissionType.CreateAttendance,
-        PermissionType.UpdateAttendance,
+        // Attendance self-service (check-in/out only; HR management page uses ManageAttendance)
         PermissionType.CheckInAttendance,
         PermissionType.CheckOutAttendance,
         // Payroll read-only
