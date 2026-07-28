@@ -7,68 +7,54 @@ namespace JavidHrm.Infrastructure.Persistence.ContentPolicies;
 
 internal static class ContentPolicyQueryableReflection
 {
-    private static readonly MethodInfo WhereMethodDefinition = typeof(Queryable)
-        .GetMethods()
-        .Single(method =>
-            method.Name == nameof(Queryable.Where)
-            && method.IsGenericMethodDefinition
-            && method.GetParameters().Length == 2);
+    private static readonly MethodInfo WhereMethodDefinition = GetQueryableMethod(
+        nameof(Queryable.Where),
+        parameters =>
+            IsQueryableParameter(parameters[0])
+            && IsExpressionParameter(parameters[1]));
 
-    private static readonly MethodInfo AnyAsyncMethodDefinition = typeof(EntityFrameworkQueryableExtensions)
-        .GetMethods()
-        .Single(method =>
-            method.Name == nameof(EntityFrameworkQueryableExtensions.AnyAsync)
-            && method.IsGenericMethodDefinition
-            && method.GetParameters().Length == 2
-            && method.GetParameters()[1].ParameterType == typeof(CancellationToken));
+    private static readonly MethodInfo AnyAsyncMethodDefinition = GetQueryableAsyncMethod(
+        nameof(EntityFrameworkQueryableExtensions.AnyAsync),
+        parameters =>
+            IsQueryableParameter(parameters[0])
+            && parameters[1].ParameterType == typeof(CancellationToken));
 
     private static readonly MethodInfo SetMethodDefinition = typeof(DbContext)
-        .GetMethods()
+        .GetMethods(BindingFlags.Public | BindingFlags.Instance)
         .Single(method =>
             method.Name == nameof(DbContext.Set)
             && method.IsGenericMethodDefinition
             && method.GetParameters().Length == 0);
 
-    private static readonly MethodInfo CountAsyncMethodDefinition = typeof(EntityFrameworkQueryableExtensions)
-        .GetMethods()
-        .Single(method =>
-            method.Name == nameof(EntityFrameworkQueryableExtensions.CountAsync)
-            && method.IsGenericMethodDefinition
-            && method.GetParameters().Length == 2
-            && method.GetParameters()[1].ParameterType == typeof(CancellationToken));
+    private static readonly MethodInfo CountAsyncMethodDefinition = GetQueryableAsyncMethod(
+        nameof(EntityFrameworkQueryableExtensions.CountAsync),
+        parameters =>
+            IsQueryableParameter(parameters[0])
+            && parameters[1].ParameterType == typeof(CancellationToken));
 
-    private static readonly MethodInfo ToListAsyncMethodDefinition = typeof(EntityFrameworkQueryableExtensions)
-        .GetMethods()
-        .Single(method =>
-            method.Name == nameof(EntityFrameworkQueryableExtensions.ToListAsync)
-            && method.IsGenericMethodDefinition
-            && method.GetParameters().Length == 2
-            && method.GetParameters()[1].ParameterType == typeof(CancellationToken));
+    private static readonly MethodInfo ToListAsyncMethodDefinition = GetQueryableAsyncMethod(
+        nameof(EntityFrameworkQueryableExtensions.ToListAsync),
+        parameters =>
+            IsQueryableParameter(parameters[0])
+            && parameters[1].ParameterType == typeof(CancellationToken));
 
-    private static readonly MethodInfo OrderByMethodDefinition = typeof(Queryable)
-        .GetMethods()
-        .Single(method =>
-            method.Name == nameof(Queryable.OrderBy)
-            && method.IsGenericMethodDefinition
-            && method.GetParameters().Length == 2
-            && method.GetParameters()[1].ParameterType.IsGenericType
-            && method.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Expression<>));
+    private static readonly MethodInfo OrderByMethodDefinition = GetQueryableMethod(
+        nameof(Queryable.OrderBy),
+        parameters =>
+            IsQueryableParameter(parameters[0])
+            && IsExpressionParameter(parameters[1]));
 
-    private static readonly MethodInfo TakeMethodDefinition = typeof(Queryable)
-        .GetMethods()
-        .Single(method =>
-            method.Name == nameof(Queryable.Take)
-            && method.IsGenericMethodDefinition
-            && method.GetParameters().Length == 2);
+    private static readonly MethodInfo TakeMethodDefinition = GetQueryableMethod(
+        nameof(Queryable.Take),
+        parameters =>
+            IsQueryableParameter(parameters[0])
+            && parameters[1].ParameterType == typeof(int));
 
-    private static readonly MethodInfo SelectMethodDefinition = typeof(Queryable)
-        .GetMethods()
-        .Single(method =>
-            method.Name == nameof(Queryable.Select)
-            && method.IsGenericMethodDefinition
-            && method.GetParameters().Length == 2
-            && method.GetParameters()[1].ParameterType.IsGenericType
-            && method.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Expression<>));
+    private static readonly MethodInfo SelectMethodDefinition = GetQueryableMethod(
+        nameof(Queryable.Select),
+        parameters =>
+            IsQueryableParameter(parameters[0])
+            && IsExpressionParameter(parameters[1]));
 
     private static readonly ConcurrentDictionary<Type, Func<DbContext, IQueryable>> QueryableFactories = new();
     private static readonly ConcurrentDictionary<Type, Func<IQueryable, LambdaExpression, IQueryable>> WhereDelegates = new();
@@ -94,6 +80,47 @@ internal static class ContentPolicyQueryableReflection
         int sampleSize,
         CancellationToken cancellationToken)
         => TakeIdsAsyncDelegates.GetOrAdd((entityType, sampleSize), CreateTakeIdsAsyncDelegate)(query, cancellationToken);
+
+    private static MethodInfo GetQueryableMethod(string name, Func<ParameterInfo[], bool> parameterValidator)
+        => GetSingleGenericMethod(typeof(Queryable), name, parameterValidator, BindingFlags.Public | BindingFlags.Static);
+
+    private static MethodInfo GetQueryableAsyncMethod(string name, Func<ParameterInfo[], bool> parameterValidator)
+        => GetSingleGenericMethod(
+            typeof(EntityFrameworkQueryableExtensions),
+            name,
+            parameterValidator,
+            BindingFlags.Public | BindingFlags.Static);
+
+    private static MethodInfo GetSingleGenericMethod(
+        Type type,
+        string name,
+        Func<ParameterInfo[], bool> parameterValidator,
+        BindingFlags bindingFlags)
+    {
+        var matches = type
+            .GetMethods(bindingFlags)
+            .Where(method =>
+                method.Name == name
+                && method.IsGenericMethodDefinition
+                && parameterValidator(method.GetParameters()))
+            .ToArray();
+
+        if (matches.Length != 1)
+        {
+            throw new InvalidOperationException(
+                $"Expected exactly one generic method '{name}' on '{type.FullName}', found {matches.Length}.");
+        }
+
+        return matches[0];
+    }
+
+    private static bool IsQueryableParameter(ParameterInfo parameter)
+        => parameter.ParameterType.IsGenericType
+           && parameter.ParameterType.GetGenericTypeDefinition() == typeof(IQueryable<>);
+
+    private static bool IsExpressionParameter(ParameterInfo parameter)
+        => parameter.ParameterType.IsGenericType
+           && parameter.ParameterType.GetGenericTypeDefinition() == typeof(Expression<>);
 
     private static Func<DbContext, IQueryable> CreateQueryableFactory(Type entityType)
     {

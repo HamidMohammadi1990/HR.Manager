@@ -39,7 +39,7 @@ public sealed class ContentPolicyResourceRequestResolver
         if (!TryResolveEntityTypeFromName(requestType.Name, out entityTypeName))
             return false;
 
-        return TryResolveResourceId(requestType, request, out resourceId);
+        return TryResolveResourceId(entityTypeName, requestType, request, out resourceId);
     }
 
     private bool TryResolveEntityTypeFromName(string typeName, out string entityTypeName)
@@ -50,6 +50,9 @@ public sealed class ContentPolicyResourceRequestResolver
             return false;
 
         var stem = typeName[..^"Request".Length];
+        if (IsCreateCommandStem(stem))
+            return false;
+
         foreach (var candidate in entityTypeRegistry.GetRegisteredNamesOrderedByLengthDesc())
         {
             if (!stem.Contains(candidate, StringComparison.Ordinal))
@@ -65,24 +68,52 @@ public sealed class ContentPolicyResourceRequestResolver
         return false;
     }
 
-    private static bool TryResolveResourceId(Type requestType, object request, out int resourceId)
+    private static bool IsCreateCommandStem(string stem)
+        => stem.StartsWith("Create", StringComparison.Ordinal)
+           || stem.StartsWith("Add", StringComparison.Ordinal);
+
+    private static bool TryResolveResourceId(
+        string entityTypeName,
+        Type requestType,
+        object request,
+        out int resourceId)
     {
+        resourceId = 0;
+
+        foreach (var propertyName in GetResourceIdPropertyCandidates(entityTypeName, requestType))
+        {
+            var property = requestType.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance);
+            if (property?.PropertyType != typeof(int))
+                continue;
+
+            var value = (int)property.GetValue(request)!;
+            if (value > 0)
+            {
+                resourceId = value;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static IEnumerable<string> GetResourceIdPropertyCandidates(string entityTypeName, Type requestType)
+    {
+        yield return "Id";
+        yield return "ResourceId";
+        yield return $"{entityTypeName}Id";
+
         foreach (var property in requestType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
         {
             if (property.PropertyType != typeof(int))
                 continue;
 
-            var name = property.Name;
-            if (name is not ("Id" or "ResourceId") && !name.EndsWith("Id", StringComparison.Ordinal))
+            if (property.Name is "Id" or "ResourceId" or $"{entityTypeName}Id")
                 continue;
 
-            resourceId = (int)property.GetValue(request)!;
-            if (resourceId > 0)
-                return true;
+            if (property.Name.EndsWith("Id", StringComparison.Ordinal))
+                yield return property.Name;
         }
-
-        resourceId = 0;
-        return false;
     }
 
     private static bool ReturnsCollectionResponse(Type requestType)
