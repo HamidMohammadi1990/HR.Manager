@@ -13,17 +13,17 @@ import { CALENDAR_EVENT_TYPE_LABELS } from '@/lib/hrLabels';
 import {
   addPersianMonths,
   buildPersianMonthGrid,
-  endOfPersianMonth,
   formatPersianMonthLabel,
-  getPersianParts,
-  persianToDate,
-  startOfPersianMonth,
   todayPersian,
 } from '@/lib/persianCalendar';
 import {
   combineGregorianDateAndTimeToIso,
+  getPersianPartsFromUtcIso,
   isoToGregorianDateString,
   isoToTimeString,
+  parseApiUtcDate,
+  persianMonthEndUtcIso,
+  persianMonthStartUtcIso,
   persianToGregorianDateString,
 } from '@/lib/persianDateTime';
 import {
@@ -39,7 +39,7 @@ import {
 const weekDays = ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج'];
 
 function formatTime(iso: string) {
-  return new Date(iso).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
+  return isoToTimeString(iso);
 }
 
 interface FormState {
@@ -108,8 +108,8 @@ export default function CalendarPage() {
     setError('');
     try {
       const result = await getAllCalendarEvents({
-        StartFromUtc: startOfPersianMonth(viewYear, viewMonth).toISOString(),
-        EndToUtc: endOfPersianMonth(viewYear, viewMonth).toISOString(),
+        StartFromUtc: persianMonthStartUtcIso(viewYear, viewMonth),
+        EndToUtc: persianMonthEndUtcIso(viewYear, viewMonth),
         Pagination: { PageNumber: 1, PageSize: 500 },
       });
       setEvents(result.Items ?? []);
@@ -127,7 +127,7 @@ export default function CalendarPage() {
   const eventsByDay = useMemo(() => {
     const map = new Map<number, CalendarEventDto[]>();
     for (const event of events) {
-      const parts = getPersianParts(new Date(event.StartAtUtc));
+      const parts = getPersianPartsFromUtcIso(event.StartAtUtc);
       if (parts.year !== viewYear || parts.month !== viewMonth) continue;
       const list = map.get(parts.day) ?? [];
       list.push(event);
@@ -139,10 +139,10 @@ export default function CalendarPage() {
   const selectedDateEvents = useMemo(() => {
     return events
       .filter((event) => {
-        const parts = getPersianParts(new Date(event.StartAtUtc));
+        const parts = getPersianPartsFromUtcIso(event.StartAtUtc);
         return parts.year === viewYear && parts.month === viewMonth && parts.day === selectedDay;
       })
-      .sort((a, b) => new Date(a.StartAtUtc).getTime() - new Date(b.StartAtUtc).getTime());
+      .sort((a, b) => parseApiUtcDate(a.StartAtUtc).getTime() - parseApiUtcDate(b.StartAtUtc).getTime());
   }, [events, selectedDay, viewMonth, viewYear]);
 
   const todayEvents = useMemo(() => {

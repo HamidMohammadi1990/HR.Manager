@@ -27,8 +27,53 @@ export const PERSIAN_MONTH_NAMES = [
 const DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 const TIME_PATTERN = /^(\d{1,2}):(\d{2})$/;
 
+/** Application timezone for HR date/time display and input */
+export const APP_TIMEZONE = 'Asia/Tehran';
+const TEHRAN_OFFSET = '+03:30';
+
 function pad2(value: number): string {
   return String(value).padStart(2, '0');
+}
+
+/** Parse API *Utc fields: always treat missing offset as UTC, not browser-local */
+export function parseApiUtcDate(iso?: string | null): Date {
+  if (!iso) return new Date(NaN);
+  const trimmed = iso.trim();
+  if (!trimmed) return new Date(NaN);
+
+  if (trimmed.endsWith('Z') || /[+-]\d{2}:\d{2}$/.test(trimmed)) {
+    return new Date(trimmed);
+  }
+
+  if (DATE_PATTERN.test(trimmed)) {
+    return new Date(`${trimmed}T00:00:00Z`);
+  }
+
+  return new Date(`${trimmed}Z`);
+}
+
+export function getPersianPartsFromUtcIso(iso: string): PersianDateParts {
+  const date = parseApiUtcDate(iso);
+  if (Number.isNaN(date.getTime())) {
+    return { year: 0, month: 1, day: 1 };
+  }
+
+  const formatter = new Intl.DateTimeFormat('en-u-ca-persian', {
+    timeZone: APP_TIMEZONE,
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+  });
+  const parts = formatter.formatToParts(date);
+  const year = Number(parts.find((part) => part.type === 'year')?.value);
+  const month = Number(parts.find((part) => part.type === 'month')?.value);
+  const day = Number(parts.find((part) => part.type === 'day')?.value);
+
+  if (Number.isFinite(year) && Number.isFinite(month) && Number.isFinite(day)) {
+    return { year, month, day };
+  }
+
+  return getPersianParts(date);
 }
 
 function dateToGregorianString(date: Date): string {
@@ -67,16 +112,26 @@ export function clampPersianDay(parts: PersianDateParts): PersianDateParts {
 
 export function isoToGregorianDateString(iso?: string | null): string {
   if (!iso) return '';
-  const date = new Date(iso);
+  const date = parseApiUtcDate(iso);
   if (Number.isNaN(date.getTime())) return '';
-  return dateToGregorianString(date);
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: APP_TIMEZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(date);
 }
 
 export function isoToTimeString(iso?: string | null): string {
   if (!iso) return '';
-  const date = new Date(iso);
+  const date = parseApiUtcDate(iso);
   if (Number.isNaN(date.getTime())) return '';
-  return `${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
+  return new Intl.DateTimeFormat('en-GB', {
+    timeZone: APP_TIMEZONE,
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(date);
 }
 
 export function parseTimeString(time: string): { hour: number; minute: number } | null {
@@ -98,17 +153,28 @@ export function combineGregorianDateAndTimeToIso(dateStr: string, timeStr: strin
   const time = parseTimeString(timeStr) ?? { hour: 0, minute: 0 };
   const match = DATE_PATTERN.exec(dateStr);
   if (!match) throw new Error('تاریخ نامعتبر است');
-  const date = new Date(
-    Number(match[1]),
-    Number(match[2]) - 1,
-    Number(match[3]),
-    time.hour,
-    time.minute,
-    0,
-    0,
-  );
+
+  const localIso =
+    `${match[1]}-${pad2(Number(match[2]))}-${pad2(Number(match[3]))}` +
+    `T${pad2(time.hour)}:${pad2(time.minute)}:00${TEHRAN_OFFSET}`;
+
+  const date = new Date(localIso);
   if (Number.isNaN(date.getTime())) throw new Error('تاریخ یا ساعت نامعتبر است');
   return date.toISOString();
+}
+
+export function persianMonthStartUtcIso(year: number, month: number): string {
+  return combineGregorianDateAndTimeToIso(
+    persianToGregorianDateString({ year, month, day: 1 }),
+    '00:00',
+  );
+}
+
+export function persianMonthEndUtcIso(year: number, month: number): string {
+  return combineGregorianDateAndTimeToIso(
+    persianToGregorianDateString({ year, month, day: persianMonthLength(year, month) }),
+    '23:59',
+  );
 }
 
 export function splitLocalDateTimeValue(value: string): { date: string; time: string } {
